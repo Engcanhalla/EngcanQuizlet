@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>영어 문장쓰기 테스트</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#0f172a 100%);min-height:100vh;padding:16px;display:flex;align-items:center;justify-content:center}
+.container{max-width:720px;width:100%;background:#fff;border-radius:24px;box-shadow:0 25px 80px rgba(0,0,0,.4);overflow:hidden;animation:slideUp .6s cubic-bezier(.16,1,.3,1)}
+@keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pop{0%{transform:scale(.85);opacity:0}60%{transform:scale(1.03)}100%{transform:scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@keyframes confetti{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(500px) rotate(720deg);opacity:0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes chipIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+.header{background:linear-gradient(135deg,#1e3a5f 0%,#2d5a87 50%,#1e3a5f 100%);padding:36px 28px;color:#fff;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.05) 0%,transparent 70%);animation:pulse 4s ease-in-out infinite}
+.header h1{font-size:1.5rem;font-weight:800;margin-bottom:4px;position:relative}
+.header p{opacity:.85;font-size:.88rem;position:relative}
+.content{padding:28px 24px}
+.progress-bar{height:7px;background:#e2e8f0;border-radius:4px;margin-bottom:24px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#2d5a87,#4a90d9);border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.question-counter{text-align:center;font-size:.85rem;color:#64748b;margin-bottom:8px;font-weight:500;letter-spacing:.5px}
+.round-badge{display:inline-block;background:#eff6ff;color:#2563eb;padding:5px 14px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px}
+.phase-badge{display:inline-block;padding:5px 14px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;margin-left:8px}
+.phase-badge.p1{background:#fef3c7;color:#b45309}
+.phase-badge.p2{background:#ede9fe;color:#6d28d9}
+.chunk-badge{display:inline-block;background:#ecfdf5;color:#065f46;padding:5px 14px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;margin-left:8px}
+.korean-sentence{text-align:center;font-size:1.3rem;font-weight:600;color:#1e293b;margin:20px 0;padding:20px;background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-radius:16px;border:2px solid #e2e8f0;line-height:1.6}
+.word-chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:16px 0;padding:18px;background:#f8fafc;border-radius:14px;border:1px solid #e2e8f0;min-height:60px}
+.word-chip{display:inline-block;padding:8px 16px;background:#fff;border:2px solid #cbd5e1;border-radius:10px;font-size:.95rem;font-weight:500;color:#334155;box-shadow:0 2px 4px rgba(0,0,0,.06);transition:all .2s;cursor:default}
+.word-chip.clickable{cursor:pointer}
+.word-chip.clickable:hover{border-color:#2d5a87;background:#eff6ff;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.1)}
+.word-chip.used{opacity:.35;transform:scale(.9);pointer-events:none;border-style:dashed}
+.answer-zone{min-height:56px;padding:14px 18px;background:#fff;border:2px dashed #cbd5e1;border-radius:14px;margin:12px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;transition:all .3s}
+.answer-zone.has-items{border-style:solid;border-color:#2d5a87;background:#f0f7ff}
+.answer-zone.correct{border-color:#059669;background:#ecfdf5;border-style:solid}
+.answer-zone.wrong{border-color:#dc2626;background:#fef2f2;border-style:solid}
+.answer-chip{display:inline-block;padding:7px 14px;background:#2d5a87;color:#fff;border-radius:8px;font-size:.9rem;font-weight:500;cursor:pointer;animation:chipIn .2s ease;transition:all .15s}
+.answer-chip:hover{background:#dc2626;transform:scale(.95)}
+.answer-chip.locked{cursor:default;pointer-events:none}
+.answer-chip.locked:hover{background:#2d5a87;transform:none}
+.answer-placeholder{color:#94a3b8;font-size:.88rem;font-style:italic}
+.input-area{margin-top:20px}
+.answer-input{width:100%;padding:16px 20px;border:2px solid #cbd5e1;border-radius:14px;font-size:1.05rem;font-family:inherit;outline:none;transition:all .3s;background:#fff}
+.answer-input:focus{border-color:#2d5a87;box-shadow:0 0 0 3px rgba(45,90,135,.15)}
+.answer-input.correct{border-color:#059669;background:#ecfdf5;box-shadow:0 0 0 3px rgba(5,150,105,.15)}
+.answer-input.wrong{border-color:#dc2626;background:#fef2f2;box-shadow:0 0 0 3px rgba(220,38,38,.15)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 28px;border:none;border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .25s;font-family:inherit}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:linear-gradient(135deg,#2d5a87,#4a90d9);color:#fff;box-shadow:0 4px 16px rgba(45,90,135,.35)}
+.btn-primary:hover{box-shadow:0 8px 24px rgba(45,90,135,.45)}
+.btn-secondary{background:#f1f5f9;color:#475569}
+.btn-secondary:hover{background:#e2e8f0}
+.btn-success{background:linear-gradient(135deg,#059669,#10b981);color:#fff}
+.btn-block{width:100%}
+.btn:disabled{opacity:.5;cursor:default;transform:none!important}
+.btn-clue{background:#fefce8;color:#92400e;border:2px solid #facc15;padding:10px 20px;font-size:.85rem;border-radius:10px}
+.btn-clue:hover{background:#fef08a;transform:translateY(-1px)}
+.btn-clue:disabled{opacity:.5;cursor:default;transform:none!important}
+.clue-display{text-align:center;margin-top:10px;padding:12px 18px;background:#fefce8;border:1px solid #fde68a;border-radius:12px;font-size:1rem;font-weight:600;color:#92400e;animation:pop .3s ease}
+.feedback{text-align:center;padding:18px;border-radius:14px;margin-top:18px;animation:pop .3s ease;font-weight:600;font-size:1rem}
+.feedback.correct{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+.feedback.wrong{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.feedback .correct-answer{font-weight:400;margin-top:10px;font-size:.88rem;line-height:1.6;word-break:break-word}
+.summary-card{background:#f8fafc;border-radius:16px;padding:24px;margin:16px 0;border:1px solid #e2e8f0}
+.summary-card h3{font-size:1.1rem;font-weight:700;margin-bottom:12px;color:#1e293b}
+.stat-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e2e8f0;font-size:.9rem}
+.stat-row:last-child{border-bottom:none}
+.stat-label{color:#64748b}
+.stat-value{font-weight:600;color:#1e293b}
+.stat-value.pass{color:#059669}
+.stat-value.fail{color:#dc2626}
+.wrong-list{margin-top:16px}
+.wrong-item{display:flex;flex-direction:column;padding:14px 16px;background:#fff;border-radius:12px;margin-bottom:8px;border:1px solid #fecaca;font-size:.85rem;gap:6px}
+.wrong-item .eng{font-weight:600;color:#059669;font-size:.9rem;line-height:1.5}
+.wrong-item .user-ans{color:#dc2626;text-decoration:line-through;font-size:.85rem}
+.wrong-item .kor{color:#64748b;font-size:.82rem}
+.celebration{text-align:center;padding:20px 0}
+.celebration .emoji{font-size:4rem;margin-bottom:16px;animation:pop .5s ease}
+.celebration h2{font-size:1.5rem;font-weight:800;color:#1e293b;margin-bottom:8px}
+.celebration p{color:#64748b;font-size:.95rem;line-height:1.6}
+.score-circle{width:130px;height:130px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:20px auto;font-size:2.2rem;font-weight:800;border:6px solid}
+.score-circle.pass{border-color:#059669;color:#059669;background:#ecfdf5}
+.score-circle.fail{border-color:#dc2626;color:#dc2626;background:#fef2f2}
+.start-info{text-align:center;padding:10px 0}
+.start-info .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0}
+.info-card{background:#f8fafc;border-radius:14px;padding:18px;text-align:center;border:1px solid #e2e8f0}
+.info-card .label{font-size:.8rem;color:#64748b;margin-bottom:4px}
+.info-card .value{font-size:1.1rem;font-weight:700;color:#1e293b}
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1000;overflow:hidden}
+.confetti-piece{position:absolute;width:10px;height:10px;top:-10px;animation:confetti 3s ease-in forwards}
+.buttons-row{display:flex;gap:12px;margin-top:20px;justify-content:center;flex-wrap:wrap}
+.chunk-nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:12px 0}
+.chunk-btn{padding:10px 16px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:500;transition:all .2s;color:#475569}
+.chunk-btn:hover{border-color:#2d5a87;background:#eff6ff}
+.chunk-btn.active{border-color:#2d5a87;background:#2d5a87;color:#fff}
+.chunk-btn.done{border-color:#059669;background:#ecfdf5;color:#065f46}
+.phase-card{padding:20px;border:2px solid #e2e8f0;border-radius:16px;cursor:pointer;transition:all .25s;text-align:left}
+.phase-card:hover{border-color:#2d5a87;transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.08)}
+.phase-card.selected{border-color:#2d5a87;background:#f0f7ff}
+.phase-card .pc-icon{font-size:2rem;margin-bottom:8px}
+.phase-card .pc-title{font-size:1.05rem;font-weight:700;color:#1e293b;margin-bottom:4px}
+.phase-card .pc-desc{font-size:.82rem;color:#64748b;line-height:1.5}
+.phase-card .pc-tag{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:12px;font-size:.72rem;font-weight:600}
+@media(max-width:480px){
+  .header h1{font-size:1.2rem}
+  .korean-sentence{font-size:1.1rem;padding:14px}
+  .word-chip{padding:6px 12px;font-size:.85rem}
+  .answer-chip{padding:5px 10px;font-size:.82rem}
+  .info-grid{grid-template-columns:1fr!important}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1 id="page-title"></h1>
+    <p id="page-subtitle"></p>
+  </div>
+  <div class="content" id="app"></div>
+</div>
+<script>
+/* Global error handler */
+window.onerror=function(m,u,l,c,e){
+  var app=document.getElementById('app');
+  if(app&&!app.dataset.init) app.innerHTML='<div style="padding:24px;text-align:center"><h2 style="color:#dc2626;font-size:1.1rem;margin-bottom:12px">⚠️ 로딩 오류</h2><p style="color:#64748b;font-size:.88rem;line-height:1.6;margin-bottom:16px">Chrome 또는 Safari 브라우저로 열어주세요.</p><div style="background:#f8fafc;border-radius:10px;padding:14px;font-size:.75rem;color:#94a3b8;text-align:left;word-break:break-all">'+m+'</div></div>';
+};
+/* Polyfill: Element.closest for older browsers */
+if(!Element.prototype.closest){Element.prototype.closest=function(s){var el=this;while(el){if(el.matches(s))return el;el=el.parentElement;}return null;};}
+if(!Element.prototype.matches){Element.prototype.matches=Element.prototype.msMatchesSelector||Element.prototype.webkitMatchesSelector||function(s){var m=document.querySelectorAll(s),i=m.length;while(--i>=0&&m[i]!==this){}return i>-1;};}
+
+/* Decode config from base64 (safe for all characters including Korean, backticks, etc.) */
+var CONFIG;
+try{
+  var _b64='eyJ0aXRsZSI6IuyYgeyWtCDrrLjsnqXsk7DquLAg7YWM7Iqk7Yq4IiwicGFzc1RocmVzaG9sZCI6ODAsInNlbnRlbmNlcyI6W3siZW5nbGlzaCI6IlRoZXJlIHdhcyBhIHZpbGxhZ2UgbmVhciB0aGUgTmlhZ2FyYSBSaXZlci4iLCJrb3JlYW4iOiLrgpjsnbTslYTqsIDrnbwg6rCVIOq3vOyymOyXkCDtlZwg66eI7J2E7J20IOyeiOyXiOuLpC4iLCJncm91cHMiOlsiVGhlcmUiLCJ3YXMiLCJhIHZpbGxhZ2UiLCJuZWFyIHRoZSBOaWFnYXJhIiwiUml2ZXIuIl0sInNodWZmbGVkR3JvdXBzIjpbIlRoZXJlIiwiUml2ZXIuIiwid2FzIiwibmVhciB0aGUgTmlhZ2FyYSIsImEgdmlsbGFnZSJdLCJyZWNvbnN0cnVjdGVkIjoiVGhlcmUgd2FzIGEgdmlsbGFnZSBuZWFyIHRoZSBOaWFnYXJhIFJpdmVyLiIsImNsdWVXb3JkIjoid2FzIn0seyJlbmdsaXNoIjoiTWFueSB2aWxsYWdlcnMgZGllZCBldmVyeSB5ZWFyLiIsImtvcmVhbiI6IuunjuydgCDrp4jsnYQg7IKs656M65Ok7J20IOunpOuFhCDso73sl4jri6QuIiwiZ3JvdXBzIjpbIk1hbnkiLCJ2aWxsYWdlcnMiLCJkaWVkIiwiZXZlcnkiLCJ5ZWFyLiJdLCJzaHVmZmxlZEdyb3VwcyI6WyJNYW55IiwieWVhci4iLCJ2aWxsYWdlcnMiLCJldmVyeSIsImRpZWQiXSwicmVjb25zdHJ1Y3RlZCI6Ik1hbnkgdmlsbGFnZXJzIGRpZWQgZXZlcnkgeWVhci4iLCJjbHVlV29yZCI6InZpbGxhZ2VycyJ9LHsiZW5nbGlzaCI6IlNvbWUgb2YgdGhlbSBiZWxpZXZlZCB0aGUgVGh1bmRlciBHb2Qgd2FzIGFuZ3J5LiIsImtvcmVhbiI6Iuq3uOuTpCDspJEg7J2867aA64qUIOyynOuRpeydmCDsi6DsnbQg7ZmU64Ks64uk6rOgIOuvv+yXiOuLpC4iLCJncm91cHMiOlsiU29tZSBvZiB0aGVtIiwiYmVsaWV2ZWQiLCJ0aGUgVGh1bmRlciBHb2QiLCJ3YXMiLCJhbmdyeS4iXSwic2h1ZmZsZWRHcm91cHMiOlsiU29tZSBvZiB0aGVtIiwiYW5ncnkuIiwiYmVsaWV2ZWQiLCJ3YXMiLCJ0aGUgVGh1bmRlciBHb2QiXSwicmVjb25zdHJ1Y3RlZCI6IlNvbWUgb2YgdGhlbSBiZWxpZXZlZCB0aGUgVGh1bmRlciBHb2Qgd2FzIGFuZ3J5LiIsImNsdWVXb3JkIjoiYmVsaWV2ZWQifSx7ImVuZ2xpc2giOiJFdmVyeSB5ZWFyLCB0aGV5IHNlbnQgYSBiZWF1dGlmdWwgd29tYW4gZG93biB0aGUgcml2ZXIgdG8gcGxlYXNlIHRoZSBHb2QuIiwia29yZWFuIjoi66ek64WELCDqt7jrk6TsnYAg7Iug7J2EIOq4sOyBmOqyjCDtlZjquLAg7JyE7ZW0IOyVhOumhOuLpOyatCDsl6zsnpDrpbwg6rCVIOyVhOuemOuhnCDrs7Trg4jri6QuIiwiZ3JvdXBzIjpbIkV2ZXJ5IHllYXIsIiwidGhleSIsInNlbnQiLCJhIGJlYXV0aWZ1bCB3b21hbiIsImRvd24iLCJ0aGUgcml2ZXIiLCJ0byBwbGVhc2UiLCJ0aGUgR29kLiJdLCJzaHVmZmxlZEdyb3VwcyI6WyJFdmVyeSB5ZWFyLCIsInRoZSBHb2QuIiwidGhleSIsInRvIHBsZWFzZSIsInNlbnQiLCJ0aGUgcml2ZXIiLCJhIGJlYXV0aWZ1bCB3b21hbiIsImRvd24iXSwicmVjb25zdHJ1Y3RlZCI6IkV2ZXJ5IHllYXIsIHRoZXkgc2VudCBhIGJlYXV0aWZ1bCB3b21hbiBkb3duIHRoZSByaXZlciB0byBwbGVhc2UgdGhlIEdvZC4iLCJjbHVlV29yZCI6InRoZXkifSx7ImVuZ2xpc2giOiJBZnRlciBzZXZlcmFsIHllYXJzLCB0aGV5IHNlbnQgdGhlIHZpbGxhZ2UgY2hpZWYncyBkYXVnaHRlci4iLCJrb3JlYW4iOiLrqocg64WEIO2bhCwg6re465Ok7J2AIOuniOydhCDsobHsnqXsnZgg65S47J2EIOuztOuDiOuLpC4iLCJncm91cHMiOlsiQWZ0ZXIgc2V2ZXJhbCB5ZWFycywiLCJ0aGV5Iiwic2VudCIsInRoZSB2aWxsYWdlIiwiY2hpZWYncyBkYXVnaHRlci4iXSwic2h1ZmZsZWRHcm91cHMiOlsiQWZ0ZXIgc2V2ZXJhbCB5ZWFycywiLCJjaGllZidzIGRhdWdodGVyLiIsInRoZXkiLCJ0aGUgdmlsbGFnZSIsInNlbnQiXSwicmVjb25zdHJ1Y3RlZCI6IkFmdGVyIHNldmVyYWwgeWVhcnMsIHRoZXkgc2VudCB0aGUgdmlsbGFnZSBjaGllZidzIGRhdWdodGVyLiIsImNsdWVXb3JkIjoidGhleSJ9LHsiZW5nbGlzaCI6IlNoZSBmZWxsIGludG8gdGhlIGZhbGxzIGF0IHRoZSBlbmQgb2YgdGhlIHJpdmVyLiIsImtvcmVhbiI6Iuq3uOuFgOuKlCDqsJUg64Gd7JeQIOyeiOuKlCDtj63tj6zroZwg65ao7Ja07KGM64ukLiIsImdyb3VwcyI6WyJTaGUiLCJmZWxsIGludG8iLCJ0aGUgZmFsbHMiLCJhdCB0aGUgZW5kIiwib2YiLCJ0aGUgcml2ZXIuIl0sInNodWZmbGVkR3JvdXBzIjpbIlNoZSIsInRoZSByaXZlci4iLCJmZWxsIGludG8iLCJvZiIsInRoZSBmYWxscyIsImF0IHRoZSBlbmQiXSwicmVjb25zdHJ1Y3RlZCI6IlNoZSBmZWxsIGludG8gdGhlIGZhbGxzIGF0IHRoZSBlbmQgb2YgdGhlIHJpdmVyLiIsImNsdWVXb3JkIjoiZmVsbCBpbnRvIn0seyJlbmdsaXNoIjoiU2hlIG1ldCB0aGUgc29ucyBvZiB0aGUgVGh1bmRlciBHb2QuIiwia29yZWFuIjoi6re464WA64qUIOyynOuRpeydmCDsi6DsnZgg7JWE65Ok65Ok7J2EIOunjOuCrOuLpC4iLCJncm91cHMiOlsiU2hlIiwibWV0IiwidGhlIHNvbnMgb2YiLCJ0aGUgVGh1bmRlciIsIkdvZC4iXSwic2h1ZmZsZWRHcm91cHMiOlsiU2hlIiwiR29kLiIsIm1ldCIsInRoZSBUaHVuZGVyIiwidGhlIHNvbnMgb2YiXSwicmVjb25zdHJ1Y3RlZCI6IlNoZSBtZXQgdGhlIHNvbnMgb2YgdGhlIFRodW5kZXIgR29kLiIsImNsdWVXb3JkIjoibWV0In0seyJlbmdsaXNoIjoiV2h5IGFyZSBteSBwZW9wbGUgZHlpbmc/Iiwia29yZWFuIjoi7JmcIOyasOumrCDsgqzrnozrk6TsnbQg7KO96rOgIOyeiOuCmOyalD8iLCJncm91cHMiOlsiV2h5IiwiYXJlIiwibXkiLCJwZW9wbGUiLCJkeWluZz8iXSwic2h1ZmZsZWRHcm91cHMiOlsiV2h5IiwiZHlpbmc/IiwiYXJlIiwicGVvcGxlIiwibXkiXSwicmVjb25zdHJ1Y3RlZCI6IldoeSBhcmUgbXkgcGVvcGxlIGR5aW5nPyIsImNsdWVXb3JkIjoiYXJlIn0seyJlbmdsaXNoIjoiQSBnaWFudCBzbmFrZSBwb2lzb25zIHRoZSByaXZlciBldmVyeSB5ZWFyLiIsImtvcmVhbiI6IuqxsOuMgO2VnCDrsYDsnbQg66ek64WEIOqwleydhCDsmKTsl7zsi5ztgqjri6QuIiwiZ3JvdXBzIjpbIkEgZ2lhbnQgc25ha2UiLCJwb2lzb25zIiwidGhlIHJpdmVyIiwiZXZlcnkgeWVhci4iXSwic2h1ZmZsZWRHcm91cHMiOlsiQSBnaWFudCBzbmFrZSIsImV2ZXJ5IHllYXIuIiwicG9pc29ucyIsInRoZSByaXZlciJdLCJyZWNvbnN0cnVjdGVkIjoiQSBnaWFudCBzbmFrZSBwb2lzb25zIHRoZSByaXZlciBldmVyeSB5ZWFyLiIsImNsdWVXb3JkIjoicG9pc29ucyJ9LHsiZW5nbGlzaCI6IlRoZSBkYXVnaHRlciBmb3VuZCBvdXQgYWJvdXQgdGhlIHBvaXNvbm91cyByaXZlci4iLCJrb3JlYW4iOiLqt7gg65S47J2AIOuPheydtCDsnojripQg6rCV7JeQIOuMgO2VtCDslYzslYTrg4jri6QuIiwiZ3JvdXBzIjpbIlRoZSBkYXVnaHRlciIsImZvdW5kIG91dCIsImFib3V0IiwidGhlIHBvaXNvbm91cyIsInJpdmVyLiJdLCJzaHVmZmxlZEdyb3VwcyI6WyJUaGUgZGF1Z2h0ZXIiLCJyaXZlci4iLCJmb3VuZCBvdXQiLCJ0aGUgcG9pc29ub3VzIiwiYWJvdXQiXSwicmVjb25zdHJ1Y3RlZCI6IlRoZSBkYXVnaHRlciBmb3VuZCBvdXQgYWJvdXQgdGhlIHBvaXNvbm91cyByaXZlci4iLCJjbHVlV29yZCI6ImZvdW5kIG91dCJ9LHsiZW5nbGlzaCI6IlNoZSBhcHBlYXJlZCBhcyBhIHNwaXJpdCB0byB0aGUgdmlsbGFnZXJzLiIsImtvcmVhbiI6Iuq3uOuFgOuKlCDrp4jsnYQg7IKs656M65Ok7JeQ6rKMIOyYge2YvOycvOuhnCDrgpjtg4Drgqzri6QuIiwiZ3JvdXBzIjpbIlNoZSIsImFwcGVhcmVkIGFzIiwiYSBzcGlyaXQiLCJ0byIsInRoZSB2aWxsYWdlcnMuIl0sInNodWZmbGVkR3JvdXBzIjpbIlNoZSIsInRoZSB2aWxsYWdlcnMuIiwiYXBwZWFyZWQgYXMiLCJ0byIsImEgc3Bpcml0Il0sInJlY29uc3RydWN0ZWQiOiJTaGUgYXBwZWFyZWQgYXMgYSBzcGlyaXQgdG8gdGhlIHZpbGxhZ2Vycy4iLCJjbHVlV29yZCI6ImFwcGVhcmVkIGFzIn0seyJlbmdsaXNoIjoiU2hlIHdhcm5lZCB0aGVtIGFib3V0IHRoZSBzbmFrZS4iLCJrb3JlYW4iOiLqt7jrhYDripQg6re465Ok7JeQ6rKMIOuxgOyXkCDrjIDtlbQg6rK96rOg7ZaI64ukLiIsImdyb3VwcyI6WyJTaGUiLCJ3YXJuZWQiLCJ0aGVtIiwiYWJvdXQiLCJ0aGUgc25ha2UuIl0sInNodWZmbGVkR3JvdXBzIjpbIlNoZSIsInRoZSBzbmFrZS4iLCJ3YXJuZWQiLCJhYm91dCIsInRoZW0iXSwicmVjb25zdHJ1Y3RlZCI6IlNoZSB3YXJuZWQgdGhlbSBhYm91dCB0aGUgc25ha2UuIiwiY2x1ZVdvcmQiOiJ3YXJuZWQifSx7ImVuZ2xpc2giOiJUaGV5IG5ldmVyIHNlbnQgd29tZW4gZG93biB0aGUgcml2ZXIgYWdhaW4uIiwia29yZWFuIjoi6re465Ok7J2AIOuLpOyLnOuKlCDsl6zsnpDrk6TsnYQg6rCVIOyVhOuemOuhnCDrs7TrgrTsp4Ag7JWK7JWY64ukLiIsImdyb3VwcyI6WyJUaGV5IiwibmV2ZXIiLCJzZW50Iiwid29tZW4iLCJkb3duIHRoZSByaXZlciBhZ2Fpbi4iXSwic2h1ZmZsZWRHcm91cHMiOlsiVGhleSIsImRvd24gdGhlIHJpdmVyIGFnYWluLiIsIm5ldmVyIiwid29tZW4iLCJzZW50Il0sInJlY29uc3RydWN0ZWQiOiJUaGV5IG5ldmVyIHNlbnQgd29tZW4gZG93biB0aGUgcml2ZXIgYWdhaW4uIiwiY2x1ZVdvcmQiOiJuZXZlciJ9XX0=';
+  var _raw=atob(_b64);
+  var _bytes=new Uint8Array(_raw.length);
+  for(var _i=0;_i<_raw.length;_i++) _bytes[_i]=_raw.charCodeAt(_i);
+  CONFIG=JSON.parse(new TextDecoder().decode(_bytes));
+}catch(_e1){
+  try{ CONFIG=JSON.parse(decodeURIComponent(escape(atob('eyJ0aXRsZSI6IuyYgeyWtCDrrLjsnqXsk7DquLAg7YWM7Iqk7Yq4IiwicGFzc1RocmVzaG9sZCI6ODAsInNlbnRlbmNlcyI6W3siZW5nbGlzaCI6IlRoZXJlIHdhcyBhIHZpbGxhZ2UgbmVhciB0aGUgTmlhZ2FyYSBSaXZlci4iLCJrb3JlYW4iOiLrgpjsnbTslYTqsIDrnbwg6rCVIOq3vOyymOyXkCDtlZwg66eI7J2E7J20IOyeiOyXiOuLpC4iLCJncm91cHMiOlsiVGhlcmUiLCJ3YXMiLCJhIHZpbGxhZ2UiLCJuZWFyIHRoZSBOaWFnYXJhIiwiUml2ZXIuIl0sInNodWZmbGVkR3JvdXBzIjpbIlRoZXJlIiwiUml2ZXIuIiwid2FzIiwibmVhciB0aGUgTmlhZ2FyYSIsImEgdmlsbGFnZSJdLCJyZWNvbnN0cnVjdGVkIjoiVGhlcmUgd2FzIGEgdmlsbGFnZSBuZWFyIHRoZSBOaWFnYXJhIFJpdmVyLiIsImNsdWVXb3JkIjoid2FzIn0seyJlbmdsaXNoIjoiTWFueSB2aWxsYWdlcnMgZGllZCBldmVyeSB5ZWFyLiIsImtvcmVhbiI6IuunjuydgCDrp4jsnYQg7IKs656M65Ok7J20IOunpOuFhCDso73sl4jri6QuIiwiZ3JvdXBzIjpbIk1hbnkiLCJ2aWxsYWdlcnMiLCJkaWVkIiwiZXZlcnkiLCJ5ZWFyLiJdLCJzaHVmZmxlZEdyb3VwcyI6WyJNYW55IiwieWVhci4iLCJ2aWxsYWdlcnMiLCJldmVyeSIsImRpZWQiXSwicmVjb25zdHJ1Y3RlZCI6Ik1hbnkgdmlsbGFnZXJzIGRpZWQgZXZlcnkgeWVhci4iLCJjbHVlV29yZCI6InZpbGxhZ2VycyJ9LHsiZW5nbGlzaCI6IlNvbWUgb2YgdGhlbSBiZWxpZXZlZCB0aGUgVGh1bmRlciBHb2Qgd2FzIGFuZ3J5LiIsImtvcmVhbiI6Iuq3uOuTpCDspJEg7J2867aA64qUIOyynOuRpeydmCDsi6DsnbQg7ZmU64Ks64uk6rOgIOuvv+yXiOuLpC4iLCJncm91cHMiOlsiU29tZSBvZiB0aGVtIiwiYmVsaWV2ZWQiLCJ0aGUgVGh1bmRlciBHb2QiLCJ3YXMiLCJhbmdyeS4iXSwic2h1ZmZsZWRHcm91cHMiOlsiU29tZSBvZiB0aGVtIiwiYW5ncnkuIiwiYmVsaWV2ZWQiLCJ3YXMiLCJ0aGUgVGh1bmRlciBHb2QiXSwicmVjb25zdHJ1Y3RlZCI6IlNvbWUgb2YgdGhlbSBiZWxpZXZlZCB0aGUgVGh1bmRlciBHb2Qgd2FzIGFuZ3J5LiIsImNsdWVXb3JkIjoiYmVsaWV2ZWQifSx7ImVuZ2xpc2giOiJFdmVyeSB5ZWFyLCB0aGV5IHNlbnQgYSBiZWF1dGlmdWwgd29tYW4gZG93biB0aGUgcml2ZXIgdG8gcGxlYXNlIHRoZSBHb2QuIiwia29yZWFuIjoi66ek64WELCDqt7jrk6TsnYAg7Iug7J2EIOq4sOyBmOqyjCDtlZjquLAg7JyE7ZW0IOyVhOumhOuLpOyatCDsl6zsnpDrpbwg6rCVIOyVhOuemOuhnCDrs7Trg4jri6QuIiwiZ3JvdXBzIjpbIkV2ZXJ5IHllYXIsIiwidGhleSIsInNlbnQiLCJhIGJlYXV0aWZ1bCB3b21hbiIsImRvd24iLCJ0aGUgcml2ZXIiLCJ0byBwbGVhc2UiLCJ0aGUgR29kLiJdLCJzaHVmZmxlZEdyb3VwcyI6WyJFdmVyeSB5ZWFyLCIsInRoZSBHb2QuIiwidGhleSIsInRvIHBsZWFzZSIsInNlbnQiLCJ0aGUgcml2ZXIiLCJhIGJlYXV0aWZ1bCB3b21hbiIsImRvd24iXSwicmVjb25zdHJ1Y3RlZCI6IkV2ZXJ5IHllYXIsIHRoZXkgc2VudCBhIGJlYXV0aWZ1bCB3b21hbiBkb3duIHRoZSByaXZlciB0byBwbGVhc2UgdGhlIEdvZC4iLCJjbHVlV29yZCI6InRoZXkifSx7ImVuZ2xpc2giOiJBZnRlciBzZXZlcmFsIHllYXJzLCB0aGV5IHNlbnQgdGhlIHZpbGxhZ2UgY2hpZWYncyBkYXVnaHRlci4iLCJrb3JlYW4iOiLrqocg64WEIO2bhCwg6re465Ok7J2AIOuniOydhCDsobHsnqXsnZgg65S47J2EIOuztOuDiOuLpC4iLCJncm91cHMiOlsiQWZ0ZXIgc2V2ZXJhbCB5ZWFycywiLCJ0aGV5Iiwic2VudCIsInRoZSB2aWxsYWdlIiwiY2hpZWYncyBkYXVnaHRlci4iXSwic2h1ZmZsZWRHcm91cHMiOlsiQWZ0ZXIgc2V2ZXJhbCB5ZWFycywiLCJjaGllZidzIGRhdWdodGVyLiIsInRoZXkiLCJ0aGUgdmlsbGFnZSIsInNlbnQiXSwicmVjb25zdHJ1Y3RlZCI6IkFmdGVyIHNldmVyYWwgeWVhcnMsIHRoZXkgc2VudCB0aGUgdmlsbGFnZSBjaGllZidzIGRhdWdodGVyLiIsImNsdWVXb3JkIjoidGhleSJ9LHsiZW5nbGlzaCI6IlNoZSBmZWxsIGludG8gdGhlIGZhbGxzIGF0IHRoZSBlbmQgb2YgdGhlIHJpdmVyLiIsImtvcmVhbiI6Iuq3uOuFgOuKlCDqsJUg64Gd7JeQIOyeiOuKlCDtj63tj6zroZwg65ao7Ja07KGM64ukLiIsImdyb3VwcyI6WyJTaGUiLCJmZWxsIGludG8iLCJ0aGUgZmFsbHMiLCJhdCB0aGUgZW5kIiwib2YiLCJ0aGUgcml2ZXIuIl0sInNodWZmbGVkR3JvdXBzIjpbIlNoZSIsInRoZSByaXZlci4iLCJmZWxsIGludG8iLCJvZiIsInRoZSBmYWxscyIsImF0IHRoZSBlbmQiXSwicmVjb25zdHJ1Y3RlZCI6IlNoZSBmZWxsIGludG8gdGhlIGZhbGxzIGF0IHRoZSBlbmQgb2YgdGhlIHJpdmVyLiIsImNsdWVXb3JkIjoiZmVsbCBpbnRvIn0seyJlbmdsaXNoIjoiU2hlIG1ldCB0aGUgc29ucyBvZiB0aGUgVGh1bmRlciBHb2QuIiwia29yZWFuIjoi6re464WA64qUIOyynOuRpeydmCDsi6DsnZgg7JWE65Ok65Ok7J2EIOunjOuCrOuLpC4iLCJncm91cHMiOlsiU2hlIiwibWV0IiwidGhlIHNvbnMgb2YiLCJ0aGUgVGh1bmRlciIsIkdvZC4iXSwic2h1ZmZsZWRHcm91cHMiOlsiU2hlIiwiR29kLiIsIm1ldCIsInRoZSBUaHVuZGVyIiwidGhlIHNvbnMgb2YiXSwicmVjb25zdHJ1Y3RlZCI6IlNoZSBtZXQgdGhlIHNvbnMgb2YgdGhlIFRodW5kZXIgR29kLiIsImNsdWVXb3JkIjoibWV0In0seyJlbmdsaXNoIjoiV2h5IGFyZSBteSBwZW9wbGUgZHlpbmc/Iiwia29yZWFuIjoi7JmcIOyasOumrCDsgqzrnozrk6TsnbQg7KO96rOgIOyeiOuCmOyalD8iLCJncm91cHMiOlsiV2h5IiwiYXJlIiwibXkiLCJwZW9wbGUiLCJkeWluZz8iXSwic2h1ZmZsZWRHcm91cHMiOlsiV2h5IiwiZHlpbmc/IiwiYXJlIiwicGVvcGxlIiwibXkiXSwicmVjb25zdHJ1Y3RlZCI6IldoeSBhcmUgbXkgcGVvcGxlIGR5aW5nPyIsImNsdWVXb3JkIjoiYXJlIn0seyJlbmdsaXNoIjoiQSBnaWFudCBzbmFrZSBwb2lzb25zIHRoZSByaXZlciBldmVyeSB5ZWFyLiIsImtvcmVhbiI6IuqxsOuMgO2VnCDrsYDsnbQg66ek64WEIOqwleydhCDsmKTsl7zsi5ztgqjri6QuIiwiZ3JvdXBzIjpbIkEgZ2lhbnQgc25ha2UiLCJwb2lzb25zIiwidGhlIHJpdmVyIiwiZXZlcnkgeWVhci4iXSwic2h1ZmZsZWRHcm91cHMiOlsiQSBnaWFudCBzbmFrZSIsImV2ZXJ5IHllYXIuIiwicG9pc29ucyIsInRoZSByaXZlciJdLCJyZWNvbnN0cnVjdGVkIjoiQSBnaWFudCBzbmFrZSBwb2lzb25zIHRoZSByaXZlciBldmVyeSB5ZWFyLiIsImNsdWVXb3JkIjoicG9pc29ucyJ9LHsiZW5nbGlzaCI6IlRoZSBkYXVnaHRlciBmb3VuZCBvdXQgYWJvdXQgdGhlIHBvaXNvbm91cyByaXZlci4iLCJrb3JlYW4iOiLqt7gg65S47J2AIOuPheydtCDsnojripQg6rCV7JeQIOuMgO2VtCDslYzslYTrg4jri6QuIiwiZ3JvdXBzIjpbIlRoZSBkYXVnaHRlciIsImZvdW5kIG91dCIsImFib3V0IiwidGhlIHBvaXNvbm91cyIsInJpdmVyLiJdLCJzaHVmZmxlZEdyb3VwcyI6WyJUaGUgZGF1Z2h0ZXIiLCJyaXZlci4iLCJmb3VuZCBvdXQiLCJ0aGUgcG9pc29ub3VzIiwiYWJvdXQiXSwicmVjb25zdHJ1Y3RlZCI6IlRoZSBkYXVnaHRlciBmb3VuZCBvdXQgYWJvdXQgdGhlIHBvaXNvbm91cyByaXZlci4iLCJjbHVlV29yZCI6ImZvdW5kIG91dCJ9LHsiZW5nbGlzaCI6IlNoZSBhcHBlYXJlZCBhcyBhIHNwaXJpdCB0byB0aGUgdmlsbGFnZXJzLiIsImtvcmVhbiI6Iuq3uOuFgOuKlCDrp4jsnYQg7IKs656M65Ok7JeQ6rKMIOyYge2YvOycvOuhnCDrgpjtg4Drgqzri6QuIiwiZ3JvdXBzIjpbIlNoZSIsImFwcGVhcmVkIGFzIiwiYSBzcGlyaXQiLCJ0byIsInRoZSB2aWxsYWdlcnMuIl0sInNodWZmbGVkR3JvdXBzIjpbIlNoZSIsInRoZSB2aWxsYWdlcnMuIiwiYXBwZWFyZWQgYXMiLCJ0byIsImEgc3Bpcml0Il0sInJlY29uc3RydWN0ZWQiOiJTaGUgYXBwZWFyZWQgYXMgYSBzcGlyaXQgdG8gdGhlIHZpbGxhZ2Vycy4iLCJjbHVlV29yZCI6ImFwcGVhcmVkIGFzIn0seyJlbmdsaXNoIjoiU2hlIHdhcm5lZCB0aGVtIGFib3V0IHRoZSBzbmFrZS4iLCJrb3JlYW4iOiLqt7jrhYDripQg6re465Ok7JeQ6rKMIOuxgOyXkCDrjIDtlbQg6rK96rOg7ZaI64ukLiIsImdyb3VwcyI6WyJTaGUiLCJ3YXJuZWQiLCJ0aGVtIiwiYWJvdXQiLCJ0aGUgc25ha2UuIl0sInNodWZmbGVkR3JvdXBzIjpbIlNoZSIsInRoZSBzbmFrZS4iLCJ3YXJuZWQiLCJhYm91dCIsInRoZW0iXSwicmVjb25zdHJ1Y3RlZCI6IlNoZSB3YXJuZWQgdGhlbSBhYm91dCB0aGUgc25ha2UuIiwiY2x1ZVdvcmQiOiJ3YXJuZWQifSx7ImVuZ2xpc2giOiJUaGV5IG5ldmVyIHNlbnQgd29tZW4gZG93biB0aGUgcml2ZXIgYWdhaW4uIiwia29yZWFuIjoi6re465Ok7J2AIOuLpOyLnOuKlCDsl6zsnpDrk6TsnYQg6rCVIOyVhOuemOuhnCDrs7TrgrTsp4Ag7JWK7JWY64ukLiIsImdyb3VwcyI6WyJUaGV5IiwibmV2ZXIiLCJzZW50Iiwid29tZW4iLCJkb3duIHRoZSByaXZlciBhZ2Fpbi4iXSwic2h1ZmZsZWRHcm91cHMiOlsiVGhleSIsImRvd24gdGhlIHJpdmVyIGFnYWluLiIsIm5ldmVyIiwid29tZW4iLCJzZW50Il0sInJlY29uc3RydWN0ZWQiOiJUaGV5IG5ldmVyIHNlbnQgd29tZW4gZG93biB0aGUgcml2ZXIgYWdhaW4uIiwiY2x1ZVdvcmQiOiJuZXZlciJ9XX0=')))); }
+  catch(_e2){ CONFIG=JSON.parse(atob('eyJ0aXRsZSI6IuyYgeyWtCDrrLjsnqXsk7DquLAg7YWM7Iqk7Yq4IiwicGFzc1RocmVzaG9sZCI6ODAsInNlbnRlbmNlcyI6W3siZW5nbGlzaCI6IlRoZXJlIHdhcyBhIHZpbGxhZ2UgbmVhciB0aGUgTmlhZ2FyYSBSaXZlci4iLCJrb3JlYW4iOiLrgpjsnbTslYTqsIDrnbwg6rCVIOq3vOyymOyXkCDtlZwg66eI7J2E7J20IOyeiOyXiOuLpC4iLCJncm91cHMiOlsiVGhlcmUiLCJ3YXMiLCJhIHZpbGxhZ2UiLCJuZWFyIHRoZSBOaWFnYXJhIiwiUml2ZXIuIl0sInNodWZmbGVkR3JvdXBzIjpbIlRoZXJlIiwiUml2ZXIuIiwid2FzIiwibmVhciB0aGUgTmlhZ2FyYSIsImEgdmlsbGFnZSJdLCJyZWNvbnN0cnVjdGVkIjoiVGhlcmUgd2FzIGEgdmlsbGFnZSBuZWFyIHRoZSBOaWFnYXJhIFJpdmVyLiIsImNsdWVXb3JkIjoid2FzIn0seyJlbmdsaXNoIjoiTWFueSB2aWxsYWdlcnMgZGllZCBldmVyeSB5ZWFyLiIsImtvcmVhbiI6IuunjuydgCDrp4jsnYQg7IKs656M65Ok7J20IOunpOuFhCDso73sl4jri6QuIiwiZ3JvdXBzIjpbIk1hbnkiLCJ2aWxsYWdlcnMiLCJkaWVkIiwiZXZlcnkiLCJ5ZWFyLiJdLCJzaHVmZmxlZEdyb3VwcyI6WyJNYW55IiwieWVhci4iLCJ2aWxsYWdlcnMiLCJldmVyeSIsImRpZWQiXSwicmVjb25zdHJ1Y3RlZCI6Ik1hbnkgdmlsbGFnZXJzIGRpZWQgZXZlcnkgeWVhci4iLCJjbHVlV29yZCI6InZpbGxhZ2VycyJ9LHsiZW5nbGlzaCI6IlNvbWUgb2YgdGhlbSBiZWxpZXZlZCB0aGUgVGh1bmRlciBHb2Qgd2FzIGFuZ3J5LiIsImtvcmVhbiI6Iuq3uOuTpCDspJEg7J2867aA64qUIOyynOuRpeydmCDsi6DsnbQg7ZmU64Ks64uk6rOgIOuvv+yXiOuLpC4iLCJncm91cHMiOlsiU29tZSBvZiB0aGVtIiwiYmVsaWV2ZWQiLCJ0aGUgVGh1bmRlciBHb2QiLCJ3YXMiLCJhbmdyeS4iXSwic2h1ZmZsZWRHcm91cHMiOlsiU29tZSBvZiB0aGVtIiwiYW5ncnkuIiwiYmVsaWV2ZWQiLCJ3YXMiLCJ0aGUgVGh1bmRlciBHb2QiXSwicmVjb25zdHJ1Y3RlZCI6IlNvbWUgb2YgdGhlbSBiZWxpZXZlZCB0aGUgVGh1bmRlciBHb2Qgd2FzIGFuZ3J5LiIsImNsdWVXb3JkIjoiYmVsaWV2ZWQifSx7ImVuZ2xpc2giOiJFdmVyeSB5ZWFyLCB0aGV5IHNlbnQgYSBiZWF1dGlmdWwgd29tYW4gZG93biB0aGUgcml2ZXIgdG8gcGxlYXNlIHRoZSBHb2QuIiwia29yZWFuIjoi66ek64WELCDqt7jrk6TsnYAg7Iug7J2EIOq4sOyBmOqyjCDtlZjquLAg7JyE7ZW0IOyVhOumhOuLpOyatCDsl6zsnpDrpbwg6rCVIOyVhOuemOuhnCDrs7Trg4jri6QuIiwiZ3JvdXBzIjpbIkV2ZXJ5IHllYXIsIiwidGhleSIsInNlbnQiLCJhIGJlYXV0aWZ1bCB3b21hbiIsImRvd24iLCJ0aGUgcml2ZXIiLCJ0byBwbGVhc2UiLCJ0aGUgR29kLiJdLCJzaHVmZmxlZEdyb3VwcyI6WyJFdmVyeSB5ZWFyLCIsInRoZSBHb2QuIiwidGhleSIsInRvIHBsZWFzZSIsInNlbnQiLCJ0aGUgcml2ZXIiLCJhIGJlYXV0aWZ1bCB3b21hbiIsImRvd24iXSwicmVjb25zdHJ1Y3RlZCI6IkV2ZXJ5IHllYXIsIHRoZXkgc2VudCBhIGJlYXV0aWZ1bCB3b21hbiBkb3duIHRoZSByaXZlciB0byBwbGVhc2UgdGhlIEdvZC4iLCJjbHVlV29yZCI6InRoZXkifSx7ImVuZ2xpc2giOiJBZnRlciBzZXZlcmFsIHllYXJzLCB0aGV5IHNlbnQgdGhlIHZpbGxhZ2UgY2hpZWYncyBkYXVnaHRlci4iLCJrb3JlYW4iOiLrqocg64WEIO2bhCwg6re465Ok7J2AIOuniOydhCDsobHsnqXsnZgg65S47J2EIOuztOuDiOuLpC4iLCJncm91cHMiOlsiQWZ0ZXIgc2V2ZXJhbCB5ZWFycywiLCJ0aGV5Iiwic2VudCIsInRoZSB2aWxsYWdlIiwiY2hpZWYncyBkYXVnaHRlci4iXSwic2h1ZmZsZWRHcm91cHMiOlsiQWZ0ZXIgc2V2ZXJhbCB5ZWFycywiLCJjaGllZidzIGRhdWdodGVyLiIsInRoZXkiLCJ0aGUgdmlsbGFnZSIsInNlbnQiXSwicmVjb25zdHJ1Y3RlZCI6IkFmdGVyIHNldmVyYWwgeWVhcnMsIHRoZXkgc2VudCB0aGUgdmlsbGFnZSBjaGllZidzIGRhdWdodGVyLiIsImNsdWVXb3JkIjoidGhleSJ9LHsiZW5nbGlzaCI6IlNoZSBmZWxsIGludG8gdGhlIGZhbGxzIGF0IHRoZSBlbmQgb2YgdGhlIHJpdmVyLiIsImtvcmVhbiI6Iuq3uOuFgOuKlCDqsJUg64Gd7JeQIOyeiOuKlCDtj63tj6zroZwg65ao7Ja07KGM64ukLiIsImdyb3VwcyI6WyJTaGUiLCJmZWxsIGludG8iLCJ0aGUgZmFsbHMiLCJhdCB0aGUgZW5kIiwib2YiLCJ0aGUgcml2ZXIuIl0sInNodWZmbGVkR3JvdXBzIjpbIlNoZSIsInRoZSByaXZlci4iLCJmZWxsIGludG8iLCJvZiIsInRoZSBmYWxscyIsImF0IHRoZSBlbmQiXSwicmVjb25zdHJ1Y3RlZCI6IlNoZSBmZWxsIGludG8gdGhlIGZhbGxzIGF0IHRoZSBlbmQgb2YgdGhlIHJpdmVyLiIsImNsdWVXb3JkIjoiZmVsbCBpbnRvIn0seyJlbmdsaXNoIjoiU2hlIG1ldCB0aGUgc29ucyBvZiB0aGUgVGh1bmRlciBHb2QuIiwia29yZWFuIjoi6re464WA64qUIOyynOuRpeydmCDsi6DsnZgg7JWE65Ok65Ok7J2EIOunjOuCrOuLpC4iLCJncm91cHMiOlsiU2hlIiwibWV0IiwidGhlIHNvbnMgb2YiLCJ0aGUgVGh1bmRlciIsIkdvZC4iXSwic2h1ZmZsZWRHcm91cHMiOlsiU2hlIiwiR29kLiIsIm1ldCIsInRoZSBUaHVuZGVyIiwidGhlIHNvbnMgb2YiXSwicmVjb25zdHJ1Y3RlZCI6IlNoZSBtZXQgdGhlIHNvbnMgb2YgdGhlIFRodW5kZXIgR29kLiIsImNsdWVXb3JkIjoibWV0In0seyJlbmdsaXNoIjoiV2h5IGFyZSBteSBwZW9wbGUgZHlpbmc/Iiwia29yZWFuIjoi7JmcIOyasOumrCDsgqzrnozrk6TsnbQg7KO96rOgIOyeiOuCmOyalD8iLCJncm91cHMiOlsiV2h5IiwiYXJlIiwibXkiLCJwZW9wbGUiLCJkeWluZz8iXSwic2h1ZmZsZWRHcm91cHMiOlsiV2h5IiwiZHlpbmc/IiwiYXJlIiwicGVvcGxlIiwibXkiXSwicmVjb25zdHJ1Y3RlZCI6IldoeSBhcmUgbXkgcGVvcGxlIGR5aW5nPyIsImNsdWVXb3JkIjoiYXJlIn0seyJlbmdsaXNoIjoiQSBnaWFudCBzbmFrZSBwb2lzb25zIHRoZSByaXZlciBldmVyeSB5ZWFyLiIsImtvcmVhbiI6IuqxsOuMgO2VnCDrsYDsnbQg66ek64WEIOqwleydhCDsmKTsl7zsi5ztgqjri6QuIiwiZ3JvdXBzIjpbIkEgZ2lhbnQgc25ha2UiLCJwb2lzb25zIiwidGhlIHJpdmVyIiwiZXZlcnkgeWVhci4iXSwic2h1ZmZsZWRHcm91cHMiOlsiQSBnaWFudCBzbmFrZSIsImV2ZXJ5IHllYXIuIiwicG9pc29ucyIsInRoZSByaXZlciJdLCJyZWNvbnN0cnVjdGVkIjoiQSBnaWFudCBzbmFrZSBwb2lzb25zIHRoZSByaXZlciBldmVyeSB5ZWFyLiIsImNsdWVXb3JkIjoicG9pc29ucyJ9LHsiZW5nbGlzaCI6IlRoZSBkYXVnaHRlciBmb3VuZCBvdXQgYWJvdXQgdGhlIHBvaXNvbm91cyByaXZlci4iLCJrb3JlYW4iOiLqt7gg65S47J2AIOuPheydtCDsnojripQg6rCV7JeQIOuMgO2VtCDslYzslYTrg4jri6QuIiwiZ3JvdXBzIjpbIlRoZSBkYXVnaHRlciIsImZvdW5kIG91dCIsImFib3V0IiwidGhlIHBvaXNvbm91cyIsInJpdmVyLiJdLCJzaHVmZmxlZEdyb3VwcyI6WyJUaGUgZGF1Z2h0ZXIiLCJyaXZlci4iLCJmb3VuZCBvdXQiLCJ0aGUgcG9pc29ub3VzIiwiYWJvdXQiXSwicmVjb25zdHJ1Y3RlZCI6IlRoZSBkYXVnaHRlciBmb3VuZCBvdXQgYWJvdXQgdGhlIHBvaXNvbm91cyByaXZlci4iLCJjbHVlV29yZCI6ImZvdW5kIG91dCJ9LHsiZW5nbGlzaCI6IlNoZSBhcHBlYXJlZCBhcyBhIHNwaXJpdCB0byB0aGUgdmlsbGFnZXJzLiIsImtvcmVhbiI6Iuq3uOuFgOuKlCDrp4jsnYQg7IKs656M65Ok7JeQ6rKMIOyYge2YvOycvOuhnCDrgpjtg4Drgqzri6QuIiwiZ3JvdXBzIjpbIlNoZSIsImFwcGVhcmVkIGFzIiwiYSBzcGlyaXQiLCJ0byIsInRoZSB2aWxsYWdlcnMuIl0sInNodWZmbGVkR3JvdXBzIjpbIlNoZSIsInRoZSB2aWxsYWdlcnMuIiwiYXBwZWFyZWQgYXMiLCJ0byIsImEgc3Bpcml0Il0sInJlY29uc3RydWN0ZWQiOiJTaGUgYXBwZWFyZWQgYXMgYSBzcGlyaXQgdG8gdGhlIHZpbGxhZ2Vycy4iLCJjbHVlV29yZCI6ImFwcGVhcmVkIGFzIn0seyJlbmdsaXNoIjoiU2hlIHdhcm5lZCB0aGVtIGFib3V0IHRoZSBzbmFrZS4iLCJrb3JlYW4iOiLqt7jrhYDripQg6re465Ok7JeQ6rKMIOuxgOyXkCDrjIDtlbQg6rK96rOg7ZaI64ukLiIsImdyb3VwcyI6WyJTaGUiLCJ3YXJuZWQiLCJ0aGVtIiwiYWJvdXQiLCJ0aGUgc25ha2UuIl0sInNodWZmbGVkR3JvdXBzIjpbIlNoZSIsInRoZSBzbmFrZS4iLCJ3YXJuZWQiLCJhYm91dCIsInRoZW0iXSwicmVjb25zdHJ1Y3RlZCI6IlNoZSB3YXJuZWQgdGhlbSBhYm91dCB0aGUgc25ha2UuIiwiY2x1ZVdvcmQiOiJ3YXJuZWQifSx7ImVuZ2xpc2giOiJUaGV5IG5ldmVyIHNlbnQgd29tZW4gZG93biB0aGUgcml2ZXIgYWdhaW4uIiwia29yZWFuIjoi6re465Ok7J2AIOuLpOyLnOuKlCDsl6zsnpDrk6TsnYQg6rCVIOyVhOuemOuhnCDrs7TrgrTsp4Ag7JWK7JWY64ukLiIsImdyb3VwcyI6WyJUaGV5IiwibmV2ZXIiLCJzZW50Iiwid29tZW4iLCJkb3duIHRoZSByaXZlciBhZ2Fpbi4iXSwic2h1ZmZsZWRHcm91cHMiOlsiVGhleSIsImRvd24gdGhlIHJpdmVyIGFnYWluLiIsIm5ldmVyIiwid29tZW4iLCJzZW50Il0sInJlY29uc3RydWN0ZWQiOiJUaGV5IG5ldmVyIHNlbnQgd29tZW4gZG93biB0aGUgcml2ZXIgYWdhaW4uIiwiY2x1ZVdvcmQiOiJuZXZlciJ9XX0=')); }
+}
+var CHUNK_SIZE = 10;
+
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function normalize(s){return s.replace(/\s+/g,' ').trim().toLowerCase();}
+function shuffleArr(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function simpleHash(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h=h&h;}return Math.abs(h).toString(36);}
+
+var T = {
+  all: CONFIG.sentences,
+  pass: CONFIG.passThreshold,
+  app: null, titleEl: null, subtitleEl: null,
+  phase: 0, round: 0, mastered: null, wrongHist: [], roundHist: [],
+  clueUsed: false, answered: false,
+  chunkMode: false, chunkIdx: 0, chunks: [], chunkResults: [],
+  active: [], items: [], qi: 0, rCorrect: [], rWrong: [],
+  // Phase 1 click state
+  p1selected: [], p1used: null,
+  // Phase 1 completion persistence
+  p1Done: false,
+  storageKey: 'st_'+simpleHash(CONFIG.title)+'_'+CONFIG.sentences.length,
+
+  saveP1Done: function(){
+    try{localStorage.setItem(this.storageKey+'_p1','1');}catch(e){}
+  },
+  loadP1Done: function(){
+    try{return localStorage.getItem(this.storageKey+'_p1')==='1';}catch(e){}return false;
+  },
+
+  init: function(){
+    this.app = document.getElementById('app');
+    this.titleEl = document.getElementById('page-title');
+    this.subtitleEl = document.getElementById('page-subtitle');
+    this.app.dataset.init='1';
+    this.p1Done = this.loadP1Done();
+    var self = this;
+    document.addEventListener('click', function(e){
+      var chip = e.target.closest('[data-chip-idx]');
+      if(chip){ self.p1ClickChip(parseInt(chip.dataset.chipIdx)); return; }
+      var ans = e.target.closest('[data-ans-idx]');
+      if(ans){ self.p1RemoveChip(parseInt(ans.dataset.ansIdx)); return; }
+      var act = e.target.closest('[data-action]');
+      if(act){ var fn = act.dataset.action; if(typeof self[fn]==='function') self[fn](); }
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key==='Enter'){var inp=document.getElementById('answer-input');if(inp&&document.activeElement===inp)self.submitAnswer();}
+    });
+    this.showStart();
+  },
+
+  render: function(h){this.app.innerHTML=h;},
+  setTitle: function(t){this.titleEl.textContent=t;},
+  setSub: function(t){this.subtitleEl.textContent=t;},
+
+  buildChunks: function(){
+    this.chunks=[];
+    for(var i=0;i<this.all.length;i+=CHUNK_SIZE) this.chunks.push(this.all.slice(i,i+CHUNK_SIZE));
+  },
+
+  showStart: function(){
+    this.setTitle(CONFIG.title);
+    this.setSub('영어 문장쓰기 테스트');
+    var tot=this.all.length;
+    this.buildChunks();
+    var ci='';
+    if(tot>CHUNK_SIZE){
+      var cs=this.chunks.map(function(c,i){return(i+1)+'세트: '+c.length+'문항';}).join(', ');
+      ci='<div style="margin-top:20px"><div style="font-size:.85rem;font-weight:600;color:#475569;margin-bottom:8px">테스트 방식 선택</div>'+
+        '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0">'+
+        '<button class="chunk-btn active" id="mode-all" data-action="modeAll">전체 ('+tot+'문항)</button>'+
+        '<button class="chunk-btn" id="mode-chunk" data-action="modeChunk">'+CHUNK_SIZE+'문항씩 나눠서</button></div>'+
+        '<div id="chunk-detail" style="display:none;margin-top:8px"><div style="font-size:.8rem;color:#94a3b8;text-align:center">'+cs+'</div></div></div>';
+    }
+    this.render(
+      '<div class="start-info" style="animation:fadeIn .5s">'+
+      '<div style="font-size:3.5rem;margin-bottom:12px">✍️</div>'+
+      '<h2 style="font-size:1.3rem;font-weight:800;color:#1e293b;margin-bottom:8px">문장쓰기 테스트</h2>'+
+      '<p style="color:#64748b;font-size:.9rem;line-height:1.5">한글 해석과 섞인 단어 조합을 보고<br>원래 영어 문장을 완성하세요</p>'+
+      '<div class="info-grid">'+
+      '<div class="info-card"><div class="label">총 문항 수</div><div class="value">'+tot+'문항</div></div>'+
+      '<div class="info-card"><div class="label">테스트 단계</div><div class="value" style="font-size:.85rem">1단계 → 2단계</div></div>'+
+      '<div class="info-card"><div class="label">통과 기준</div><div class="value">'+this.pass+'%</div></div>'+
+      '<div class="info-card"><div class="label">규칙</div><div class="value" style="font-size:.8rem">2단계 통과 필수</div></div></div>'+
+      ci+
+      '<button class="btn btn-primary btn-block" data-action="showPhaseSelect" style="margin-top:20px;font-size:1.1rem;padding:16px">시작하기</button></div>'
+    );
+    this.chunkMode=false;
+  },
+
+  modeAll: function(){
+    this.chunkMode=false;
+    var a=document.getElementById('mode-all'),b=document.getElementById('mode-chunk'),d=document.getElementById('chunk-detail');
+    if(a)a.classList.add('active');if(b)b.classList.remove('active');if(d)d.style.display='none';
+  },
+  modeChunk: function(){
+    this.chunkMode=true;
+    var a=document.getElementById('mode-all'),b=document.getElementById('mode-chunk'),d=document.getElementById('chunk-detail');
+    if(a)a.classList.remove('active');if(b)b.classList.add('active');if(d)d.style.display='block';
+  },
+
+  showPhaseSelect: function(){
+    this.setTitle(CONFIG.title);
+    this.setSub('테스트 단계 선택');
+    var p1tag=this.p1Done
+      ?'<span class="pc-tag" style="background:#ecfdf5;color:#065f46">✅ 완료 (다시 연습 가능)</span>'
+      :'<span class="pc-tag" style="background:#fef3c7;color:#b45309">연습 (스킵 가능)</span>';
+    var p1desc=this.p1Done
+      ?'이미 통과했습니다! 다시 연습하거나, 바로 2단계에 도전하세요.'
+      :'섞인 단어 박스를 순서대로 클릭하여 원래 문장을 만드세요. 타이핑 없이 클릭만으로 풀 수 있는 연습 단계입니다.';
+    this.render(
+      '<div style="animation:fadeIn .4s;text-align:center">'+
+      '<div style="font-size:2.5rem;margin-bottom:12px">🎯</div>'+
+      '<h2 style="font-size:1.2rem;font-weight:700;color:#1e293b;margin-bottom:6px">테스트 단계를 선택하세요</h2>'+
+      '<p style="color:#64748b;font-size:.85rem;margin-bottom:20px">1단계는 연습으로 건너뛸 수 있지만,<br><strong>2단계를 통과해야 테스트가 완료</strong>됩니다.</p>'+
+
+      (this.p1Done?'<div style="margin-bottom:16px;padding:14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;text-align:center">'+
+        '<p style="color:#065f46;font-weight:700;font-size:.92rem">✅ 1단계를 이미 통과했습니다!</p>'+
+        '<button class="btn btn-primary" data-action="startPhase2" style="margin-top:10px;font-size:1rem;padding:12px 30px">2단계 바로 도전하기 →</button></div>':'')+
+
+      '<div style="display:grid;gap:14px;text-align:left">'+
+      '<div class="phase-card" data-action="startPhase1">'+
+      '<div class="pc-icon">🧩</div>'+
+      '<div class="pc-title">1단계: 단어 배열하기</div>'+
+      '<div class="pc-desc">'+p1desc+'</div>'+
+      p1tag+'</div>'+
+
+      '<div class="phase-card" data-action="startPhase2">'+
+      '<div class="pc-icon">✍️</div>'+
+      '<div class="pc-title">2단계: 문장 직접 쓰기</div>'+
+      '<div class="pc-desc">섞인 단어 박스를 참고하여 직접 영어 문장을 타이핑하세요. 이 단계를 통과해야 테스트가 완료됩니다.</div>'+
+      '<span class="pc-tag" style="background:#ede9fe;color:#6d28d9">필수 (통과 필요)</span></div>'+
+
+      '</div>'+
+      '<div class="buttons-row"><button class="btn btn-secondary" data-action="showStart">← 처음으로</button></div></div>'
+    );
+  },
+
+  /* ═══════════════════════════════════════
+     PHASE 1 — Click to Arrange
+     ═══════════════════════════════════════ */
+  startPhase1: function(){
+    this.phase=1;
+    this.round=0; this.mastered=new Set(); this.wrongHist=[]; this.roundHist=[];
+    if(this.chunkMode&&this.chunks.length>1){
+      this.chunkIdx=0; this.chunkResults=this.chunks.map(function(){return null;});
+      this.showChunkSel();
+    } else {
+      this.chunkMode=false;
+      this.active=this.all.slice(); this.items=this.active.slice();
+      this.beginRound();
+    }
+  },
+
+  startPhase2: function(){
+    this.phase=2;
+    this.round=0; this.mastered=new Set(); this.wrongHist=[]; this.roundHist=[];
+    if(this.chunkMode&&this.chunks.length>1){
+      this.chunkIdx=0; this.chunkResults=this.chunks.map(function(){return null;});
+      this.showChunkSel();
+    } else {
+      this.chunkMode=false;
+      this.active=this.all.slice(); this.items=this.active.slice();
+      this.beginRound();
+    }
+  },
+
+  showChunkSel: function(){
+    this.setTitle(CONFIG.title);
+    this.setSub((this.phase===1?'1단계':'2단계')+' — 세트 선택');
+    var self=this, bh='';
+    this.chunks.forEach(function(c,i){
+      var done=self.chunkResults[i]!==null;
+      var cls=done?'chunk-btn done':'chunk-btn';
+      var lb=done?(i+1)+'세트 ✓ '+self.chunkResults[i]+'%':(i+1)+'세트 ('+c.length+'문항)';
+      bh+='<button class="'+cls+'" data-action="selChunk'+i+'">'+lb+'</button>';
+    });
+    var allDone=this.chunkResults.every(function(r){return r!==null;});
+    var tc=0;this.chunkResults.forEach(function(r,i){if(r!==null)tc+=Math.round(self.chunks[i].length*r/100);});
+    var tp=this.all.length>0?Math.round(tc/this.all.length*100):0;
+
+    this.render(
+      '<div style="animation:fadeIn .4s;text-align:center">'+
+      '<div style="font-size:2.5rem;margin-bottom:12px">📚</div>'+
+      '<h2 style="font-size:1.15rem;font-weight:700;color:#1e293b;margin-bottom:8px">'+(this.phase===1?'1단계':'2단계')+' — 세트 선택</h2>'+
+      '<div class="chunk-nav">'+bh+'</div>'+
+      (allDone?'<div style="margin-top:16px;padding:14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px"><p style="color:#065f46;font-weight:700">🎉 모든 세트 완료! 성취도: '+tp+'%</p></div>':'')+
+      '<div class="buttons-row">'+
+      '<button class="btn btn-secondary" data-action="showPhaseSelect">← 단계 선택</button>'+
+      (allDone&&this.phase===1?'<button class="btn btn-primary" data-action="startPhase2">2단계로 이동 →</button>':'')+
+      (allDone&&this.phase===2?'<button class="btn btn-primary" data-action="showStart">처음으로</button>':'')+
+      (!allDone&&this.phase===1&&this.p1Done?'<button class="btn" data-action="bypassToPhase2" style="background:#7c3aed;color:#fff;box-shadow:0 4px 12px rgba(124,58,237,.3)">✍️ 2단계 도전 →</button>':'')+
+      '</div></div>'
+    );
+    var self2=this;
+    this.chunks.forEach(function(_,i){
+      self2['selChunk'+i]=function(){
+        self2.chunkIdx=i;self2.round=0;self2.mastered=new Set();self2.wrongHist=[];self2.roundHist=[];
+        self2.active=self2.chunks[i].slice();self2.items=self2.active.slice();
+        self2.beginRound();
+      };
+    });
+  },
+
+  beginRound: function(){
+    this.round++;
+    this.items=shuffleArr(this.items);
+    this.qi=0;this.rCorrect=[];this.rWrong=[];this.answered=false;this.clueUsed=false;
+    var cl=this.chunkMode?' | '+(this.chunkIdx+1)+'세트':'';
+    this.setSub((this.phase===1?'1단계':'2단계')+' — '+this.round+'라운드'+cl);
+    this.showQ();
+  },
+
+  showQ: function(){
+    if(this.qi>=this.items.length){this.endRound();return;}
+    this.answered=false;this.clueUsed=false;
+    var it=this.items[this.qi], tot=this.items.length;
+    var pct=((this.qi)/tot*100).toFixed(0);
+    var pb=this.phase===1?'<span class="phase-badge p1">1단계 배열</span>':'<span class="phase-badge p2">2단계 쓰기</span>';
+    var cb=this.chunkMode?'<span class="chunk-badge">'+(this.chunkIdx+1)+'세트</span>':'';
+
+    if(this.phase===1){
+      this.p1selected=[];
+      this.p1used=new Set();
+      var chipsH=it.shuffledGroups.map(function(g,i){
+        return '<span class="word-chip clickable" data-chip-idx="'+i+'">'+esc(g)+'</span>';
+      }).join('');
+
+      this.render(
+        '<div style="animation:fadeIn .3s">'+
+        '<div><span class="round-badge">'+this.round+'라운드</span>'+pb+cb+'</div>'+
+        '<div class="question-counter">'+(this.qi+1)+' / '+tot+'</div>'+
+        '<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div>'+
+        '<div class="korean-sentence">'+esc(it.korean)+'</div>'+
+        '<div style="text-align:center;margin-bottom:4px;font-size:.82rem;color:#94a3b8">단어를 순서대로 클릭하여 문장을 완성하세요</div>'+
+        '<div style="text-align:center;margin-bottom:10px"><button class="btn btn-clue" id="clue-btn" data-action="showClue">💡 힌트</button></div>'+
+        '<div id="clue-area"></div>'+
+        '<div id="answer-zone" class="answer-zone"><span class="answer-placeholder">여기에 단어가 순서대로 나타납니다...</span></div>'+
+        '<div id="chips-pool" class="word-chips">'+chipsH+'</div>'+
+        '<div id="p1-actions" style="display:flex;gap:10px;justify-content:center;margin-top:12px">'+
+        '<button class="btn btn-secondary" data-action="p1Reset" style="padding:10px 20px;font-size:.88rem">↩ 다시 배열</button>'+
+        '<button class="btn btn-primary" id="p1-submit" data-action="p1Submit" style="padding:10px 24px;font-size:.88rem" disabled>확인</button></div>'+
+        (this.p1Done?'<div style="text-align:center;margin-top:14px;padding-top:14px;border-top:1px dashed #e2e8f0"><button class="btn" data-action="bypassToPhase2" style="background:#7c3aed;color:#fff;padding:10px 24px;font-size:.85rem;box-shadow:0 4px 12px rgba(124,58,237,.3)">✍️ 2단계 도전 →</button><div style="font-size:.72rem;color:#94a3b8;margin-top:6px">1단계 이미 통과 — 바로 2단계로 이동</div></div>':'')+
+        '</div>'
+      );
+    } else {
+      var chipsH2=it.shuffledGroups.map(function(g){
+        return '<span class="word-chip">'+esc(g)+'</span>';
+      }).join('');
+
+      this.render(
+        '<div style="animation:fadeIn .3s">'+
+        '<div><span class="round-badge">'+this.round+'라운드</span>'+pb+cb+'</div>'+
+        '<div class="question-counter">'+(this.qi+1)+' / '+tot+'</div>'+
+        '<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div>'+
+        '<div class="korean-sentence">'+esc(it.korean)+'</div>'+
+        '<div style="text-align:center;margin-bottom:4px;font-size:.82rem;color:#94a3b8">아래 단어 조합을 참고하여 영어 문장을 쓰세요</div>'+
+        '<div class="word-chips">'+chipsH2+'</div>'+
+        '<div style="text-align:center;margin-bottom:10px"><button class="btn btn-clue" id="clue-btn" data-action="showClue">💡 힌트</button></div>'+
+        '<div id="clue-area"></div>'+
+        '<div class="input-area">'+
+        '<input type="text" id="answer-input" class="answer-input" placeholder="영어 문장을 입력하세요..." autocomplete="off" autocapitalize="off" spellcheck="false">'+
+        '<button class="btn btn-primary btn-block" style="margin-top:12px" data-action="submitAnswer">확인</button></div></div>'
+      );
+      setTimeout(function(){var inp=document.getElementById('answer-input');if(inp)inp.focus();},150);
+    }
+  },
+
+  /* Phase 1: chip click / remove */
+  p1ClickChip: function(idx){
+    if(this.answered||this.p1used.has(idx)) return;
+    var it=this.items[this.qi];
+    this.p1selected.push(idx);
+    this.p1used.add(idx);
+    this.p1Refresh(it);
+  },
+  p1RemoveChip: function(ansIdx){
+    if(this.answered) return;
+    var removed=this.p1selected.splice(ansIdx,1);
+    if(removed.length) this.p1used.delete(removed[0]);
+    this.p1Refresh(this.items[this.qi]);
+  },
+  p1Refresh: function(it){
+    var zone=document.getElementById('answer-zone');
+    var pool=document.getElementById('chips-pool');
+    var btn=document.getElementById('p1-submit');
+    if(!zone||!pool) return;
+    // Update answer zone
+    if(this.p1selected.length===0){
+      zone.innerHTML='<span class="answer-placeholder">여기에 단어가 순서대로 나타납니다...</span>';
+      zone.className='answer-zone';
+    } else {
+      var self=this;
+      zone.innerHTML=this.p1selected.map(function(ci,ai){
+        return '<span class="answer-chip" data-ans-idx="'+ai+'">'+esc(it.shuffledGroups[ci])+'</span>';
+      }).join('');
+      zone.className='answer-zone has-items';
+    }
+    // Update chip states
+    var chips=pool.querySelectorAll('[data-chip-idx]');
+    var self2=this;
+    chips.forEach(function(c){
+      var i=parseInt(c.dataset.chipIdx);
+      if(self2.p1used.has(i)) c.classList.add('used'); else c.classList.remove('used');
+    });
+    if(btn) btn.disabled=this.p1selected.length!==it.shuffledGroups.length;
+  },
+  p1Reset: function(){
+    if(this.answered) return;
+    this.p1selected=[];this.p1used=new Set();
+    this.p1Refresh(this.items[this.qi]);
+  },
+  p1Submit: function(){
+    if(this.answered) return;
+    var it=this.items[this.qi];
+    if(this.p1selected.length!==it.shuffledGroups.length) return;
+    this.answered=true;
+    var built=this.p1selected.map(function(i){return it.shuffledGroups[i];}).join(' ');
+    var correctStr=it.reconstructed||it.groups.join(' ');
+    var isCorrect=normalize(built)===normalize(correctStr);
+    if(isCorrect){this.rCorrect.push(it);this.mastered.add(normalize(it.english));}
+    else{
+      this.rWrong.push({english:it.english,korean:it.korean,userAnswer:built});
+      this.wrongHist.push({english:it.english,korean:it.korean,userAnswer:built,round:this.round});
+    }
+    // Lock chips
+    var zone=document.getElementById('answer-zone');
+    if(zone){zone.className='answer-zone '+(isCorrect?'correct':'wrong');
+      zone.querySelectorAll('.answer-chip').forEach(function(c){c.classList.add('locked');});
+    }
+    document.getElementById('p1-actions').style.display='none';
+    var clueBtn=document.getElementById('clue-btn');if(clueBtn)clueBtn.style.display='none';
+    var fb=isCorrect?'<div class="feedback correct">정답입니다! ✅</div>'
+      :'<div class="feedback wrong">오답입니다 ❌<div class="correct-answer">정답: <strong>'+esc(it.english)+'</strong></div></div>';
+    var nb='<div style="text-align:center;margin-top:16px"><button class="btn btn-primary" data-action="nextQ">다음 문제</button></div>';
+    var d=document.createElement('div');d.innerHTML=fb+nb;this.app.querySelector('div').appendChild(d);
+  },
+
+  /* Phase 2: type answer */
+  submitAnswer: function(){
+    if(this.answered) return;
+    var inp=document.getElementById('answer-input');if(!inp) return;
+    var ans=inp.value.trim();if(!ans) return;
+    this.answered=true;
+    var it=this.items[this.qi];
+    var normAns=normalize(ans);
+    var normEng=normalize(it.english);
+    var normRecon=normalize(it.reconstructed||it.groups.join(' '));
+    var isCorrect=(normAns===normEng)||(normAns===normRecon);
+    if(isCorrect){this.rCorrect.push(it);this.mastered.add(normalize(it.english));}
+    else{
+      this.rWrong.push({english:it.english,korean:it.korean,userAnswer:ans});
+      this.wrongHist.push({english:it.english,korean:it.korean,userAnswer:ans,round:this.round});
+    }
+    var clueBtn=document.getElementById('clue-btn');if(clueBtn)clueBtn.style.display='none';
+    inp.disabled=true;inp.classList.add(isCorrect?'correct':'wrong');
+    var sub=this.app.querySelector('[data-action="submitAnswer"]');if(sub)sub.style.display='none';
+    var fb=isCorrect?'<div class="feedback correct">정답입니다! ✅</div>'
+      :'<div class="feedback wrong">오답입니다 ❌<div class="correct-answer">정답: <strong>'+esc(it.english)+'</strong></div></div>';
+    var nb='<div style="text-align:center;margin-top:16px"><button class="btn btn-primary" data-action="nextQ">다음 문제</button></div>';
+    var d=document.createElement('div');d.innerHTML=fb+nb;this.app.querySelector('div').appendChild(d);
+  },
+
+  showClue: function(){
+    if(this.clueUsed) return;this.clueUsed=true;
+    var it=this.items[this.qi];var clue=it.clueWord||'';
+    var ca=document.getElementById('clue-area');
+    if(ca) ca.innerHTML='<div class="clue-display">2번째 위치 단어: <strong>'+esc(clue)+'</strong></div>';
+    var b=document.getElementById('clue-btn');if(b){b.disabled=true;b.textContent='💡 힌트 사용됨';}
+  },
+
+  nextQ: function(){this.qi++;this.showQ();},
+
+  endRound: function(){
+    var ac=this.chunkMode?this.active.length:this.all.length;
+    var pct=Math.round(this.mastered.size/ac*100);
+    this.roundHist.push({round:this.round,tested:this.items.length,correct:this.rCorrect.length,wrong:this.rWrong.length,pct:pct});
+    if(pct>=this.pass) this.showPassed(pct); else this.showRoundSum(pct);
+  },
+
+  showRoundSum: function(pct){
+    var ac=this.chunkMode?this.active.length:this.all.length;
+    var cl=this.chunkMode?' ('+(this.chunkIdx+1)+'세트)':'';
+    var pLabel=this.phase===1?'1단계':'2단계';
+    this.setSub(pLabel+' — '+this.round+'라운드 결과'+cl);
+    var rem=ac-this.mastered.size;
+    this.render(
+      '<div style="animation:fadeIn .4s">'+
+      '<div class="score-circle fail">'+pct+'%</div>'+
+      '<div style="text-align:center;margin:16px 0">'+
+      '<h3 style="font-size:1.15rem;font-weight:700;color:#1e293b;margin-bottom:8px">'+pLabel+' — '+this.round+'라운드 결과'+cl+'</h3>'+
+      '<p style="color:#64748b;font-size:.9rem">통과 기준: '+this.pass+'% | 현재: '+pct+'%</p></div>'+
+      '<div class="summary-card">'+
+      '<div class="stat-row"><span class="stat-label">이번 라운드</span><span class="stat-value">'+this.items.length+'문항</span></div>'+
+      '<div class="stat-row"><span class="stat-label">정답</span><span class="stat-value pass">'+this.rCorrect.length+'</span></div>'+
+      '<div class="stat-row"><span class="stat-label">오답</span><span class="stat-value fail">'+this.rWrong.length+'</span></div>'+
+      '<div class="stat-row"><span class="stat-label">누적 정답</span><span class="stat-value">'+this.mastered.size+' / '+ac+'</span></div>'+
+      '<div class="stat-row"><span class="stat-label">남은 문항</span><span class="stat-value fail">'+rem+'</span></div></div>'+
+      '<div style="text-align:center;margin-top:16px;padding:14px;background:#fef2f2;border-radius:12px;border:1px solid #fecaca">'+
+      '<p style="color:#991b1b;font-weight:600;font-size:.9rem">틀린 문장으로 재시험을 봅니다.</p></div>'+
+      '<button class="btn btn-primary btn-block" style="margin-top:20px" data-action="nextRound">다음 라운드 ('+rem+'문항)</button>'+
+      (this.phase===1&&this.p1Done?'<button class="btn btn-block" data-action="bypassToPhase2" style="margin-top:10px;background:#7c3aed;color:#fff;box-shadow:0 4px 12px rgba(124,58,237,.3)">✍️ 1단계 그만하고 2단계 도전 →</button>':'')+
+      '</div>'
+    );
+  },
+
+  nextRound: function(){
+    var self=this;
+    this.items=this.rWrong.map(function(w){
+      var f=self.all.find(function(s){return normalize(s.english)===normalize(w.english);});
+      return f||{english:w.english,korean:w.korean,groups:[],shuffledGroups:[],clueWord:''};
+    });
+    this.beginRound();
+  },
+
+  showPassed: function(pct){
+    var ac=this.chunkMode?this.active.length:this.all.length;
+    var cl=this.chunkMode?' ('+(this.chunkIdx+1)+'세트)':'';
+    var pLabel=this.phase===1?'1단계':'2단계';
+    this.setTitle(pLabel+' 통과! 🎉');
+    this.setSub('성취도 '+pct+'%'+cl);
+    this.showConfetti();
+    // Save Phase 1 completion
+    if(this.phase===1){ this.p1Done=true; this.saveP1Done(); }
+    var hw=this.wrongHist.length>0,wl='';
+    if(hw){
+      wl='<div class="wrong-list"><h3 style="font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:12px">틀렸던 문제</h3>';
+      this.wrongHist.forEach(function(w){
+        wl+='<div class="wrong-item"><div class="kor">'+esc(w.korean)+' ('+w.round+'R)</div><div class="user-ans">'+esc(w.userAnswer)+'</div><div class="eng">정답: '+esc(w.english)+'</div></div>';
+      });wl+='</div>';
+    }
+    var rsh='';
+    this.roundHist.forEach(function(r){rsh+='<div class="stat-row"><span class="stat-label">'+r.round+'R ('+r.tested+'문항)</span><span class="stat-value">정답 '+r.correct+' / 오답 '+r.wrong+'</span></div>';});
+    var rem=ac-this.mastered.size;
+
+    var btns='<div class="buttons-row" style="margin-top:24px">';
+    if(rem>0) btns+='<button class="btn btn-success" data-action="continueAfter" style="flex:1">계속 (남은 '+rem+'문항)</button>';
+    if(this.chunkMode) btns+='<button class="btn btn-primary" data-action="finishChunk" style="flex:1">세트 선택</button>';
+    if(this.phase===1) btns+='<button class="btn btn-primary" data-action="goPhase2" style="flex:1">2단계로 이동 →</button>';
+    btns+='<button class="btn btn-secondary" data-action="showPhaseSelect">단계 선택</button></div>';
+
+    this.render(
+      '<div style="animation:fadeIn .5s">'+
+      '<div class="celebration"><div class="emoji">🎉</div><h2>'+pLabel+' 통과!</h2>'+
+      '<p>'+this.pass+'% 기준 달성'+(this.phase===1?'<br><strong>2단계를 통과해야 최종 완료됩니다</strong>':'')+'</p></div>'+
+      '<div class="score-circle pass">'+pct+'%</div>'+
+      '<div class="summary-card"><h3>결과 요약</h3>'+
+      '<div class="stat-row"><span class="stat-label">라운드</span><span class="stat-value">'+this.round+'회</span></div>'+
+      '<div class="stat-row"><span class="stat-label">성취도</span><span class="stat-value pass">'+pct+'%</span></div>'+
+      '<div class="stat-row"><span class="stat-label">맞춘 문항</span><span class="stat-value pass">'+this.mastered.size+'/'+ac+'</span></div>'+
+      '<div class="stat-row"><span class="stat-label">총 오답</span><span class="stat-value '+(hw?'fail':'pass')+'">'+this.wrongHist.length+'회</span></div></div>'+
+      (this.roundHist.length>1?'<div class="summary-card"><h3>라운드별</h3>'+rsh+'</div>':'')+
+      wl+btns+
+      (pct===100?'<div style="text-align:center;margin-top:12px;padding:12px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px"><p style="color:#065f46;font-weight:700">🏆 완벽!</p></div>':'')+
+      '</div>'
+    );
+  },
+
+  goPhase2: function(){ this.startPhase2(); },
+  bypassToPhase2: function(){ this.startPhase2(); },
+
+  continueAfter: function(){
+    var pool=this.chunkMode?this.active:this.all;var self=this;
+    this.items=pool.filter(function(s){return !self.mastered.has(normalize(s.english));});
+    if(this.items.length===0){this.items=pool.slice();this.mastered=new Set();this.wrongHist=[];this.roundHist=[];this.round=0;}
+    this.beginRound();
+  },
+
+  finishChunk: function(){
+    var pct=Math.round(this.mastered.size/this.active.length*100);
+    this.chunkResults[this.chunkIdx]=pct;
+    this.showChunkSel();
+  },
+
+  showConfetti: function(){
+    var c=document.createElement('div');c.className='confetti-container';
+    var cols=['#2d5a87','#4a90d9','#f59e0b','#059669','#dc2626','#ec4899','#8b5cf6'];
+    for(var i=0;i<60;i++){var p=document.createElement('div');p.className='confetti-piece';
+      p.style.left=Math.random()*100+'%';p.style.background=cols[Math.floor(Math.random()*cols.length)];
+      p.style.animationDelay=Math.random()*2+'s';p.style.animationDuration=(2+Math.random()*2)+'s';
+      var sz=6+Math.random()*8;p.style.width=sz+'px';p.style.height=sz+'px';
+      p.style.borderRadius=Math.random()>.5?'50%':'2px';c.appendChild(p);}
+    document.body.appendChild(c);setTimeout(function(){c.remove();},5000);
+  }
+};
+
+try{ T.init(); }catch(e){
+  var app=document.getElementById('app');
+  if(app) app.innerHTML='<div style="padding:24px;text-align:center"><h2 style="color:#dc2626;font-size:1.1rem;margin-bottom:12px">⚠️ 로딩 오류</h2><p style="color:#64748b;font-size:.88rem;line-height:1.6;margin-bottom:16px">이 브라우저에서 테스트를 실행할 수 없습니다.<br>Chrome 또는 Safari 브라우저로 열어주세요.</p><div style="background:#f8fafc;border-radius:10px;padding:14px;font-size:.75rem;color:#94a3b8;text-align:left;word-break:break-all">'+esc(e.message||String(e))+'</div></div>';
+}
+</script>
+</body>
+</html>
