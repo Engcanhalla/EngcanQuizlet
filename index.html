@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>영어 단어 테스트</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:16px;display:flex;align-items:center;justify-content:center}
+.container{max-width:640px;width:100%;background:#fff;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden;animation:slideUp .5s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pop{0%{transform:scale(.8);opacity:0}50%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@keyframes confetti{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(400px) rotate(720deg);opacity:0}}
+.header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:32px 24px;color:#fff;text-align:center}
+.header h1{font-size:1.5rem;font-weight:700;margin-bottom:4px}
+.header p{opacity:.9;font-size:.9rem}
+.content{padding:28px 24px}
+.progress-bar{height:6px;background:#e5e7eb;border-radius:3px;margin-bottom:24px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#667eea,#764ba2);border-radius:3px;transition:width .4s ease}
+.question-counter{text-align:center;font-size:.85rem;color:#6b7280;margin-bottom:8px;font-weight:500}
+.round-badge{display:inline-block;background:#eff6ff;color:#3b82f6;padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px}
+.chunk-badge{display:inline-block;background:#fef3c7;color:#b45309;padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;margin-left:8px}
+.korean-word{text-align:center;font-size:2rem;font-weight:700;color:#1f2937;margin:24px 0;padding:20px;background:#f9fafb;border-radius:16px;border:2px solid #e5e7eb;line-height:1.4}
+.options{display:grid;gap:12px;margin-top:20px}
+.option-btn{padding:16px 20px;background:#fff;border:2px solid #e5e7eb;border-radius:14px;font-size:1rem;font-weight:500;cursor:pointer;transition:all .2s;text-align:left;font-family:inherit;color:#1f2937}
+.option-btn:hover{border-color:#667eea;background:#f0f4ff;transform:translateY(-1px)}
+.option-btn.correct{border-color:#10b981;background:#ecfdf5;color:#065f46;animation:pop .3s ease}
+.option-btn.wrong{border-color:#ef4444;background:#fef2f2;color:#991b1b;animation:shake .4s ease}
+.option-btn.reveal{border-color:#10b981;background:#ecfdf5;color:#065f46}
+.option-btn:disabled{cursor:default;opacity:.85}
+.input-area{margin-top:20px}
+.answer-input{width:100%;padding:16px 20px;border:2px solid #e5e7eb;border-radius:14px;font-size:1.1rem;font-family:inherit;outline:none;transition:border-color .2s}
+.answer-input:focus{border-color:#667eea}
+.answer-input.correct{border-color:#10b981;background:#ecfdf5}
+.answer-input.wrong{border-color:#ef4444;background:#fef2f2}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 28px;border:none;border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;box-shadow:0 4px 12px rgba(102,126,234,.35)}
+.btn-primary:hover{box-shadow:0 6px 20px rgba(102,126,234,.5)}
+.btn-secondary{background:#f3f4f6;color:#374151}
+.btn-secondary:hover{background:#e5e7eb}
+.btn-success{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+.btn-danger{background:#fff;color:#ef4444;border:2px solid #ef4444}
+.btn-block{width:100%}
+.btn:disabled{opacity:.5;cursor:default;transform:none}
+.btn-clue{background:#fef3c7;color:#92400e;border:2px solid #fbbf24;padding:10px 20px;font-size:.85rem;border-radius:10px}
+.btn-clue:hover{background:#fde68a;transform:translateY(-1px)}
+.btn-clue:disabled{opacity:.5;cursor:default;transform:none}
+.clue-display{text-align:center;margin-top:10px;padding:10px 16px;background:#fefce8;border:1px solid #fde68a;border-radius:10px;font-size:1rem;font-weight:600;color:#92400e;animation:pop .3s ease}
+.feedback{text-align:center;padding:16px;border-radius:14px;margin-top:16px;animation:pop .3s ease;font-weight:600;font-size:1rem}
+.feedback.correct{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+.feedback.wrong{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.feedback .correct-answer{font-weight:400;margin-top:8px;font-size:.9rem}
+.summary-card{background:#f9fafb;border-radius:16px;padding:24px;margin:16px 0;border:1px solid #e5e7eb}
+.summary-card h3{font-size:1.1rem;font-weight:700;margin-bottom:12px;color:#1f2937}
+.stat-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:.9rem}
+.stat-row:last-child{border-bottom:none}
+.stat-label{color:#6b7280}
+.stat-value{font-weight:600;color:#1f2937}
+.stat-value.pass{color:#10b981}
+.stat-value.fail{color:#ef4444}
+.wrong-list{margin-top:16px}
+.wrong-item{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#fff;border-radius:10px;margin-bottom:8px;border:1px solid #fecaca;font-size:.85rem}
+.wrong-item .word{font-weight:600;color:#1f2937}
+.wrong-item .user-answer{color:#ef4444;text-decoration:line-through}
+.wrong-item .correct-word{color:#10b981;font-weight:600}
+.wrong-item .round-info{color:#9ca3af;font-size:.75rem}
+.celebration{text-align:center;padding:20px 0}
+.celebration .emoji{font-size:4rem;margin-bottom:16px;animation:pop .5s ease}
+.celebration h2{font-size:1.5rem;font-weight:800;color:#1f2937;margin-bottom:8px}
+.celebration p{color:#6b7280;font-size:.95rem;line-height:1.6}
+.score-circle{width:120px;height:120px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:20px auto;font-size:2rem;font-weight:800;border:6px solid}
+.score-circle.pass{border-color:#10b981;color:#10b981;background:#ecfdf5}
+.score-circle.fail{border-color:#ef4444;color:#ef4444;background:#fef2f2}
+.start-info{text-align:center;padding:10px 0}
+.start-info .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0}
+.info-card{background:#f9fafb;border-radius:12px;padding:16px;text-align:center;border:1px solid #e5e7eb}
+.info-card .label{font-size:.8rem;color:#6b7280;margin-bottom:4px}
+.info-card .value{font-size:1.1rem;font-weight:700;color:#1f2937}
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1000;overflow:hidden}
+.confetti-piece{position:absolute;width:10px;height:10px;top:-10px;animation:confetti 3s ease-in forwards}
+.buttons-row{display:flex;gap:12px;margin-top:20px;justify-content:center;flex-wrap:wrap}
+.mode-selector{display:flex;gap:8px;margin:16px 0;justify-content:center;flex-wrap:wrap}
+.mode-btn{padding:10px 20px;border:2px solid #e5e7eb;border-radius:10px;background:#fff;cursor:pointer;font-family:inherit;font-size:.9rem;font-weight:500;transition:all .2s;color:#374151}
+.mode-btn:hover{border-color:#667eea;background:#f0f4ff}
+.mode-btn.active{border-color:#667eea;background:#eff6ff;color:#667eea;font-weight:600}
+.chunk-nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:12px 0}
+.chunk-btn{padding:8px 14px;border:2px solid #e5e7eb;border-radius:8px;background:#fff;cursor:pointer;font-family:inherit;font-size:.8rem;font-weight:500;transition:all .2s;color:#374151}
+.chunk-btn:hover{border-color:#667eea;background:#f0f4ff}
+.chunk-btn.active{border-color:#667eea;background:#667eea;color:#fff}
+.chunk-btn.done{border-color:#10b981;background:#ecfdf5;color:#065f46}
+@media(max-width:480px){
+  .header h1{font-size:1.25rem}
+  .korean-word{font-size:1.5rem;padding:16px}
+  .option-btn{padding:14px 16px;font-size:.9rem}
+  .info-grid{grid-template-columns:1fr!important}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1 id="page-title"></h1>
+    <p id="page-subtitle"></p>
+  </div>
+  <div class="content" id="app"></div>
+</div>
+<script>
+const CONFIG = {"title":"영어 단어 테스트","testType":"multiple_choice","passThreshold":80,"words":[{"english":"gymnasium","korean":"체육관"},{"english":"construction","korean":"건설"},{"english":"adjustment","korean":"조정"},{"english":"timetable","korean":"시간표"},{"english":"commuting","korean":"통근, 통학"},{"english":"application","korean":"신청"},{"english":"operating hours","korean":"운영 시간"},{"english":"regulation","korean":"규정"},{"english":"cooperation","korean":"협력"},{"english":"virtue","korean":"미덕"},{"english":"submission","korean":"제출"},{"english":"deadline","korean":"마감일"},{"english":"appropriate","korean":"적절한"},{"english":"element","korean":"요소"},{"english":"performance","korean":"수행"},{"english":"convenience food","korean":"간편식"},{"english":"sports competition","korean":"체육 대회"},{"english":"eligible","korean":"자격이 있는"},{"english":"experimental","korean":"실험의"},{"english":"participant","korean":"참가자"},{"english":"portable","korean":"휴대용의"},{"english":"biology","korean":"생물학"},{"english":"reservation","korean":"예약"},{"english":"presentation","korean":"발표"},{"english":"situation","korean":"상황"},{"english":"lost and found","korean":"분실물 보관소"},{"english":"relieve","korean":"완화하다"},{"english":"symptom","korean":"증상"},{"english":"remedy","korean":"치료법"},{"english":"ingredient","korean":"재료"},{"english":"ginger","korean":"생강"},{"english":"impress","korean":"감명을 주다"},{"english":"environment","korean":"환경"},{"english":"discussion","korean":"토론"},{"english":"lecture","korean":"강연"},{"english":"emphasize","korean":"강조하다"},{"english":"protection","korean":"보호"},{"english":"announce","korean":"발표하다"},{"english":"inquire","korean":"문의하다"},{"english":"enormous","korean":"거대한"},{"english":"response","korean":"반응"},{"english":"enthusiasm","korean":"열정"},{"english":"challenge","korean":"도전"},{"english":"statement","korean":"진술"},{"english":"struggle","korean":"고군분투하다"},{"english":"witness","korean":"목격하다"},{"english":"confidence","korean":"자신감"},{"english":"shift","korean":"변화"},{"english":"perception","korean":"지각"},{"english":"vertebrate","korean":"척추동물"},{"english":"detect","korean":"감지하다"},{"english":"odor","korean":"냄새"},{"english":"prey","korean":"먹잇감"},{"english":"categorize","korean":"분류하다"},{"english":"noble","korean":"고귀한"},{"english":"far-reaching","korean":"광범위한"},{"english":"influence","korean":"영향"},{"english":"aspect","korean":"측면"},{"english":"diligence","korean":"근면"},{"english":"accomplish","korean":"성취하다"},{"english":"regardless of","korean":"~에 관계없이"},{"english":"crop rotation","korean":"윤작, 돌려 농사짓기"},{"english":"enrich","korean":"비옥하게 하다"},{"english":"sustainable","korean":"지속 가능한"},{"english":"organic","korean":"유기농의"},{"english":"diverse","korean":"다양한"},{"english":"concentrate","korean":"집중하다"},{"english":"assess","korean":"평가하다"},{"english":"tempting","korean":"유혹적인"},{"english":"spoil","korean":"망치다"},{"english":"overwork","korean":"과도하게 다루다"},{"english":"benefit from","korean":"~로부터 이익을 얻다"},{"english":"refinement","korean":"개선"},{"english":"interpretation","korean":"해석"},{"english":"extent","korean":"정도"},{"english":"climate change","korean":"기후 변화"},{"english":"secondary school","korean":"중등학교"},{"english":"natural science","korean":"자연 과학"},{"english":"military hospital","korean":"군 병원"},{"english":"professor","korean":"교수"},{"english":"physical chemistry","korean":"물리 화학"},{"english":"delightful","korean":"즐거운"},{"english":"participation fee","korean":"참가비"},{"english":"in advance","korean":"미리"},{"english":"passionate","korean":"열정적인"},{"english":"upcycle","korean":"새활용하다"},{"english":"submit","korean":"제출하다"},{"english":"announce","korean":"발표하다"},{"english":"overstate","korean":"과장하다"},{"english":"meaningful","korean":"의미 있는"},{"english":"fulfillment","korean":"성취감"},{"english":"empowerment","korean":"권한 부여"},{"english":"satisfying","korean":"만족스러운"},{"english":"employment","korean":"고용"},{"english":"numerous","korean":"수많은"},{"english":"output","korean":"생산량"},{"english":"overall","korean":"전체적인"},{"english":"evolutionary","korean":"진화의"},{"english":"adapt","korean":"적응하다"},{"english":"ideally","korean":"이상적으로"},{"english":"suited","korean":"적합한"},{"english":"appreciate","korean":"이해하다"},{"english":"pedestrian","korean":"보행자"},{"english":"polar opposite","korean":"정반대"},{"english":"ordinarily","korean":"보통"},{"english":"climatic","korean":"기후의"},{"english":"endure","korean":"견디다"},{"english":"require","korean":"필요로 하다"},{"english":"immobile","korean":"움직이지 않는"},{"english":"larva","korean":"유충"},{"english":"fossil","korean":"화석"},{"english":"respectable","korean":"존경할 만한"},{"english":"discourage","korean":"낙담시키다"},{"english":"maintain","korean":"유지하다"},{"english":"viewpoint","korean":"관점"},{"english":"pro-dissent","korean":"반대 의견을 지지하는"},{"english":"featured","korean":"특집으로 다루어진"},{"english":"regularly","korean":"정기적으로"},{"english":"junior staffer","korean":"하급 직원"},{"english":"unconditional","korean":"무조건적인"},{"english":"loyalty","korean":"충성"},{"english":"internal","korean":"내부의"},{"english":"protest","korean":"항의"},{"english":"competitive","korean":"경쟁적인"},{"english":"atmosphere","korean":"분위기"},{"english":"outstanding","korean":"뛰어난"},{"english":"striking","korean":"두드러진"},{"english":"characteristic","korean":"특징"},{"english":"stimulus","korean":"자극"},{"english":"eyelid","korean":"눈꺼풀"},{"english":"mammal","korean":"포유류"},{"english":"apparently","korean":"명백히"},{"english":"register","korean":"등록하다"},{"english":"intermediate","korean":"중간의"},{"english":"drowsiness","korean":"졸음"},{"english":"derive","korean":"얻다"},{"english":"perceptual","korean":"지각의"},{"english":"disengagement","korean":"분리"},{"english":"remarkably","korean":"현저하게"},{"english":"accurate","korean":"정확한"},{"english":"novice","korean":"초보자"},{"english":"insensitive","korean":"둔감한"},{"english":"acquire","korean":"습득하다"},{"english":"underestimate","korean":"과소평가하다"},{"english":"assumption","korean":"가정"},{"english":"severe","korean":"심각한"},{"english":"mental illness","korean":"정신 질환"},{"english":"compose","korean":"작곡하다"},{"english":"original","korean":"독창적인"},{"english":"efficacy","korean":"효능"},{"english":"significantly","korean":"상당히"},{"english":"belonging","korean":"소속감"},{"english":"self-confidence","korean":"자신감"},{"english":"impossibility","korean":"불가능성"},{"english":"participate","korean":"참여하다"},{"english":"fully","korean":"완전히"},{"english":"structure","korean":"구조"},{"english":"progressive","korean":"진보적인"},{"english":"adaptation","korean":"적응"},{"english":"prevail","korean":"우세하다"},{"english":"arena","korean":"경기장"},{"english":"empire","korean":"제국"},{"english":"excel","korean":"뛰어나다"},{"english":"relay","korean":"전달하다"},{"english":"station","korean":"배치하다"},{"english":"royal","korean":"왕실의"},{"english":"catch sight of","korean":"~을 목격하다"},{"english":"map","korean":"지도를 그리다"},{"english":"register","korean":"기록하다"},{"english":"misinterpretation","korean":"오해"},{"english":"mistranslation","korean":"오역"},{"english":"specialty","korean":"전문 분야"},{"english":"mechanism","korean":"기제"},{"english":"perceive","korean":"인지하다"},{"english":"intensity","korean":"강도"},{"english":"feature","korean":"특징"},{"english":"entirely","korean":"완전히"},{"english":"healing session","korean":"치료 시간"},{"english":"rescue center","korean":"구조 센터"},{"english":"domestic","korean":"가정의"},{"english":"emotional","korean":"감정적인"},{"english":"confusion","korean":"혼란"},{"english":"adjust","korean":"조정하다"},{"english":"specific","korean":"구체적인"},{"english":"constant","korean":"지속적인"},{"english":"subconscious","korean":"잠재의식"},{"english":"conscious","korean":"의식적인"},{"english":"recognition","korean":"인식"},{"english":"frequently","korean":"자주"},{"english":"fuel","korean":"부채질하다"},{"english":"judgment","korean":"판단"},{"english":"cloud","korean":"흐리게 하다"},{"english":"bias","korean":"편견"},{"english":"negativity","korean":"부정성"},{"english":"hold back","korean":"방해하다"},{"english":"originate","korean":"시작되다"},{"english":"norm","korean":"규범"},{"english":"define","korean":"정의하다"},{"english":"interpretation","korean":"해석"},{"english":"at every turn","korean":"도처에"},{"english":"direct","korean":"길을 안내하다"},{"english":"worthy of","korean":"~할 가치가 있는"},{"english":"criticism","korean":"비평"},{"english":"cross-cultural","korean":"문화 간"},{"english":"translatable","korean":"번역 가능한"},{"english":"considerable","korean":"상당한"},{"english":"ridiculous","korean":"우스운"},{"english":"spiritual leader","korean":"영적 지도자"},{"english":"wisdom","korean":"지혜"},{"english":"holy","korean":"신성한"},{"english":"cycle","korean":"순환"},{"english":"adulthood","korean":"성인기"},{"english":"force","korean":"힘"},{"english":"guide","korean":"안내하다"},{"english":"harm","korean":"해를 끼치다"},{"english":"filter out","korean":"걸러내다"},{"english":"capture","korean":"포착하다"}]};
+const CHUNK_SIZE = 20;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+class VocabTest {
+  constructor() {
+    this.allWords = CONFIG.words;
+    this.testType = CONFIG.testType;
+    this.passThreshold = CONFIG.passThreshold;
+    this.app = document.getElementById('app');
+    this.titleEl = document.getElementById('page-title');
+    this.subtitleEl = document.getElementById('page-subtitle');
+    this.round = 0;
+    this.masteredWords = new Set();
+    this.wrongHistory = [];
+    this.roundHistory = [];
+    this.currentOptions = [];
+    this.clueUsed = false;
+    this.chunkMode = false;
+    this.currentChunkIndex = 0;
+    this.chunks = [];
+    this.chunkResults = [];
+
+    document.addEventListener('click', (e) => {
+      const t = e.target.closest('[data-option-index]');
+      if (t) {
+        t.blur();
+        this.checkAnswer(this.currentOptions[parseInt(t.dataset.optionIndex)]);
+        return;
+      }
+      const actionEl = e.target.closest('[data-action]');
+      if (actionEl) {
+        const action = actionEl.dataset.action;
+        if (typeof this[action] === 'function') this[action]();
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const input = document.getElementById('answer-input');
+        if (input && document.activeElement === input) {
+          this.submitFillIn();
+        }
+      }
+    });
+
+    this.showStartScreen();
+  }
+
+  render(html) { this.app.innerHTML = html; }
+  setTitle(t) { this.titleEl.textContent = t; }
+  setSubtitle(t) { this.subtitleEl.textContent = t; }
+
+  buildChunks() {
+    this.chunks = [];
+    for (let i = 0; i < this.allWords.length; i += CHUNK_SIZE) {
+      this.chunks.push(this.allWords.slice(i, i + CHUNK_SIZE));
+    }
+  }
+
+  showStartScreen() {
+    this.setTitle(CONFIG.title);
+    this.setSubtitle('영어 단어 테스트');
+    const typeLabel = {multiple_choice:'객관식 (사지선다)',fill_in:'주관식 (직접 입력)',mixed:'혼합 (객관식+주관식)'}[this.testType];
+    const totalWords = this.allWords.length;
+    this.buildChunks();
+    const numChunks = this.chunks.length;
+
+    let chunkInfoHTML = '';
+    if (totalWords > CHUNK_SIZE) {
+      const chunkSizes = this.chunks.map((c, i) => `${i+1}세트: ${c.length}개`).join(', ');
+      chunkInfoHTML = `
+        <div style="margin-top:20px">
+          <div style="font-size:.85rem;font-weight:600;color:#374151;margin-bottom:8px">테스트 방식 선택</div>
+          <div class="mode-selector">
+            <button class="mode-btn active" id="mode-all" data-action="selectModeAll">전체 (${totalWords}개)</button>
+            <button class="mode-btn" id="mode-chunk" data-action="selectModeChunk">${CHUNK_SIZE}개씩 나눠서</button>
+          </div>
+          <div id="chunk-detail" style="display:none;margin-top:8px">
+            <div style="font-size:.8rem;color:#6b7280;text-align:center;margin-bottom:8px">${chunkSizes}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    this.render(`
+      <div class="start-info" style="animation:fadeIn .5s">
+        <div style="font-size:3rem;margin-bottom:12px">📝</div>
+        <h2 style="font-size:1.3rem;font-weight:700;color:#1f2937;margin-bottom:8px">테스트를 시작합니다</h2>
+        <p style="color:#6b7280;font-size:.9rem">아래 정보를 확인하고 시작 버튼을 눌러주세요</p>
+        <div class="info-grid">
+          <div class="info-card"><div class="label">총 문항 수</div><div class="value">${totalWords}개</div></div>
+          <div class="info-card"><div class="label">테스트 유형</div><div class="value" style="font-size:.9rem">${typeLabel}</div></div>
+          <div class="info-card"><div class="label">통과 기준</div><div class="value">${this.passThreshold}%</div></div>
+          <div class="info-card"><div class="label">규칙</div><div class="value" style="font-size:.8rem">미달 시 재시험</div></div>
+        </div>
+        ${chunkInfoHTML}
+        <button class="btn btn-primary btn-block" data-action="startTest" style="margin-top:16px;font-size:1.1rem;padding:16px">
+          테스트 시작하기
+        </button>
+      </div>
+    `);
+    this.chunkMode = false;
+  }
+
+  selectModeAll() {
+    this.chunkMode = false;
+    const all = document.getElementById('mode-all');
+    const chunk = document.getElementById('mode-chunk');
+    const detail = document.getElementById('chunk-detail');
+    if (all) all.classList.add('active');
+    if (chunk) chunk.classList.remove('active');
+    if (detail) detail.style.display = 'none';
+  }
+
+  selectModeChunk() {
+    this.chunkMode = true;
+    const all = document.getElementById('mode-all');
+    const chunk = document.getElementById('mode-chunk');
+    const detail = document.getElementById('chunk-detail');
+    if (all) all.classList.remove('active');
+    if (chunk) chunk.classList.add('active');
+    if (detail) detail.style.display = 'block';
+  }
+
+  startTest() {
+    this.round = 0;
+    this.masteredWords = new Set();
+    this.wrongHistory = [];
+    this.roundHistory = [];
+
+    if (this.chunkMode && this.chunks.length > 1) {
+      this.currentChunkIndex = 0;
+      this.chunkResults = this.chunks.map(() => null);
+      this.showChunkSelector();
+    } else {
+      this.chunkMode = false;
+      this.activeWords = [...this.allWords];
+      this.roundWords = [...this.activeWords];
+      this.startRound();
+    }
+  }
+
+  showChunkSelector() {
+    this.setTitle(CONFIG.title);
+    this.setSubtitle('세트 선택');
+    let btnsHTML = '';
+    this.chunks.forEach((chunk, i) => {
+      const done = this.chunkResults[i] !== null;
+      const cls = done ? 'chunk-btn done' : 'chunk-btn';
+      const label = done ? `${i+1}세트 (${chunk.length}개) ✓ ${this.chunkResults[i]}%` : `${i+1}세트 (${chunk.length}개)`;
+      btnsHTML += `<button class="${cls}" data-action="selectChunk${i}">${label}</button>`;
+    });
+    const allDone = this.chunkResults.every(r => r !== null);
+    const totalCorrect = this.chunkResults.reduce((sum, r, i) => sum + (r !== null ? Math.round(this.chunks[i].length * r / 100) : 0), 0);
+    const totalPct = this.allWords.length > 0 ? Math.round(totalCorrect / this.allWords.length * 100) : 0;
+
+    this.render(`
+      <div style="animation:fadeIn .4s;text-align:center">
+        <div style="font-size:2.5rem;margin-bottom:12px">📚</div>
+        <h2 style="font-size:1.2rem;font-weight:700;color:#1f2937;margin-bottom:8px">테스트할 세트를 선택하세요</h2>
+        <p style="color:#6b7280;font-size:.85rem;margin-bottom:16px">각 세트를 순서대로 또는 원하는 순서로 풀 수 있습니다</p>
+        <div class="chunk-nav">${btnsHTML}</div>
+        ${allDone ? `
+          <div style="margin-top:20px;padding:16px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px">
+            <p style="color:#065f46;font-weight:700;font-size:1rem">🎉 모든 세트 완료! 전체 성취도: ${totalPct}%</p>
+          </div>
+        ` : ''}
+        <div class="buttons-row" style="margin-top:16px">
+          <button class="btn btn-secondary" data-action="showStartScreen">← 처음으로</button>
+          ${allDone ? '<button class="btn btn-primary" data-action="startTest">전체 다시 풀기</button>' : ''}
+        </div>
+      </div>
+    `);
+
+    // Dynamically bind chunk selection
+    this.chunks.forEach((_, i) => {
+      this['selectChunk' + i] = () => {
+        this.currentChunkIndex = i;
+        this.round = 0;
+        this.masteredWords = new Set();
+        this.wrongHistory = [];
+        this.roundHistory = [];
+        this.activeWords = [...this.chunks[i]];
+        this.roundWords = [...this.activeWords];
+        this.startRound();
+      };
+    });
+  }
+
+  startRound() {
+    this.round++;
+    this.roundWords = shuffle(this.roundWords);
+    this.qIndex = 0;
+    this.roundCorrect = [];
+    this.roundWrong = [];
+    this.answered = false;
+    this.clueUsed = false;
+    const chunkLabel = this.chunkMode ? ` | ${this.currentChunkIndex + 1}세트` : '';
+    this.setSubtitle(`${this.round}라운드 진행 중${chunkLabel}`);
+    this.showQuestion();
+  }
+
+  getQuestionType() {
+    if (this.testType === 'multiple_choice') return 'mc';
+    if (this.testType === 'fill_in') return 'fill';
+    return Math.random() < 0.5 ? 'mc' : 'fill';
+  }
+
+  getOptions(word) {
+    const pool = this.chunkMode ? this.activeWords : this.allWords;
+    const others = pool.filter(w => w.english !== word.english);
+    const shuffled = shuffle(others);
+    const distractors = shuffled.slice(0, 3).map(w => w.english);
+    // Fill from allWords if not enough
+    if (distractors.length < 3) {
+      const extra = this.allWords.filter(w => w.english !== word.english && !distractors.includes(w.english));
+      const shuffledExtra = shuffle(extra);
+      while (distractors.length < 3 && shuffledExtra.length > 0) distractors.push(shuffledExtra.pop().english);
+    }
+    while (distractors.length < 3) distractors.push('---');
+    const options = shuffle([word.english, ...distractors]);
+    return options;
+  }
+
+  showQuestion() {
+    if (this.qIndex >= this.roundWords.length) { this.endRound(); return; }
+    this.answered = false;
+    this.clueUsed = false;
+    const word = this.roundWords[this.qIndex];
+    const total = this.roundWords.length;
+    const pct = ((this.qIndex) / total * 100).toFixed(0);
+    const qType = this.getQuestionType();
+    this.currentQuestionType = qType;
+
+    let optionsHTML = '';
+    if (qType === 'mc') {
+      this.currentOptions = this.getOptions(word);
+      optionsHTML = '<div class="options">' +
+        this.currentOptions.map((opt, i) =>
+          `<button class="option-btn" data-option-index="${i}">${esc(opt)}</button>`
+        ).join('') + '</div>';
+    } else {
+      this.currentOptions = [];
+      optionsHTML = `<div class="input-area">
+        <input type="text" id="answer-input" class="answer-input" placeholder="영어 단어/표현을 입력하세요..." autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="btn btn-primary btn-block" style="margin-top:12px" data-action="submitFillIn">확인</button>
+      </div>`;
+    }
+
+    const chunkBadge = this.chunkMode ? `<span class="chunk-badge">${this.currentChunkIndex + 1}세트</span>` : '';
+
+    this.render(`
+      <div style="animation:fadeIn .3s">
+        <div><span class="round-badge">${this.round}라운드</span>${chunkBadge}</div>
+        <div class="question-counter">${this.qIndex + 1} / ${total}</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="korean-word">${esc(word.korean)}</div>
+        <div style="text-align:center;margin-bottom:8px">
+          <span style="font-size:.85rem;color:#9ca3af">
+            ${qType === 'mc' ? '알맞은 영어 단어/표현을 선택하세요' : '알맞은 영어 단어/표현을 입력하세요'}
+          </span>
+        </div>
+        <div style="text-align:center;margin-bottom:8px">
+          <button class="btn btn-clue" id="clue-btn" data-action="showClue">💡 힌트</button>
+        </div>
+        <div id="clue-area"></div>
+        ${optionsHTML}
+      </div>
+    `);
+
+    if (qType === 'fill') {
+      setTimeout(() => {
+        const inp = document.getElementById('answer-input');
+        if (inp) inp.focus();
+      }, 100);
+    }
+  }
+
+  showClue() {
+    if (this.clueUsed) return;
+    this.clueUsed = true;
+    const word = this.roundWords[this.qIndex];
+    const firstChar = word.english.charAt(0);
+    const hint = firstChar + ' _ '.repeat(Math.min(word.english.length - 1, 10)).trim();
+    const clueArea = document.getElementById('clue-area');
+    if (clueArea) {
+      clueArea.innerHTML = `<div class="clue-display">첫 글자: <strong>${esc(firstChar.toUpperCase())}</strong>  (${word.english.length}글자)</div>`;
+    }
+    const btn = document.getElementById('clue-btn');
+    if (btn) { btn.disabled = true; btn.textContent = '💡 힌트 사용됨'; }
+  }
+
+  submitFillIn() {
+    if (this.answered) return;
+    const input = document.getElementById('answer-input');
+    if (!input) return;
+    const answer = input.value.trim();
+    if (!answer) return;
+    this.checkAnswer(answer);
+  }
+
+  checkAnswer(answer) {
+    if (this.answered) return;
+    this.answered = true;
+    const word = this.roundWords[this.qIndex];
+    const isCorrect = answer.toLowerCase().trim() === word.english.toLowerCase().trim();
+
+    if (isCorrect) {
+      this.roundCorrect.push(word);
+      this.masteredWords.add(word.english.toLowerCase().trim());
+    } else {
+      this.roundWrong.push({ english: word.english, korean: word.korean, userAnswer: answer });
+      this.wrongHistory.push({ english: word.english, korean: word.korean, userAnswer: answer, round: this.round });
+    }
+
+    this.showFeedback(isCorrect, word, answer);
+  }
+
+  showFeedback(isCorrect, word, userAnswer) {
+    // Hide clue button after answering
+    const clueBtn = document.getElementById('clue-btn');
+    if (clueBtn) clueBtn.style.display = 'none';
+
+    if (this.currentQuestionType === 'mc') {
+      const btns = document.querySelectorAll('.option-btn');
+      btns.forEach(btn => {
+        btn.disabled = true;
+        const idx = parseInt(btn.dataset.optionIndex);
+        const opt = this.currentOptions[idx];
+        if (opt.toLowerCase().trim() === word.english.toLowerCase().trim()) {
+          btn.classList.add(isCorrect ? 'correct' : 'reveal');
+        } else if (opt.toLowerCase().trim() === userAnswer.toLowerCase().trim()) {
+          btn.classList.add('wrong');
+        }
+      });
+    } else {
+      const input = document.getElementById('answer-input');
+      if (input) {
+        input.disabled = true;
+        input.classList.add(isCorrect ? 'correct' : 'wrong');
+      }
+    }
+
+    const feedbackContainer = document.createElement('div');
+    feedbackContainer.innerHTML = isCorrect
+      ? '<div class="feedback correct">정답입니다! ✅</div>'
+      : `<div class="feedback wrong">오답입니다 ❌<div class="correct-answer">정답: <strong>${esc(word.english)}</strong></div></div>`;
+
+    const nextBtn = document.createElement('div');
+    nextBtn.style.cssText = 'text-align:center;margin-top:16px';
+    nextBtn.innerHTML = '<button class="btn btn-primary" data-action="nextQuestion">다음 문제</button>';
+
+    this.app.querySelector('div').appendChild(feedbackContainer);
+    this.app.querySelector('div').appendChild(nextBtn);
+  }
+
+  nextQuestion() {
+    this.qIndex++;
+    this.showQuestion();
+  }
+
+  endRound() {
+    const activeWordCount = this.chunkMode ? this.activeWords.length : this.allWords.length;
+    const totalMastered = this.masteredWords.size;
+    const percentage = Math.round((totalMastered / activeWordCount) * 100);
+    const passed = percentage >= this.passThreshold;
+
+    this.roundHistory.push({
+      round: this.round,
+      tested: this.roundWords.length,
+      correct: this.roundCorrect.length,
+      wrong: this.roundWrong.length,
+      overallPct: percentage
+    });
+
+    if (passed) {
+      this.showPassedScreen(percentage);
+    } else {
+      this.showRoundSummary(percentage);
+    }
+  }
+
+  showRoundSummary(percentage) {
+    const activeWordCount = this.chunkMode ? this.activeWords.length : this.allWords.length;
+    const chunkLabel = this.chunkMode ? ` (${this.currentChunkIndex + 1}세트)` : '';
+    this.setSubtitle(`${this.round}라운드 결과${chunkLabel}`);
+    const remaining = activeWordCount - this.masteredWords.size;
+    this.render(`
+      <div style="animation:fadeIn .4s">
+        <div class="score-circle fail">${percentage}%</div>
+        <div style="text-align:center;margin:16px 0">
+          <h3 style="font-size:1.2rem;font-weight:700;color:#1f2937;margin-bottom:8px">${this.round}라운드 결과${chunkLabel}</h3>
+          <p style="color:#6b7280;font-size:.9rem">통과 기준: ${this.passThreshold}% | 현재: ${percentage}%</p>
+        </div>
+        <div class="summary-card">
+          <div class="stat-row"><span class="stat-label">이번 라운드 문제 수</span><span class="stat-value">${this.roundWords.length}개</span></div>
+          <div class="stat-row"><span class="stat-label">이번 라운드 정답</span><span class="stat-value pass">${this.roundCorrect.length}개</span></div>
+          <div class="stat-row"><span class="stat-label">이번 라운드 오답</span><span class="stat-value fail">${this.roundWrong.length}개</span></div>
+          <div class="stat-row"><span class="stat-label">전체 정답 누적</span><span class="stat-value">${this.masteredWords.size} / ${activeWordCount}개</span></div>
+          <div class="stat-row"><span class="stat-label">남은 문항</span><span class="stat-value fail">${remaining}개</span></div>
+        </div>
+        <div style="text-align:center;margin-top:16px;padding:16px;background:#fef2f2;border-radius:12px;border:1px solid #fecaca">
+          <p style="color:#991b1b;font-weight:600;font-size:.95rem">
+            통과 기준에 미달하여 틀린 단어/표현으로 재시험을 봅니다.
+          </p>
+        </div>
+        <button class="btn btn-primary btn-block" style="margin-top:20px;font-size:1.05rem" data-action="startNextRound">
+          다음 라운드 시작 (${remaining}개 단어)
+        </button>
+      </div>
+    `);
+  }
+
+  startNextRound() {
+    this.roundWords = this.roundWrong.map(w => ({ english: w.english, korean: w.korean }));
+    this.startRound();
+  }
+
+  showPassedScreen(percentage) {
+    const activeWordCount = this.chunkMode ? this.activeWords.length : this.allWords.length;
+    const chunkLabel = this.chunkMode ? ` (${this.currentChunkIndex + 1}세트)` : '';
+    this.setTitle('통과! 🎉');
+    this.setSubtitle(`성취도 ${percentage}% 달성${chunkLabel}`);
+    this.showConfetti();
+
+    const hasWrong = this.wrongHistory.length > 0;
+
+    let wrongListHTML = '';
+    if (hasWrong) {
+      wrongListHTML = '<div class="wrong-list"><h3 style="font-size:1rem;font-weight:700;color:#1f2937;margin-bottom:12px">틀렸던 문제 기록</h3>';
+      this.wrongHistory.forEach(w => {
+        wrongListHTML += `<div class="wrong-item">
+          <div>
+            <div class="word">${esc(w.korean)}</div>
+            <div class="round-info">${w.round}라운드</div>
+          </div>
+          <div style="text-align:right">
+            <div class="user-answer">${esc(w.userAnswer)}</div>
+            <div class="correct-word">${esc(w.english)}</div>
+          </div>
+        </div>`;
+      });
+      wrongListHTML += '</div>';
+    }
+
+    let roundSummaryHTML = '';
+    this.roundHistory.forEach(r => {
+      roundSummaryHTML += `<div class="stat-row">
+        <span class="stat-label">${r.round}라운드 (${r.tested}문제)</span>
+        <span class="stat-value">정답 ${r.correct} / 오답 ${r.wrong}</span>
+      </div>`;
+    });
+
+    const remaining = activeWordCount - this.masteredWords.size;
+
+    this.render(`
+      <div style="animation:fadeIn .5s">
+        <div class="celebration">
+          <div class="emoji">🎉</div>
+          <h2>축하합니다! 통과했습니다!</h2>
+          <p>성취도 ${this.passThreshold}% 기준을 달성했습니다.${hasWrong ? '<br>틀린 단어를 계속 연습할 수 있습니다.' : ''}</p>
+        </div>
+        <div class="score-circle pass">${percentage}%</div>
+        <div class="summary-card">
+          <h3>결과 요약</h3>
+          <div class="stat-row"><span class="stat-label">총 라운드 수</span><span class="stat-value">${this.round}회</span></div>
+          <div class="stat-row"><span class="stat-label">현재 성취도</span><span class="stat-value pass">${percentage}%</span></div>
+          <div class="stat-row"><span class="stat-label">단어 수</span><span class="stat-value">${activeWordCount}개</span></div>
+          <div class="stat-row"><span class="stat-label">맞춘 문항</span><span class="stat-value pass">${this.masteredWords.size}개</span></div>
+          <div class="stat-row"><span class="stat-label">총 오답 횟수</span><span class="stat-value ${this.wrongHistory.length > 0 ? 'fail' : 'pass'}">${this.wrongHistory.length}회</span></div>
+        </div>
+        ${this.roundHistory.length > 1 ? '<div class="summary-card"><h3>라운드별 기록</h3>' + roundSummaryHTML + '</div>' : ''}
+        ${wrongListHTML}
+        <div class="buttons-row" style="margin-top:24px">
+          ${remaining > 0 ? `
+            <button class="btn btn-success" data-action="continueAfterPass" style="flex:1">
+              계속 도전하기 (남은 ${remaining}개)
+            </button>
+          ` : ''}
+          ${this.chunkMode ? '<button class="btn btn-primary" data-action="finishChunk" style="flex:1">세트 선택으로</button>' : ''}
+          <button class="btn btn-secondary" data-action="showStartScreen">처음으로</button>
+        </div>
+        ${percentage < 100 && remaining > 0 ? `
+          <div style="text-align:center;margin-top:12px">
+            <p style="color:#6b7280;font-size:.85rem">통과했지만 아직 ${remaining}개 단어가 남아있습니다. 100%에 도전해보세요!</p>
+          </div>
+        ` : ''}
+        ${percentage === 100 ? `
+          <div style="text-align:center;margin-top:12px;padding:12px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px">
+            <p style="color:#065f46;font-weight:700">🏆 완벽합니다! 모든 단어/표현을 맞혔습니다!</p>
+          </div>
+        ` : ''}
+      </div>
+    `);
+  }
+
+  continueAfterPass() {
+    // Continue with wrong words from this round or all remaining unmastered words
+    const activePool = this.chunkMode ? this.activeWords : this.allWords;
+    this.roundWords = activePool.filter(w => !this.masteredWords.has(w.english.toLowerCase().trim()));
+    if (this.roundWords.length === 0) {
+      this.roundWords = [...activePool];
+      this.masteredWords = new Set();
+      this.wrongHistory = [];
+      this.roundHistory = [];
+      this.round = 0;
+    }
+    this.startRound();
+  }
+
+  finishChunk() {
+    const activeWordCount = this.activeWords.length;
+    const pct = Math.round((this.masteredWords.size / activeWordCount) * 100);
+    this.chunkResults[this.currentChunkIndex] = pct;
+    this.showChunkSelector();
+  }
+
+  showConfetti() {
+    const container = document.createElement('div');
+    container.className = 'confetti-container';
+    const colors = ['#667eea','#764ba2','#f59e0b','#10b981','#ef4444','#ec4899','#8b5cf6'];
+    for (let i = 0; i < 60; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + '%';
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDelay = (Math.random() * 2) + 's';
+      piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+      const size = 6 + Math.random() * 8;
+      piece.style.width = size + 'px';
+      piece.style.height = size + 'px';
+      piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      container.appendChild(piece);
+    }
+    document.body.appendChild(container);
+    setTimeout(() => container.remove(), 5000);
+  }
+}
+
+new VocabTest();
+</script>
+</body>
+</html>
