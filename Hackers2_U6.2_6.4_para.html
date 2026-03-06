@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hackers2_U6.2_6.4_para</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#1e3a5f 0%,#2d5a87 50%,#1a4a6e 100%);min-height:100vh;padding:16px;display:flex;align-items:center;justify-content:center}
+.container{max-width:720px;width:100%;background:#fff;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden;animation:slideUp .5s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pop{0%{transform:scale(.8);opacity:0}50%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@keyframes confetti{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(400px) rotate(720deg);opacity:0}}
+.header{background:linear-gradient(135deg,#1e3a5f 0%,#2d5a87 100%);padding:32px 24px;color:#fff;text-align:center}
+.header h1{font-size:1.5rem;font-weight:700;margin-bottom:4px}
+.header p{opacity:.9;font-size:.9rem}
+.content{padding:28px 24px}
+.progress-bar{height:6px;background:#e5e7eb;border-radius:3px;margin-bottom:24px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#1e3a5f,#3b82f6);border-radius:3px;transition:width .4s ease}
+.question-counter{text-align:center;font-size:.85rem;color:#6b7280;margin-bottom:8px;font-weight:500}
+.round-badge{display:inline-block;background:#eff6ff;color:#3b82f6;padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px}
+.batch-badge{display:inline-block;background:#f0fdf4;color:#16a34a;padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;margin-left:8px}
+.source-badge{display:inline-block;background:#fef3c7;color:#b45309;padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;margin-left:8px}
+.question-box{text-align:center;margin:20px 0;padding:24px;background:linear-gradient(135deg,#f0f7ff,#e8f0fe);border-radius:16px;border:2px solid #bfdbfe}
+.question-box .key-expr{font-size:1.6rem;font-weight:800;color:#1e3a5f;margin-bottom:8px;line-height:1.4}
+.question-box .q-text{font-size:1rem;color:#374151;font-weight:500}
+.passage-box{margin:12px 0;padding:14px 18px;background:#f9fafb;border-left:4px solid #3b82f6;border-radius:0 12px 12px 0;font-size:.85rem;color:#4b5563;line-height:1.6;font-style:italic}
+.options{display:grid;gap:10px;margin-top:20px}
+.option-btn{padding:16px 20px;background:#fff;border:2px solid #e5e7eb;border-radius:14px;font-size:.95rem;font-weight:500;cursor:pointer;transition:all .2s;text-align:left;font-family:inherit;color:#1f2937;display:flex;align-items:center;gap:12px}
+.option-btn .num{width:32px;height:32px;border-radius:50%;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;color:#6b7280;flex-shrink:0;transition:all .2s}
+.option-btn:hover{border-color:#3b82f6;background:#f0f7ff;transform:translateY(-1px)}
+.option-btn:hover .num{background:#3b82f6;color:#fff}
+.option-btn.correct{border-color:#10b981;background:#ecfdf5;color:#065f46;animation:pop .3s ease}
+.option-btn.correct .num{background:#10b981;color:#fff}
+.option-btn.wrong{border-color:#ef4444;background:#fef2f2;color:#991b1b;animation:shake .4s ease}
+.option-btn.wrong .num{background:#ef4444;color:#fff}
+.option-btn.reveal{border-color:#10b981;background:#ecfdf5;color:#065f46}
+.option-btn.reveal .num{background:#10b981;color:#fff}
+.option-btn:disabled{cursor:default;opacity:.85}
+.feedback{text-align:center;padding:16px;border-radius:14px;margin-top:16px;animation:pop .3s ease;font-weight:600;font-size:1rem}
+.feedback.correct{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+.feedback.wrong{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.feedback .explanation{font-weight:400;margin-top:8px;font-size:.85rem;line-height:1.5}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 28px;border:none;border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:linear-gradient(135deg,#1e3a5f,#3b82f6);color:#fff;box-shadow:0 4px 12px rgba(30,58,95,.35)}
+.btn-primary:hover{box-shadow:0 6px 20px rgba(30,58,95,.5)}
+.btn-secondary{background:#f3f4f6;color:#374151}
+.btn-secondary:hover{background:#e5e7eb}
+.btn-success{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+.btn-block{width:100%}
+.btn:disabled{opacity:.5;cursor:default;transform:none}
+.summary-card{background:#f9fafb;border-radius:16px;padding:24px;margin:16px 0;border:1px solid #e5e7eb}
+.summary-card h3{font-size:1.1rem;font-weight:700;margin-bottom:12px;color:#1f2937}
+.stat-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:.9rem}
+.stat-row:last-child{border-bottom:none}
+.stat-label{color:#6b7280}
+.stat-value{font-weight:600;color:#1f2937}
+.stat-value.pass{color:#10b981}
+.stat-value.fail{color:#ef4444}
+.wrong-list{margin-top:16px}
+.wrong-item{padding:14px 16px;background:#fff;border-radius:12px;margin-bottom:10px;border:1px solid #fecaca;font-size:.85rem}
+.wrong-item .q-title{font-weight:700;color:#1f2937;margin-bottom:6px}
+.wrong-item .user-answer{color:#ef4444;text-decoration:line-through}
+.wrong-item .correct-answer{color:#10b981;font-weight:600}
+.celebration{text-align:center;padding:20px 0}
+.celebration .emoji{font-size:4rem;margin-bottom:16px;animation:pop .5s ease}
+.celebration h2{font-size:1.5rem;font-weight:800;color:#1f2937;margin-bottom:8px}
+.score-circle{width:120px;height:120px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:20px auto;font-size:2rem;font-weight:800;border:6px solid}
+.score-circle.pass{border-color:#10b981;color:#10b981;background:#ecfdf5}
+.score-circle.fail{border-color:#ef4444;color:#ef4444;background:#fef2f2}
+.start-info{text-align:center;padding:10px 0}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0}
+.info-card{background:#f9fafb;border-radius:12px;padding:16px;text-align:center;border:1px solid #e5e7eb}
+.info-card .label{font-size:.8rem;color:#6b7280;margin-bottom:4px}
+.info-card .value{font-size:1.1rem;font-weight:700;color:#1f2937}
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1000;overflow:hidden}
+.confetti-piece{position:absolute;width:10px;height:10px;top:-10px;animation:confetti 3s ease-in forwards}
+.buttons-row{display:flex;gap:12px;margin-top:20px;justify-content:center;flex-wrap:wrap}
+.show-passage-btn{margin-top:8px;padding:6px 14px;background:#eff6ff;color:#3b82f6;border:1px solid #bfdbfe;border-radius:8px;font-size:.8rem;cursor:pointer;font-family:inherit;font-weight:500;transition:all .2s}
+.show-passage-btn:hover{background:#dbeafe}
+.batch-select-grid{display:grid;gap:12px;margin:20px 0}
+.batch-btn{padding:18px 20px;background:#fff;border:2px solid #e5e7eb;border-radius:16px;cursor:pointer;transition:all .2s;font-family:inherit;text-align:left;display:flex;align-items:center;gap:16px}
+.batch-btn:hover{border-color:#3b82f6;background:#f0f7ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(59,130,246,.15)}
+.batch-btn .batch-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.batch-btn .batch-info{flex:1}
+.batch-btn .batch-title{font-size:1rem;font-weight:700;color:#1f2937;margin-bottom:2px}
+.batch-btn .batch-desc{font-size:.8rem;color:#6b7280}
+.batch-btn.active{border-color:#3b82f6;background:#eff6ff}
+.batch-progress{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0}
+.batch-dot{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;border:2px solid #e5e7eb;color:#9ca3af;background:#fff;transition:all .2s}
+.batch-dot.current{border-color:#3b82f6;background:#eff6ff;color:#3b82f6}
+.batch-dot.done{border-color:#10b981;background:#ecfdf5;color:#10b981}
+.batch-dot.fail{border-color:#ef4444;background:#fef2f2;color:#ef4444}
+@media(max-width:480px){
+  .header h1{font-size:1.25rem}
+  .question-box .key-expr{font-size:1.3rem}
+  .option-btn{padding:14px 16px;font-size:.85rem}
+  .info-grid{grid-template-columns:1fr!important}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1 id="page-title"></h1>
+    <p id="page-subtitle"></p>
+  </div>
+  <div class="content" id="app"></div>
+</div>
+<script>
+const CONFIG = {"title":"Hackers2_U6.2_6.4_para","passThreshold":90,"questions":[{"questionNumber":1,"sourceQuestion":"Passage 1 (Adam and Lisa's treasure hunting)","keyExpression":"go looking for valuable things buried underground","questionText":"다음 중 'go looking for valuable things buried underground'를 잘못 paraphrasing한 것은?","options":[{"text":"search for treasure","isCorrect":false,"explanation":"본문에서 직접 사용된 표현으로, 지하에 묻힌 가치 있는 것을 찾는다는 의미가 같습니다."},{"text":"hunt for buried valuables","isCorrect":false,"explanation":"땅속에 묻힌 귀중품을 찾는다는 의미로 동일합니다."},{"text":"dig for expensive items on display","isCorrect":true,"explanation":"'on display'는 전시된/진열된 물건을 의미하므로, 지하에 묻힌 것과는 의미가 다릅니다."},{"text":"look for things of value hidden in the ground","isCorrect":false,"explanation":"땅속에 숨겨진 가치 있는 것들을 찾는다는 의미로 정확한 paraphrasing입니다."},{"text":"seek treasures concealed beneath the surface","isCorrect":false,"explanation":"표면 아래 감춰진 보물을 찾는다는 뜻으로 의미가 일치합니다."}],"passage":"They go looking for valuable things buried underground... they were on a farm, searching for treasure."},{"questionNumber":2,"sourceQuestion":"Passage 1 (Adam and Lisa's treasure hunting)","keyExpression":"investigating the field with his metal detector","questionText":"다음 중 'investigating the field with his metal detector'를 잘못 paraphrasing한 것은?","options":[{"text":"examining the area using his detection device","isCorrect":false,"explanation":"금속 탐지기를 사용해 구역을 조사한다는 의미가 같습니다."},{"text":"searching the field with his metal-detecting equipment","isCorrect":false,"explanation":"금속 탐지 장비로 밭을 수색한다는 뜻으로 정확합니다."},{"text":"analyzing soil samples in a laboratory","isCorrect":true,"explanation":"실험실에서 토양 샘플을 분석하는 것은 현장에서 금속 탐지기로 조사하는 것과 전혀 다른 행위입니다."},{"text":"exploring the ground with his metal-sensing tool","isCorrect":false,"explanation":"금속 감지 도구로 땅을 탐색한다는 의미로 일치합니다."},{"text":"surveying the land with detection technology","isCorrect":false,"explanation":"탐지 기술로 땅을 조사한다는 뜻으로 적절한 paraphrasing입니다."}],"passage":"Adam was investigating the field with his metal detector. Suddenly, it started beeping."},{"questionNumber":3,"sourceQuestion":"Passage 1 (Adam and Lisa's treasure hunting)","keyExpression":"After digging around for hours","questionText":"다음 중 'After digging around for hours'를 잘못 paraphrasing한 것은?","options":[{"text":"Following several hours of excavation","isCorrect":false,"explanation":"몇 시간 동안의 발굴 후라는 의미로 같습니다."},{"text":"After spending hours searching and digging","isCorrect":false,"explanation":"몇 시간을 탐색하고 파는 데 보낸 후라는 뜻으로 정확합니다."},{"text":"Within just a few minutes of arrival","isCorrect":true,"explanation":"도착 후 단 몇 분 만에는 '몇 시간 동안 판 후'와 정반대의 시간 개념입니다."},{"text":"After hours of digging in the area","isCorrect":false,"explanation":"그 지역에서 몇 시간 동안 판 후라는 의미로 일치합니다."},{"text":"Following a prolonged period of excavating","isCorrect":false,"explanation":"오랜 기간 동안 발굴한 후라는 뜻으로 적절합니다."}],"passage":"After digging around for hours, they had discovered over 2,000 coins."},{"questionNumber":4,"sourceQuestion":"Passage 1 (Adam and Lisa's treasure hunting)","keyExpression":"they were worth seven million dollars","questionText":"다음 중 'they were worth seven million dollars'를 잘못 paraphrasing한 것은?","options":[{"text":"their value was seven million dollars","isCorrect":false,"explanation":"그것들의 가치가 700만 달러였다는 의미로 같습니다."},{"text":"they were valued at seven million dollars","isCorrect":false,"explanation":"700만 달러로 평가되었다는 뜻으로 정확합니다."},{"text":"they cost seven million dollars to produce","isCorrect":true,"explanation":"'생산하는 데 700만 달러가 들었다'는 현재 가치가 아니라 제작 비용을 의미하므로 다릅니다."},{"text":"they had a monetary value of seven million dollars","isCorrect":false,"explanation":"700만 달러의 금전적 가치를 가졌다는 의미로 일치합니다."},{"text":"their worth amounted to seven million dollars","isCorrect":false,"explanation":"그것들의 가치가 700만 달러에 달했다는 뜻으로 적절합니다."}],"passage":"The expert said they were worth seven million dollars! Their story soon spread, and many people started hunting for treasure."},{"questionNumber":5,"sourceQuestion":"Passage 1 (Adam and Lisa's treasure hunting)","keyExpression":"Their story soon spread","questionText":"다음 중 'Their story soon spread'를 잘못 paraphrasing한 것은?","options":[{"text":"News of their discovery quickly circulated","isCorrect":false,"explanation":"그들의 발견 소식이 빠르게 퍼졌다는 의미로 같습니다."},{"text":"Their tale rapidly became widely known","isCorrect":false,"explanation":"그들의 이야기가 급속히 널리 알려졌다는 뜻으로 정확합니다."},{"text":"They immediately kept their finding a secret","isCorrect":true,"explanation":"발견을 즉시 비밀로 했다는 것은 이야기가 퍼진 것과 정반대의 의미입니다."},{"text":"Word of their experience traveled fast","isCorrect":false,"explanation":"그들의 경험에 대한 소문이 빠르게 퍼졌다는 의미로 일치합니다."},{"text":"Their account gained widespread attention","isCorrect":false,"explanation":"그들의 이야기가 광범위한 관심을 얻었다는 뜻으로 적절합니다."}],"passage":"Their story soon spread, and many people started hunting for treasure."},{"questionNumber":6,"sourceQuestion":"Passage 2 (Love game in tennis)","keyExpression":"winning without giving a single point to the opponent","questionText":"다음 중 'winning without giving a single point to the opponent'을 잘못 paraphrasing한 것은?","options":[{"text":"the player who loses scores no points","isCorrect":false,"explanation":"본문에서 직접 사용된 표현으로, 상대방이 단 한 점도 득점하지 못한다는 의미가 같습니다."},{"text":"defeating the opponent while they score zero","isCorrect":false,"explanation":"상대방이 0점을 득점하는 동안 이긴다는 뜻으로 동일합니다."},{"text":"winning by barely edging out the opponent","isCorrect":true,"explanation":"'간신히 상대를 제치고 이기다'는 근소한 차이로 이기는 것을 의미하므로, 상대방에게 단 한 점도 주지 않고 이기는 것과 다릅니다."},{"text":"victory with the opponent scoring nothing","isCorrect":false,"explanation":"상대방이 아무 점수도 얻지 못한 채 승리한다는 의미로 일치합니다."},{"text":"prevailing while the opponent gets no points","isCorrect":false,"explanation":"상대방이 점수를 전혀 얻지 못하는 동안 이긴다는 뜻으로 정확합니다."}],"passage":"It means winning without giving a single point to the opponent. In other words, the player who loses scores no points."},{"questionNumber":7,"sourceQuestion":"Passage 2 (Love game in tennis)","keyExpression":"love means 'zero points' in tennis","questionText":"다음 중 'love means zero points in tennis'를 잘못 paraphrasing한 것은?","options":[{"text":"in tennis, love signifies a score of zero","isCorrect":false,"explanation":"테니스에서 love가 0점을 의미한다는 뜻으로 같습니다."},{"text":"the term love represents no points in tennis","isCorrect":false,"explanation":"love라는 용어가 테니스에서 무득점을 나타낸다는 의미로 정확합니다."},{"text":"love indicates deep affection between players","isCorrect":true,"explanation":"선수들 간의 깊은 애정을 나타낸다는 것은 점수와 무관하므로 잘못된 paraphrasing입니다."},{"text":"love is the tennis term for zero score","isCorrect":false,"explanation":"love가 0점을 뜻하는 테니스 용어라는 의미로 일치합니다."},{"text":"in tennis scoring, love equals zero","isCorrect":false,"explanation":"테니스 득점에서 love가 0과 같다는 뜻으로 적절합니다."}],"passage":"This is because love means 'zero points' in tennis. So when a game begins, players start at love-love (0-0)."},{"questionNumber":8,"sourceQuestion":"Passage 2 (Love game in tennis)","keyExpression":"players start at love-love (0-0)","questionText":"다음 중 'players start at love-love (0-0)'를 잘못 paraphrasing한 것은?","options":[{"text":"the game begins with both players at zero points","isCorrect":false,"explanation":"양 선수가 0점에서 경기가 시작된다는 의미로 같습니다."},{"text":"players commence with a score of 0-0","isCorrect":false,"explanation":"선수들이 0-0의 점수로 시작한다는 뜻으로 정확합니다."},{"text":"players begin with one serving at love","isCorrect":true,"explanation":"한 선수가 love에서 서브한다는 것은 양 선수가 모두 0-0에서 시작한다는 것과 다릅니다."},{"text":"the initial score for both players is zero-zero","isCorrect":false,"explanation":"양 선수의 초기 점수가 0-0이라는 의미로 일치합니다."},{"text":"both sides begin with no points","isCorrect":false,"explanation":"양쪽 모두 무득점에서 시작한다는 뜻으로 적절합니다."}],"passage":"So when a game begins, players start at love-love (0-0)."},{"questionNumber":9,"sourceQuestion":"Passage 2 (Love game in tennis)","keyExpression":"a zero on the board looked like an egg","questionText":"다음 중 'a zero on the board looked like an egg'를 잘못 paraphrasing한 것은?","options":[{"text":"the number zero resembled an egg shape","isCorrect":false,"explanation":"숫자 0이 달걀 모양과 닮았다는 의미로 같습니다."},{"text":"zero appeared egg-like on the scoreboard","isCorrect":false,"explanation":"0이 점수판에서 달걀 같아 보였다는 뜻으로 정확합니다."},{"text":"the scoreboard was designed to hold eggs","isCorrect":true,"explanation":"점수판이 달걀을 담도록 설계되었다는 것은 0의 모양이 달걀처럼 보인다는 것과 전혀 다른 의미입니다."},{"text":"the shape of zero reminded them of an egg","isCorrect":false,"explanation":"0의 모양이 그들에게 달걀을 연상시켰다는 의미로 일치합니다."},{"text":"zero had an oval, egg-like appearance","isCorrect":false,"explanation":"0이 타원형의 달걀 같은 외관을 가졌다는 뜻으로 적절합니다."}],"passage":"Some witty French people found that a zero on the board looked like an egg. And l'oeuf sounds like love in English."},{"questionNumber":10,"sourceQuestion":"Passage 2 (Love game in tennis)","keyExpression":"l'oeuf sounds like love in English","questionText":"다음 중 'l'oeuf sounds like love in English'를 잘못 paraphrasing한 것은?","options":[{"text":"the French word l'oeuf is pronounced similarly to love","isCorrect":false,"explanation":"프랑스어 l'oeuf가 love와 비슷하게 발음된다는 의미로 같습니다."},{"text":"l'oeuf has a pronunciation close to the English word love","isCorrect":false,"explanation":"l'oeuf의 발음이 영어 단어 love와 가깝다는 뜻으로 정확합니다."},{"text":"l'oeuf literally translates to 'love' in English","isCorrect":true,"explanation":"'문자 그대로 번역되다'는 의미가 아니라 발음이 비슷하다는 뜻이므로 잘못된 paraphrasing입니다."},{"text":"when spoken, l'oeuf resembles the word love","isCorrect":false,"explanation":"말할 때 l'oeuf가 love라는 단어와 비슷하다는 의미로 일치합니다."},{"text":"the pronunciation of l'oeuf is similar to love","isCorrect":false,"explanation":"l'oeuf의 발음이 love와 유사하다는 뜻으로 적절합니다."}],"passage":"And l'oeuf sounds like love in English. Eventually, after tennis became popular in England, people started to call a score of zero love."},{"questionNumber":11,"sourceQuestion":"Passage 2 (Love game in tennis)","keyExpression":"after tennis became popular in England","questionText":"다음 중 'after tennis became popular in England'를 잘못 paraphrasing한 것은?","options":[{"text":"once tennis gained popularity in England","isCorrect":false,"explanation":"테니스가 영국에서 인기를 얻은 후라는 의미로 같습니다."},{"text":"following the rise of tennis in England","isCorrect":false,"explanation":"영국에서 테니스가 부상한 후라는 뜻으로 정확합니다."},{"text":"before tennis was introduced to England","isCorrect":true,"explanation":"테니스가 영국에 소개되기 전은 인기를 얻은 후와 시간적으로 정반대입니다."},{"text":"when tennis had become widely played in England","isCorrect":false,"explanation":"테니스가 영국에서 널리 행해지게 되었을 때라는 의미로 일치합니다."},{"text":"as tennis grew in popularity throughout England","isCorrect":false,"explanation":"테니스가 영국 전역에서 인기가 높아지면서라는 뜻으로 적절합니다."}],"passage":"Eventually, after tennis became popular in England, people started to call a score of zero love."},{"questionNumber":12,"sourceQuestion":"Passage 3 (Food expiration dates)","keyExpression":"an unopened bottle of milk","questionText":"다음 중 'an unopened bottle of milk'를 잘못 paraphrasing한 것은?","options":[{"text":"a sealed milk container","isCorrect":false,"explanation":"밀봉된 우유 용기라는 의미로 같습니다."},{"text":"a bottle of milk that hasn't been opened","isCorrect":false,"explanation":"열리지 않은 우유 병이라는 뜻으로 정확합니다."},{"text":"a half-empty milk bottle","isCorrect":true,"explanation":"반쯤 빈 우유 병은 이미 개봉된 것을 의미하므로 unopened와 정반대입니다."},{"text":"milk in an intact, closed bottle","isCorrect":false,"explanation":"온전하고 닫힌 병에 담긴 우유라는 의미로 일치합니다."},{"text":"a milk bottle with its seal unbroken","isCorrect":false,"explanation":"밀봉이 뜯어지지 않은 우유 병이라는 뜻으로 적절합니다."}],"passage":"You find an unopened bottle of milk in the refrigerator. On the bottle, it says 'Sell by April 2.'"},{"questionNumber":13,"sourceQuestion":"Passage 3 (Food expiration dates)","keyExpression":"The sell-by date tells stores how long they can display the product","questionText":"다음 중 'The sell-by date tells stores how long they can display the product'를 잘못 paraphrasing한 것은?","options":[{"text":"the sell-by date indicates the period stores can keep products on shelves","isCorrect":false,"explanation":"판매기한이 상점이 제품을 진열할 수 있는 기간을 나타낸다는 의미로 같습니다."},{"text":"stores use the sell-by date to know how long to offer the product","isCorrect":false,"explanation":"상점들이 판매기한을 사용해 제품을 얼마나 오래 제공할지 안다는 뜻으로 정확합니다."},{"text":"the sell-by date shows customers when to finish consuming the product","isCorrect":true,"explanation":"소비자가 언제까지 제품을 다 먹어야 하는지 보여주는 것은 상점의 진열 기간과 다른 개념입니다."},{"text":"this date informs retailers of the display duration for products","isCorrect":false,"explanation":"이 날짜가 소매업자에게 제품의 진열 기간을 알려준다는 의미로 일치합니다."},{"text":"it guides stores on the length of time for product sale","isCorrect":false,"explanation":"상점에 제품 판매 기간을 안내한다는 뜻으로 적절합니다."}],"passage":"The sell-by date tells stores how long they can display the product for sale."},{"questionNumber":14,"sourceQuestion":"Passage 3 (Food expiration dates)","keyExpression":"the last day you can safely eat the food","questionText":"다음 중 'the last day you can safely eat the food'를 잘못 paraphrasing한 것은?","options":[{"text":"the final date for safe consumption","isCorrect":false,"explanation":"안전한 섭취를 위한 마지막 날짜라는 의미로 같습니다."},{"text":"the deadline for eating the food without risk","isCorrect":false,"explanation":"위험 없이 음식을 먹을 수 있는 마감일이라는 뜻으로 정확합니다."},{"text":"the earliest date you should purchase the food","isCorrect":true,"explanation":"음식을 구매해야 하는 가장 빠른 날은 안전하게 먹을 수 있는 마지막 날과 전혀 다른 의미입니다."},{"text":"the last date before the food becomes unsafe","isCorrect":false,"explanation":"음식이 안전하지 않게 되기 전 마지막 날이라는 의미로 일치합니다."},{"text":"the ultimate day for consuming the product safely","isCorrect":false,"explanation":"제품을 안전하게 섭취할 수 있는 최종일이라는 뜻으로 적절합니다."}],"passage":"What you really need to check is the use-by date. This is the last day you can safely eat the food."},{"questionNumber":15,"sourceQuestion":"Passage 3 (Food expiration dates)","keyExpression":"as long as it is before the use-by date","questionText":"다음 중 'as long as it is before the use-by date'를 잘못 paraphrasing한 것은?","options":[{"text":"provided it hasn't passed the use-by date","isCorrect":false,"explanation":"사용기한을 넘기지 않았다면이라는 의미로 같습니다."},{"text":"if it's still within the use-by date","isCorrect":false,"explanation":"아직 사용기한 내에 있다면이라는 뜻으로 정확합니다."},{"text":"only after the use-by date has expired","isCorrect":true,"explanation":"사용기한이 만료된 후에만은 사용기한 전이라는 조건과 정반대입니다."},{"text":"on the condition that the use-by date hasn't arrived","isCorrect":false,"explanation":"사용기한이 도래하지 않았다는 조건하에라는 의미로 일치합니다."},{"text":"assuming the use-by date is yet to come","isCorrect":false,"explanation":"사용기한이 아직 오지 않았다고 가정하면이라는 뜻으로 적절합니다."}],"passage":"So you can still eat food that is past its sell-by date, as long as it is before the use-by date."},{"questionNumber":16,"sourceQuestion":"Passage 3 (Food expiration dates)","keyExpression":"it's not always easy to distinguish these dates","questionText":"다음 중 'it's not always easy to distinguish these dates'를 잘못 paraphrasing한 것은?","options":[{"text":"differentiating between these dates can be difficult","isCorrect":false,"explanation":"이 날짜들을 구별하는 것이 어려울 수 있다는 의미로 같습니다."},{"text":"telling these dates apart isn't always straightforward","isCorrect":false,"explanation":"이 날짜들을 구분하는 것이 항상 명확하지는 않다는 뜻으로 정확합니다."},{"text":"these dates are always clearly marked and obvious","isCorrect":true,"explanation":"날짜들이 항상 명확히 표시되어 있고 분명하다는 것은 구별하기 쉽지 않다는 것과 반대입니다."},{"text":"it can be challenging to tell these dates apart","isCorrect":false,"explanation":"이 날짜들을 구분하는 것이 어려울 수 있다는 의미로 일치합니다."},{"text":"distinguishing among these dates presents difficulties","isCorrect":false,"explanation":"이 날짜들을 구별하는 것이 어려움을 제시한다는 뜻으로 적절합니다."}],"passage":"Unfortunately, it's not always easy to distinguish these dates. As a result, people often waste food."},{"questionNumber":17,"sourceQuestion":"Passage 3 (Food expiration dates)","keyExpression":"people often waste food","questionText":"다음 중 'people often waste food'를 잘못 paraphrasing한 것은?","options":[{"text":"food is frequently discarded by people","isCorrect":false,"explanation":"음식이 사람들에 의해 자주 버려진다는 의미로 같습니다."},{"text":"individuals commonly throw away food","isCorrect":false,"explanation":"개인들이 흔히 음식을 버린다는 뜻으로 정확합니다."},{"text":"people consistently preserve all their food","isCorrect":true,"explanation":"사람들이 모든 음식을 일관되게 보존한다는 것은 음식을 낭비한다는 것과 정반대입니다."},{"text":"it's common for people to discard food unnecessarily","isCorrect":false,"explanation":"사람들이 불필요하게 음식을 버리는 것이 흔하다는 의미로 일치합니다."},{"text":"food wastage by people occurs regularly","isCorrect":false,"explanation":"사람들에 의한 음식 낭비가 정기적으로 발생한다는 뜻으로 적절합니다."}],"passage":"Unfortunately, it's not always easy to distinguish these dates. As a result, people often waste food."},{"questionNumber":18,"sourceQuestion":"Passage 3 (Food expiration dates)","keyExpression":"throw away perfectly good food","questionText":"다음 중 'throw away perfectly good food'를 잘못 paraphrasing한 것은?","options":[{"text":"discard food that is still perfectly edible","isCorrect":false,"explanation":"여전히 완벽하게 먹을 수 있는 음식을 버린다는 의미로 같습니다."},{"text":"dispose of food that's in good condition","isCorrect":false,"explanation":"좋은 상태의 음식을 처분한다는 뜻으로 정확합니다."},{"text":"save and consume all food before it spoils","isCorrect":true,"explanation":"상하기 전에 모든 음식을 저장하고 소비한다는 것은 좋은 음식을 버리는 것과 반대입니다."},{"text":"get rid of food that has nothing wrong with it","isCorrect":false,"explanation":"아무 문제없는 음식을 없앤다는 의미로 일치합니다."},{"text":"waste food that is completely safe to eat","isCorrect":false,"explanation":"먹기에 완전히 안전한 음식을 낭비한다는 뜻으로 적절합니다."}],"passage":"In fact, it was reported in 2017 that more than 80% of Americans throw away perfectly good food. What a waste!"},{"questionNumber":19,"sourceQuestion":"Passage 1 (Adam and Lisa's treasure hunting)","keyExpression":"they had discovered over 2,000 coins","questionText":"다음 중 'they had discovered over 2,000 coins'를 잘못 paraphrasing한 것은?","options":[{"text":"they found more than 2,000 coins","isCorrect":false,"explanation":"2,000개가 넘는 동전을 발견했다는 의미로 같습니다."},{"text":"their discovery amounted to over 2,000 coins","isCorrect":false,"explanation":"그들의 발견이 2,000개가 넘는 동전에 달했다는 뜻으로 정확합니다."},{"text":"they uncovered fewer than 100 coins","isCorrect":true,"explanation":"100개 미만의 동전을 발견했다는 것은 2,000개가 넘는다는 것과 전혀 다릅니다."},{"text":"they unearthed in excess of 2,000 coins","isCorrect":false,"explanation":"2,000개를 초과하는 동전을 발굴했다는 의미로 일치합니다."},{"text":"more than two thousand coins were found by them","isCorrect":false,"explanation":"2천 개가 넘는 동전이 그들에 의해 발견되었다는 뜻으로 적절합니다."}],"passage":"After digging around for hours, they had discovered over 2,000 coins."},{"questionNumber":20,"sourceQuestion":"Passage 1 (Adam and Lisa's treasure hunting)","keyExpression":"the coins were more than 1,000 years old","questionText":"다음 중 'the coins were more than 1,000 years old'를 잘못 paraphrasing한 것은?","options":[{"text":"the coins dated back over a millennium","isCorrect":false,"explanation":"동전들이 천 년 이상 전으로 거슬러 올라간다는 의미로 같습니다."},{"text":"the coins had an age exceeding 1,000 years","isCorrect":false,"explanation":"동전들이 1,000년을 초과하는 나이를 가졌다는 뜻으로 정확합니다."},{"text":"the coins were recently minted within the last decade","isCorrect":true,"explanation":"최근 10년 내에 주조되었다는 것은 1,000년 이상 되었다는 것과 완전히 반대입니다."},{"text":"these coins were over ten centuries old","isCorrect":false,"explanation":"이 동전들이 10세기가 넘게 오래되었다는 의미로 일치합니다."},{"text":"the age of the coins surpassed 1,000 years","isCorrect":false,"explanation":"동전들의 나이가 1,000년을 넘었다는 뜻으로 적절합니다."}],"passage":"Surprisingly, the coins were more than 1,000 years old. And there was even better news."},{"questionNumber":21,"sourceQuestion":"Passage 1 (Adam and Lisa's treasure hunting)","keyExpression":"many people started hunting for treasure","questionText":"다음 중 'many people started hunting for treasure'를 잘못 paraphrasing한 것은?","options":[{"text":"numerous individuals began searching for valuable finds","isCorrect":false,"explanation":"많은 사람들이 가치 있는 발견물을 찾기 시작했다는 의미로 같습니다."},{"text":"a lot of people commenced treasure hunting","isCorrect":false,"explanation":"많은 사람들이 보물 찾기를 시작했다는 뜻으로 정확합니다."},{"text":"everyone abandoned the idea of looking for treasures","isCorrect":true,"explanation":"모두가 보물 찾기 생각을 포기했다는 것은 많은 사람들이 시작했다는 것과 정반대입니다."},{"text":"treasure hunting attracted many new participants","isCorrect":false,"explanation":"보물 찾기가 많은 새로운 참가자를 끌어들였다는 의미로 일치합니다."},{"text":"people in large numbers took up treasure hunting","isCorrect":false,"explanation":"많은 수의 사람들이 보물 찾기를 시작했다는 뜻으로 적절합니다."}],"passage":"Their story soon spread, and many people started hunting for treasure."},{"questionNumber":22,"sourceQuestion":"Passage 2 (Love game in tennis)","keyExpression":"What comes to mind when you hear 'love game'?","questionText":"다음 중 'What comes to mind when you hear love game?'를 잘못 paraphrasing한 것은?","options":[{"text":"What do you think of when you hear 'love game'?","isCorrect":false,"explanation":"'love game'을 들으면 무엇이 생각나는가라는 의미로 같습니다."},{"text":"What associations arise when you encounter the term 'love game'?","isCorrect":false,"explanation":"'love game'이라는 용어를 접할 때 어떤 연상이 떠오르는가라는 뜻으로 정확합니다."},{"text":"Why do people avoid discussing 'love game'?","isCorrect":true,"explanation":"사람들이 'love game'을 논의하는 것을 피하는 이유는 무엇이 떠오르는지와 전혀 다른 질문입니다."},{"text":"What's your first thought upon hearing 'love game'?","isCorrect":false,"explanation":"'love game'을 들었을 때 첫 번째 생각이 무엇인가라는 의미로 일치합니다."},{"text":"What springs to mind at the mention of 'love game'?","isCorrect":false,"explanation":"'love game'이 언급될 때 무엇이 떠오르는가라는 뜻으로 적절합니다."}],"passage":"What comes to mind when you hear 'love game'? You might think of a complicated relationship between lovers."},{"questionNumber":23,"sourceQuestion":"Passage 2 (Love game in tennis)","keyExpression":"a complicated relationship between lovers","questionText":"다음 중 'a complicated relationship between lovers'를 잘못 paraphrasing한 것은?","options":[{"text":"a complex romantic involvement","isCorrect":false,"explanation":"복잡한 연애 관계라는 의미로 같습니다."},{"text":"an intricate connection between romantic partners","isCorrect":false,"explanation":"연인들 사이의 복잡한 연결이라는 뜻으로 정확합니다."},{"text":"a simple and straightforward friendship","isCorrect":true,"explanation":"단순하고 명확한 우정은 연인 간의 복잡한 관계와 전혀 다릅니다."},{"text":"a difficult love affair","isCorrect":false,"explanation":"어려운 연애 사건이라는 의미로 일치합니다."},{"text":"an entangled situation between people in love","isCorrect":false,"explanation":"사랑에 빠진 사람들 사이의 얽힌 상황이라는 뜻으로 적절합니다."}],"passage":"You might think of a complicated relationship between lovers. But 'love game' is a term in tennis."},{"questionNumber":24,"sourceQuestion":"Passage 2 (Love game in tennis)","keyExpression":"Some witty French people found that","questionText":"다음 중 'Some witty French people found that'를 잘못 paraphrasing한 것은?","options":[{"text":"Certain clever French individuals discovered that","isCorrect":false,"explanation":"몇몇 영리한 프랑스 사람들이 발견했다는 의미로 같습니다."},{"text":"Some humorous French observers noticed that","isCorrect":false,"explanation":"몇몇 유머러스한 프랑스 관찰자들이 알아차렸다는 뜻으로 정확합니다."},{"text":"Most Americans completely ignored the fact that","isCorrect":true,"explanation":"대부분의 미국인들이 완전히 무시했다는 것은 프랑스 사람들이 발견했다는 것과 다른 주체와 행동입니다."},{"text":"Some quick-thinking French people realized that","isCorrect":false,"explanation":"몇몇 재빠른 프랑스 사람들이 깨달았다는 의미로 일치합니다."},{"text":"Certain ingenious French individuals observed that","isCorrect":false,"explanation":"어떤 기발한 프랑스 개인들이 관찰했다는 뜻으로 적절합니다."}],"passage":"Some witty French people found that a zero on the board looked like an egg."},{"questionNumber":25,"sourceQuestion":"Passage 3 (Food expiration dates)","keyExpression":"What you really need to check is the use-by date","questionText":"다음 중 'What you really need to check is the use-by date'를 잘못 paraphrasing한 것은?","options":[{"text":"The crucial date to verify is the use-by date","isCorrect":false,"explanation":"확인해야 할 중요한 날짜는 사용기한이라는 의미로 같습니다."},{"text":"You should primarily focus on the use-by date","isCorrect":false,"explanation":"주로 사용기한에 집중해야 한다는 뜻으로 정확합니다."},{"text":"The sell-by date is the only date that matters","isCorrect":true,"explanation":"판매기한이 중요한 유일한 날짜라는 것은 사용기한을 확인해야 한다는 것과 다릅니다."},{"text":"The most important date to look at is the use-by date","isCorrect":false,"explanation":"봐야 할 가장 중요한 날짜는 사용기한이라는 의미로 일치합니다."},{"text":"It's the use-by date that truly requires your attention","isCorrect":false,"explanation":"진정으로 주의가 필요한 것은 사용기한이라는 뜻으로 적절합니다."}],"passage":"What you really need to check is the use-by date. This is the last day you can safely eat the food."}]};
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+class ParaphraseTest {
+  constructor() {
+    this.allQuestions = CONFIG.questions;
+    this.passThreshold = CONFIG.passThreshold;
+    this.app = document.getElementById('app');
+    this.titleEl = document.getElementById('page-title');
+    this.subtitleEl = document.getElementById('page-subtitle');
+    this.round = 0;
+    this.correctSet = new Set();
+    this.wrongHistory = [];
+    this.roundHistory = [];
+    this.showingPassage = false;
+
+    // Batch system
+    this.batchSize = 0; // 0 = all
+    this.batches = [];
+    this.currentBatchIdx = 0;
+    this.batchResults = []; // {correct, wrong, pct} per batch
+    this.shuffledAll = [];
+
+    document.addEventListener('click', (e) => {
+      const t = e.target.closest('[data-option-index]');
+      if (t) {
+        t.blur();
+        this.checkAnswer(parseInt(t.dataset.optionIndex));
+        return;
+      }
+      const batchEl = e.target.closest('[data-batch-size]');
+      if (batchEl) {
+        this.selectBatchSize(parseInt(batchEl.dataset.batchSize));
+        return;
+      }
+      const batchNavEl = e.target.closest('[data-batch-idx]');
+      if (batchNavEl) {
+        this.jumpToBatch(parseInt(batchNavEl.dataset.batchIdx));
+        return;
+      }
+      const actionEl = e.target.closest('[data-action]');
+      if (actionEl) {
+        const action = actionEl.dataset.action;
+        if (typeof this[action] === 'function') this[action]();
+      }
+    });
+
+    this.showStartScreen();
+  }
+
+  render(html) { this.app.innerHTML = html; }
+  setTitle(t) { this.titleEl.textContent = t; }
+  setSubtitle(t) { this.subtitleEl.textContent = t; }
+
+  showStartScreen() {
+    this.setTitle(CONFIG.title);
+    this.setSubtitle('Paraphrasing 표현 테스트');
+    const total = this.allQuestions.length;
+
+    // Build batch size options
+    const batchOptions = [];
+    if (total > 10) {
+      batchOptions.push({ size: 10, icon: '📋', label: '10문제씩', desc: `총 ${Math.ceil(total/10)}세트로 나눠 풀기` });
+    }
+    if (total > 20) {
+      batchOptions.push({ size: 20, icon: '📑', label: '20문제씩', desc: `총 ${Math.ceil(total/20)}세트로 나눠 풀기` });
+    }
+    if (total > 30) {
+      batchOptions.push({ size: 30, icon: '📚', label: '30문제씩', desc: `총 ${Math.ceil(total/30)}세트로 나눠 풀기` });
+    }
+
+    const batchHTML = batchOptions.length > 0 ? `
+      <div style="margin-top:24px">
+        <div style="font-size:.9rem;font-weight:600;color:#374151;margin-bottom:12px;text-align:left">테스트 방식 선택</div>
+        <div class="batch-select-grid">
+          <button class="batch-btn" data-batch-size="0">
+            <div class="batch-icon" style="background:#eff6ff;color:#3b82f6">🎯</div>
+            <div class="batch-info">
+              <div class="batch-title">전체 풀기 (${total}문제)</div>
+              <div class="batch-desc">모든 문제를 한 번에 풀기</div>
+            </div>
+          </button>
+          ${batchOptions.map(b => `
+            <button class="batch-btn" data-batch-size="${b.size}">
+              <div class="batch-icon" style="background:#f0fdf4;color:#16a34a">${b.icon}</div>
+              <div class="batch-info">
+                <div class="batch-title">${b.label}</div>
+                <div class="batch-desc">${b.desc}</div>
+              </div>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    ` : `
+      <button class="btn btn-primary btn-block" data-batch-size="0" style="margin-top:20px;font-size:1.1rem;padding:16px">
+        테스트 시작하기 (${total}문제)
+      </button>
+    `;
+
+    this.render(`
+      <div class="start-info" style="animation:fadeIn .5s">
+        <div style="font-size:3rem;margin-bottom:12px">📝</div>
+        <h2 style="font-size:1.3rem;font-weight:700;color:#1f2937;margin-bottom:8px">Paraphrasing 테스트</h2>
+        <p style="color:#6b7280;font-size:.9rem">각 문제에서 잘못 paraphrasing된 표현을 찾으세요</p>
+        <div class="info-grid">
+          <div class="info-card"><div class="label">총 문항 수</div><div class="value">${total}문제</div></div>
+          <div class="info-card"><div class="label">문제 유형</div><div class="value" style="font-size:.9rem">오지선다 객관식</div></div>
+          <div class="info-card"><div class="label">통과 기준</div><div class="value">${this.passThreshold}%</div></div>
+          <div class="info-card"><div class="label">규칙</div><div class="value" style="font-size:.8rem">미달 시 재시험</div></div>
+        </div>
+        ${batchHTML}
+      </div>
+    `);
+  }
+
+  selectBatchSize(size) {
+    this.batchSize = size;
+    this.shuffledAll = shuffle([...this.allQuestions]);
+    if (size === 0) {
+      this.batches = [this.shuffledAll];
+    } else {
+      this.batches = [];
+      for (let i = 0; i < this.shuffledAll.length; i += size) {
+        this.batches.push(this.shuffledAll.slice(i, i + size));
+      }
+    }
+    this.currentBatchIdx = 0;
+    this.batchResults = this.batches.map(() => null);
+    this.startBatch(0);
+  }
+
+  startBatch(idx) {
+    this.currentBatchIdx = idx;
+    this.round = 0;
+    this.correctSet = new Set();
+    this.wrongHistory = [];
+    this.roundHistory = [];
+    const batchQuestions = this.batches[idx];
+    this.batchQuestions = batchQuestions;
+    this.roundQuestions = [...batchQuestions];
+    this.startRound();
+  }
+
+  startRound() {
+    this.round++;
+    this.roundQuestions = shuffle(this.roundQuestions);
+    this.qIndex = 0;
+    this.roundCorrect = [];
+    this.roundWrong = [];
+    this.answered = false;
+    const batchLabel = this.batches.length > 1 ? `세트 ${this.currentBatchIdx+1}/${this.batches.length} · ` : '';
+    this.setSubtitle(`${batchLabel}${this.round}라운드 진행 중`);
+    this.showQuestion();
+  }
+
+  getBatchDotsHTML() {
+    if (this.batches.length <= 1) return '';
+    let html = '<div class="batch-progress">';
+    this.batches.forEach((b, i) => {
+      let cls = '';
+      if (i === this.currentBatchIdx) cls = 'current';
+      else if (this.batchResults[i]) {
+        cls = this.batchResults[i].passed ? 'done' : 'fail';
+      }
+      html += `<div class="batch-dot ${cls}" title="세트 ${i+1}: ${b.length}문제">${i+1}</div>`;
+    });
+    html += '</div>';
+    return html;
+  }
+
+  showQuestion() {
+    if (this.qIndex >= this.roundQuestions.length) { this.endRound(); return; }
+    this.answered = false;
+    this.showingPassage = false;
+    const q = this.roundQuestions[this.qIndex];
+    const total = this.roundQuestions.length;
+    const pct = ((this.qIndex) / total * 100).toFixed(0);
+
+    const shuffledOptions = shuffle(q.options.map((o, i) => ({ ...o, origIdx: i })));
+    this.currentOptions = shuffledOptions;
+
+    const optionsHTML = shuffledOptions.map((opt, i) =>
+      `<button class="option-btn" data-option-index="${i}">
+        <span class="num">${String.fromCharCode(9312 + i)}</span>
+        <span>${esc(opt.text)}</span>
+      </button>`
+    ).join('');
+
+    const batchBadge = this.batches.length > 1
+      ? `<span class="batch-badge">세트 ${this.currentBatchIdx+1}/${this.batches.length}</span>`
+      : '';
+
+    this.render(`
+      <div style="animation:fadeIn .3s">
+        ${this.getBatchDotsHTML()}
+        <div><span class="round-badge">${this.round}라운드</span>${batchBadge}<span class="source-badge">${esc(q.sourceQuestion)}</span></div>
+        <div class="question-counter">${this.qIndex + 1} / ${total}</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="question-box">
+          <div class="key-expr">"${esc(q.keyExpression)}"</div>
+          <div class="q-text">${esc(q.questionText)}</div>
+        </div>
+        <div style="text-align:center">
+          <button class="show-passage-btn" data-action="togglePassage">📖 지문 보기</button>
+        </div>
+        <div id="passage-area"></div>
+        <div class="options">${optionsHTML}</div>
+      </div>
+    `);
+  }
+
+  togglePassage() {
+    const area = document.getElementById('passage-area');
+    if (!area) return;
+    this.showingPassage = !this.showingPassage;
+    const q = this.roundQuestions[this.qIndex];
+    area.innerHTML = this.showingPassage
+      ? `<div class="passage-box" style="animation:fadeIn .3s">${esc(q.passage)}</div>`
+      : '';
+  }
+
+  checkAnswer(optionIndex) {
+    if (this.answered) return;
+    this.answered = true;
+    const q = this.roundQuestions[this.qIndex];
+    const selected = this.currentOptions[optionIndex];
+    const isCorrect = selected.isCorrect;
+    const correctOption = this.currentOptions.find(o => o.isCorrect);
+    const correctIdx = this.currentOptions.indexOf(correctOption);
+
+    if (isCorrect) {
+      this.roundCorrect.push(q);
+      this.correctSet.add(q.questionNumber);
+    } else {
+      this.roundWrong.push({
+        questionText: q.questionText,
+        keyExpression: q.keyExpression,
+        userAnswer: selected.text,
+        correctAnswer: correctOption.text,
+        explanation: correctOption.explanation
+      });
+      this.wrongHistory.push({
+        questionText: q.questionText,
+        keyExpression: q.keyExpression,
+        userAnswer: selected.text,
+        correctAnswer: correctOption.text,
+        explanation: correctOption.explanation,
+        round: this.round
+      });
+    }
+
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === correctIdx) btn.classList.add(isCorrect ? 'correct' : 'reveal');
+      else if (i === optionIndex && !isCorrect) btn.classList.add('wrong');
+    });
+
+    const explanation = isCorrect
+      ? `<div class="feedback correct">정답입니다! ✅<div class="explanation">${esc(selected.explanation)}</div></div>`
+      : `<div class="feedback wrong">오답입니다 ❌<div class="explanation">정답: <strong>${esc(correctOption.text)}</strong><br>${esc(correctOption.explanation)}</div></div>`;
+
+    const container = document.createElement('div');
+    container.innerHTML = explanation + '<div style="text-align:center;margin-top:16px"><button class="btn btn-primary" data-action="nextQuestion">다음 문제</button></div>';
+    this.app.querySelector('div').appendChild(container);
+  }
+
+  nextQuestion() {
+    this.qIndex++;
+    this.showQuestion();
+  }
+
+  endRound() {
+    const total = this.batchQuestions.length;
+    const pct = Math.round((this.correctSet.size / total) * 100);
+    const passed = pct >= this.passThreshold;
+
+    this.roundHistory.push({
+      round: this.round,
+      tested: this.roundQuestions.length,
+      correct: this.roundCorrect.length,
+      wrong: this.roundWrong.length,
+      overallPct: pct
+    });
+
+    if (passed) {
+      this.batchResults[this.currentBatchIdx] = { passed: true, pct, rounds: this.round, wrongCount: this.wrongHistory.length };
+      this.showBatchPassedScreen(pct);
+    } else {
+      this.showRoundSummary(pct);
+    }
+  }
+
+  showRoundSummary(pct) {
+    const total = this.batchQuestions.length;
+    const remaining = total - this.correctSet.size;
+    const batchLabel = this.batches.length > 1 ? `세트 ${this.currentBatchIdx+1} · ` : '';
+    this.setSubtitle(`${batchLabel}${this.round}라운드 결과`);
+    this.render(`
+      <div style="animation:fadeIn .4s">
+        ${this.getBatchDotsHTML()}
+        <div class="score-circle fail">${pct}%</div>
+        <div style="text-align:center;margin:16px 0">
+          <h3 style="font-size:1.2rem;font-weight:700;color:#1f2937;margin-bottom:8px">${this.round}라운드 결과</h3>
+          <p style="color:#6b7280;font-size:.9rem">통과 기준: ${this.passThreshold}% | 현재: ${pct}%</p>
+        </div>
+        <div class="summary-card">
+          <div class="stat-row"><span class="stat-label">이번 라운드 문제 수</span><span class="stat-value">${this.roundQuestions.length}개</span></div>
+          <div class="stat-row"><span class="stat-label">이번 라운드 정답</span><span class="stat-value pass">${this.roundCorrect.length}개</span></div>
+          <div class="stat-row"><span class="stat-label">이번 라운드 오답</span><span class="stat-value fail">${this.roundWrong.length}개</span></div>
+          <div class="stat-row"><span class="stat-label">전체 정답 누적</span><span class="stat-value">${this.correctSet.size} / ${total}개</span></div>
+          <div class="stat-row"><span class="stat-label">남은 문항</span><span class="stat-value fail">${remaining}개</span></div>
+        </div>
+        <div style="text-align:center;margin-top:16px;padding:16px;background:#fef2f2;border-radius:12px;border:1px solid #fecaca">
+          <p style="color:#991b1b;font-weight:600;font-size:.95rem">통과 기준에 미달하여 틀린 문제로 재시험을 봅니다.</p>
+        </div>
+        <button class="btn btn-primary btn-block" style="margin-top:20px;font-size:1.05rem" data-action="startNextRound">
+          다음 라운드 시작 (${remaining}문제)
+        </button>
+      </div>
+    `);
+  }
+
+  startNextRound() {
+    this.roundQuestions = this.batchQuestions.filter(q => !this.correctSet.has(q.questionNumber));
+    this.startRound();
+  }
+
+  showBatchPassedScreen(pct) {
+    const hasMoreBatches = this.batches.length > 1 && this.currentBatchIdx < this.batches.length - 1;
+    const isAllDone = this.batches.length <= 1 || this.batchResults.every(r => r && r.passed);
+    const batchLabel = this.batches.length > 1 ? `세트 ${this.currentBatchIdx+1}` : '';
+
+    if (isAllDone) {
+      this.showFinalScreen();
+      return;
+    }
+
+    this.setTitle(batchLabel + ' 통과!');
+    this.setSubtitle(`성취도 ${pct}% 달성`);
+    this.showConfetti();
+
+    // Wrong history for this batch
+    const hasWrong = this.wrongHistory.length > 0;
+    let wrongHTML = '';
+    if (hasWrong) {
+      wrongHTML = '<div class="wrong-list"><h3 style="font-size:1rem;font-weight:700;color:#1f2937;margin-bottom:12px">이번 세트 틀렸던 문제</h3>';
+      this.wrongHistory.forEach(w => {
+        wrongHTML += `<div class="wrong-item">
+          <div class="q-title">"${esc(w.keyExpression)}" - ${esc(w.questionText)}</div>
+          <div>내 답: <span class="user-answer">${esc(w.userAnswer)}</span></div>
+          <div>정답: <span class="correct-answer">${esc(w.correctAnswer)}</span></div>
+          <div style="color:#6b7280;font-size:.8rem;margin-top:4px">${esc(w.explanation)}</div>
+        </div>`;
+      });
+      wrongHTML += '</div>';
+    }
+
+    // Find next incomplete batch
+    let nextIdx = -1;
+    for (let i = 0; i < this.batches.length; i++) {
+      if (!this.batchResults[i]) { nextIdx = i; break; }
+    }
+
+    const completedCount = this.batchResults.filter(r => r && r.passed).length;
+
+    // Clickable batch navigation
+    let batchNavHTML = '<div style="margin-top:16px"><div style="font-size:.85rem;font-weight:600;color:#374151;margin-bottom:8px">세트 선택 (클릭하여 이동)</div><div class="batch-progress">';
+    this.batches.forEach((b, i) => {
+      let cls = '';
+      let pointer = 'cursor:pointer;';
+      if (this.batchResults[i] && this.batchResults[i].passed) cls = 'done';
+      else if (i === nextIdx) cls = 'current';
+      batchNavHTML += `<div class="batch-dot ${cls}" style="${pointer}" data-batch-idx="${i}" title="세트 ${i+1}: ${b.length}문제">${i+1}</div>`;
+    });
+    batchNavHTML += '</div></div>';
+
+    this.render(`
+      <div style="animation:fadeIn .5s">
+        ${this.getBatchDotsHTML()}
+        <div class="celebration">
+          <div class="emoji">✅</div>
+          <h2>${batchLabel} 통과!</h2>
+          <p>진행률: ${completedCount}/${this.batches.length} 세트 완료</p>
+        </div>
+        <div class="score-circle pass">${pct}%</div>
+        <div class="summary-card">
+          <h3>세트 결과</h3>
+          <div class="stat-row"><span class="stat-label">문제 수</span><span class="stat-value">${this.batchQuestions.length}개</span></div>
+          <div class="stat-row"><span class="stat-label">라운드 수</span><span class="stat-value">${this.round}회</span></div>
+          <div class="stat-row"><span class="stat-label">성취도</span><span class="stat-value pass">${pct}%</span></div>
+          <div class="stat-row"><span class="stat-label">오답 횟수</span><span class="stat-value ${this.wrongHistory.length > 0 ? 'fail' : 'pass'}">${this.wrongHistory.length}회</span></div>
+        </div>
+        ${wrongHTML}
+        ${batchNavHTML}
+        <div class="buttons-row" style="margin-top:20px">
+          ${nextIdx >= 0 ? `<button class="btn btn-primary" data-action="goNextBatch" style="flex:1;font-size:1.05rem;padding:16px">다음 세트 시작 (세트 ${nextIdx+1}) →</button>` : ''}
+          <button class="btn btn-secondary" data-action="showStartScreen">처음으로</button>
+        </div>
+      </div>
+    `);
+  }
+
+  goNextBatch() {
+    for (let i = 0; i < this.batches.length; i++) {
+      if (!this.batchResults[i]) {
+        this.startBatch(i);
+        return;
+      }
+    }
+    this.showFinalScreen();
+  }
+
+  jumpToBatch(idx) {
+    if (idx >= 0 && idx < this.batches.length) {
+      this.startBatch(idx);
+    }
+  }
+
+  showFinalScreen() {
+    this.setTitle('전체 완료!');
+    const totalQ = this.allQuestions.length;
+    let totalWrong = 0;
+    let totalRounds = 0;
+    this.batchResults.forEach(r => {
+      if (r) { totalWrong += r.wrongCount; totalRounds += r.rounds; }
+    });
+    const overallPct = 100;
+    this.setSubtitle(`전체 ${totalQ}문제 통과`);
+    this.showConfetti();
+
+    let batchSummaryHTML = '';
+    if (this.batches.length > 1) {
+      batchSummaryHTML = '<div class="summary-card"><h3>세트별 결과</h3>';
+      this.batchResults.forEach((r, i) => {
+        if (r) {
+          batchSummaryHTML += `<div class="stat-row"><span class="stat-label">세트 ${i+1} (${this.batches[i].length}문제)</span><span class="stat-value">${r.pct}% · ${r.rounds}라운드 · 오답 ${r.wrongCount}회</span></div>`;
+        }
+      });
+      batchSummaryHTML += '</div>';
+    }
+
+    this.render(`
+      <div style="animation:fadeIn .5s">
+        <div class="celebration">
+          <div class="emoji">🎉</div>
+          <h2>축하합니다! 전체 통과!</h2>
+          <p>모든 ${this.batches.length > 1 ? this.batches.length + '개 세트' : '문제'}를 완료했습니다.</p>
+        </div>
+        <div class="score-circle pass">100%</div>
+        <div class="summary-card">
+          <h3>최종 결과</h3>
+          <div class="stat-row"><span class="stat-label">총 문항 수</span><span class="stat-value">${totalQ}개</span></div>
+          ${this.batches.length > 1 ? `<div class="stat-row"><span class="stat-label">총 세트 수</span><span class="stat-value">${this.batches.length}세트</span></div>` : ''}
+          <div class="stat-row"><span class="stat-label">총 라운드 수</span><span class="stat-value">${totalRounds}회</span></div>
+          <div class="stat-row"><span class="stat-label">총 오답 횟수</span><span class="stat-value ${totalWrong > 0 ? 'fail' : 'pass'}">${totalWrong}회</span></div>
+        </div>
+        ${batchSummaryHTML}
+        <div class="buttons-row" style="margin-top:24px">
+          <button class="btn btn-primary" data-action="showStartScreen">처음으로 돌아가기</button>
+        </div>
+      </div>
+    `);
+  }
+
+  showConfetti() {
+    const container = document.createElement('div');
+    container.className = 'confetti-container';
+    const colors = ['#1e3a5f','#3b82f6','#f59e0b','#10b981','#ef4444','#ec4899','#8b5cf6'];
+    for (let i = 0; i < 60; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + '%';
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDelay = (Math.random() * 2) + 's';
+      piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+      const size = 6 + Math.random() * 8;
+      piece.style.width = size + 'px';
+      piece.style.height = size + 'px';
+      piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      container.appendChild(piece);
+    }
+    document.body.appendChild(container);
+    setTimeout(() => container.remove(), 5000);
+  }
+}
+
+new ParaphraseTest();
+</script>
+</body>
+</html>
