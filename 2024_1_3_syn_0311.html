@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>2024_1_3_syn_0311 유의어 테스트</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%;-webkit-text-size-adjust:100%}
+body{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Malgun Gothic',sans-serif;background:#0f172a;min-height:100%;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0);-webkit-font-smoothing:antialiased;overscroll-behavior-y:contain}
+.wrap{max-width:500px;margin:0 auto;min-height:100vh;background:#fff;display:flex;flex-direction:column}
+.header{background:#0f172a;padding:20px;color:#fff;text-align:center;position:sticky;top:0;z-index:10;flex-shrink:0}
+.header h1{font-size:1.1rem;font-weight:700;margin-bottom:2px;line-height:1.3;word-break:keep-all}
+.header p{opacity:.7;font-size:.78rem}
+.content{padding:20px 16px 32px;flex:1}
+.prog-bar{height:6px;background:#e2e8f0;border-radius:3px;margin-bottom:20px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .4s ease}
+.q-counter{text-align:center;font-size:.82rem;color:#64748b;margin-bottom:6px;font-weight:500}
+.round-tag{display:inline-block;background:rgba(139,92,246,.12);color:#7c3aed;padding:5px 14px;border-radius:20px;font-size:.78rem;font-weight:700;margin-bottom:14px;border:1px solid rgba(139,92,246,.25)}
+.kor-word{text-align:center;font-size:1.5rem;font-weight:700;color:#0f172a;margin:16px 0;padding:20px 16px;background:#f8fafc;border-radius:14px;border:2px solid #e2e8f0;line-height:1.4;word-break:keep-all}
+.sentence-area{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;font-size:.9rem;color:#1e40af;line-height:1.6;margin-bottom:12px;word-break:keep-all;text-align:center}
+.q-hint{text-align:center;font-size:.8rem;color:#8b5cf6;font-weight:600;margin-bottom:12px;padding:8px;background:rgba(139,92,246,.06);border-radius:8px}
+/* Multi-select checkbox buttons */
+.opts{margin-top:4px;display:flex;flex-direction:column;gap:10px}
+.chk-btn{display:flex;align-items:center;gap:12px;width:100%;padding:14px 18px;background:#fff;border:2px solid #e2e8f0;border-radius:14px;font-size:.95rem;font-weight:500;cursor:pointer;transition:all .15s;text-align:left;font-family:inherit;color:#0f172a;min-height:52px;line-height:1.3}
+.chk-btn:active{transform:scale(.98)}
+.chk-box{width:20px;height:20px;border-radius:5px;border:2px solid #cbd5e1;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;transition:all .15s;background:white}
+.chk-btn.selected .chk-box{background:#8b5cf6;border-color:#8b5cf6;color:white}
+.chk-btn.selected{border-color:#8b5cf6;background:rgba(139,92,246,.06)}
+.chk-btn.correct{border-color:#10b981;background:#ecfdf5;color:#065f46}
+.chk-btn.correct .chk-box{background:#10b981;border-color:#10b981;color:white}
+.chk-btn.wrong{border-color:#ef4444;background:#fef2f2;color:#991b1b}
+.chk-btn.wrong .chk-box{background:#ef4444;border-color:#ef4444;color:white}
+.chk-btn.reveal{border-color:#10b981;background:#ecfdf5;color:#065f46}
+.chk-btn.reveal .chk-box{border-color:#10b981}
+.chk-btn[disabled]{cursor:default}
+.syn-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700;margin-right:3px;margin-bottom:3px}
+.syn-tag.s{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.syn-tag.a{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+.syn-pill{display:inline-flex;flex-direction:column;align-items:center;padding:6px 12px;border-radius:12px;font-size:.82rem;text-align:center;min-width:60px}
+.syn-pill.s{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.syn-pill.a{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+.btn{display:block;width:100%;padding:16px 24px;border:none;border-radius:14px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit;text-align:center;min-height:52px;line-height:1.2}
+.btn:active{transform:scale(.97);opacity:.9}
+.btn+.btn{margin-top:10px}
+.btn-accent{background:#8b5cf6;color:#fff}
+.btn-primary{background:#0f172a;color:#fff}
+.btn-secondary{background:#f1f5f9;color:#475569}
+.btn-ghost{background:transparent;color:#64748b;border:1px solid #e2e8f0}
+.btn-know{background:#10b981;color:#fff}
+.btn-dunno{background:#ef4444;color:#fff}
+.fb{text-align:center;padding:16px;border-radius:14px;margin-top:16px;font-weight:600;font-size:.95rem}
+.fb.ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+.fb.ng{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.fb .ans{font-weight:400;margin-top:8px;font-size:.85rem}
+.card{background:#f8fafc;border-radius:14px;padding:20px 16px;margin-bottom:14px;border:1px solid #e2e8f0}
+.card h3{font-size:1rem;font-weight:700;margin-bottom:10px;color:#0f172a}
+.sr{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #e2e8f0;font-size:.88rem;align-items:center}
+.sr:last-child{border-bottom:none}
+.sl{color:#64748b}
+.sv{font-weight:600;color:#0f172a}
+.sv.g{color:#10b981}
+.sv.r{color:#ef4444}
+.sc{width:110px;height:110px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:16px auto;font-size:1.8rem;font-weight:800;border:5px solid}
+.sc.g{border-color:#10b981;color:#10b981;background:#ecfdf5}
+.sc.r{border-color:#ef4444;color:#ef4444;background:#fef2f2}
+.sc.purple{border-color:#8b5cf6;color:#8b5cf6;background:#f5f3ff}
+.ig{margin:20px 0}
+.ig-row{display:flex;margin-bottom:10px}
+.ig-row .ic{flex:1;background:#f8fafc;border-radius:12px;padding:14px 10px;text-align:center;border:1px solid #e2e8f0}
+.ig-row .ic+.ic{margin-left:10px}
+.ic .lb{font-size:.78rem;color:#64748b;margin-bottom:3px}
+.ic .vl{font-size:1rem;font-weight:700;color:#0f172a}
+.sg{display:flex;flex-wrap:wrap;margin-bottom:14px;margin-left:-5px;margin-right:-5px}
+.sc-w{width:50%;padding:5px;box-sizing:border-box}
+.s-card{padding:14px 10px;border-radius:12px;border:2px solid #e2e8f0;background:#fff;text-align:center;transition:all .15s;cursor:default;height:100%}
+.s-card .sn{font-weight:700;font-size:.9rem;color:#0f172a;margin-bottom:2px}
+.s-card .sw{font-size:.72rem;color:#94a3b8;margin-bottom:8px}
+.s-card .sb{height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden;margin-bottom:6px}
+.s-card .sbf{height:100%;border-radius:2px;transition:width .3s}
+.s-card .ss{font-size:.78rem;font-weight:600;color:#94a3b8}
+.s-card.cur{border-color:#8b5cf6;background:#f5f3ff;cursor:pointer}
+.s-card.cur .ss{color:#7c3aed}
+.s-card.cur .sbf{background:#8b5cf6}
+.s-card.dn{border-color:#86efac;background:#f0fdf4;cursor:pointer}
+.s-card.dn .ss{color:#059669}
+.s-card.dn .sbf{background:#10b981}
+.ob{margin-bottom:18px;padding:14px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0}
+.ob-top{display:flex;justify-content:space-between;margin-bottom:6px;font-size:.82rem}
+.ob-bar{height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;position:relative}
+.ob-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.ob-mark{position:absolute;top:0;height:100%;width:2px;background:rgba(0,0,0,.25)}
+.ob-sub{font-size:.72rem;color:#94a3b8;margin-top:4px}
+.wl{margin-top:14px}
+.wi{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#fff;border-radius:10px;margin-bottom:8px;border:1px solid #fecaca;font-size:.82rem}
+.wi .ww{font-weight:600;color:#0f172a}
+.wi .wr{color:#94a3b8;font-size:.72rem}
+.wi .wa{color:#ef4444;text-decoration:line-through}
+.wi .wc{color:#10b981;font-weight:600}
+.celeb{text-align:center;padding:16px 0}
+.celeb .em{font-size:3.5rem;margin-bottom:12px}
+.celeb h2{font-size:1.3rem;font-weight:800;color:#0f172a;margin-bottom:6px}
+.celeb p{color:#64748b;font-size:.9rem;line-height:1.5;word-break:keep-all}
+.alert-r{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:14px;border-radius:12px;text-align:center;margin-top:14px;font-size:.88rem;font-weight:600;word-break:keep-all}
+.alert-g{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;padding:14px;border-radius:12px;text-align:center;margin-top:14px;font-size:.88rem;font-weight:600;word-break:keep-all}
+.conf{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1000;overflow:hidden}
+.conf i{position:absolute;top:-12px;display:block}
+/* Flashcard */
+.fc-scene{perspective:1000px;margin:0 0 24px 0;transform:translateZ(0)}
+.fc-card{width:100%;position:relative;cursor:pointer;transform-style:preserve-3d;transition:transform .45s ease;will-change:transform;transform:translateZ(0)}
+.fc-card.flipped{transform:rotateY(180deg)}
+.fc-face{width:100%;min-height:240px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;backface-visibility:hidden;text-align:center;transform:translateZ(0)}
+.fc-front{background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:2px solid #c4b5fd}
+.fc-back{position:absolute;top:0;left:0;right:0;background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:2px solid #86efac;transform:rotateY(180deg);min-height:240px}
+.fc-front .fc-label{font-size:.75rem;color:#7c3aed;font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
+.fc-front .fc-word{font-size:1.8rem;font-weight:800;color:#1e1b4b;word-break:keep-all;line-height:1.3}
+.fc-front .fc-tap{font-size:.75rem;color:#a78bfa;margin-top:14px}
+.fc-back .fc-label{font-size:.75rem;color:#059669;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.fc-back .fc-word{font-size:1.9rem;font-weight:800;color:#064e3b;line-height:1.2}
+.fc-back .fc-sub{font-size:.9rem;color:#047857;margin-top:6px;font-weight:500}
+.fc-syn{margin-top:14px;width:100%;background:rgba(16,185,129,.08);border-radius:10px;border:1px solid rgba(16,185,129,.2);padding:10px 12px;text-align:left}
+.fc-syn .fc-syn-title{font-size:.7rem;font-weight:700;color:#047857;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.fc-ant{margin-top:8px;width:100%;background:rgba(239,68,68,.06);border-radius:10px;border:1px solid rgba(239,68,68,.15);padding:10px 12px;text-align:left}
+.fc-ant .fc-ant-title{font-size:.7rem;font-weight:700;color:#b91c1c;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.fc-btns{display:flex;gap:10px;margin-top:8px}
+.fc-btns .btn{flex:1;padding:14px 10px;font-size:.92rem;min-height:50px}
+.fc-dots{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;justify-content:center}
+.fc-dot{width:10px;height:10px;border-radius:50%;background:#e2e8f0;transition:background .2s}
+.fc-dot.ok{background:#10b981}
+.fc-dot.ng{background:#ef4444}
+.fc-dot.now{background:#8b5cf6;transform:scale(1.3)}
+.jump-bar{margin-top:20px;padding:14px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;text-align:center}
+.jump-bar p{font-size:.8rem;color:#64748b;margin-bottom:8px}
+.back-link{display:inline-block;font-size:.78rem;color:#94a3b8;padding:6px 12px;border-radius:8px;background:#f8fafc;cursor:pointer;border:1px solid #e2e8f0}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(400px) rotate(720deg);opacity:0}}
+.fade{animation:fadeIn .35s ease}
+@media(max-width:360px){.kor-word{font-size:1.3rem}.fc-front .fc-word{font-size:1.5rem}.fc-back .fc-word{font-size:1.6rem}.fc-face{min-height:200px;padding:20px 14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1 id="page-title"></h1>
+    <p id="page-subtitle"></p>
+  </div>
+  <div class="content" id="app"></div>
+</div>
+<script>
+var CONFIG={"title":"2024_1_3_syn_0311 — 유의어 테스트","passThreshold":80,"words":[{"english":"impress","korean":"감동시키다, 인상을 주다","sentence":"Recently I was impressed by the latest book you wrote about the environment.","sentenceKo":"최근 저는 당신이 환경에 관해 쓴 최신 책에 감동받았습니다.","synonyms":[{"en":"strike","ko":"감동시키다"},{"en":"awe","ko":"경외감을주다"},{"en":"affect","ko":"영향을주다"}],"antonyms":[{"en":"disappoint","ko":"실망시키다"},{"en":"bore","ko":"지루하게하다"}]},{"english":"suit","korean":"맞추다, 적합하다","sentence":"We can set the date and time to suit your schedule.","sentenceKo":"우리는 당신의 일정에 맞춰 날짜와 시간을 정할 수 있습니다.","synonyms":[{"en":"fit","ko":"맞다"},{"en":"match","ko":"어울리다"},{"en":"befit","ko":"적합하다"}],"antonyms":[{"en":"clash","ko":"어울리지않다"},{"en":"mismatch","ko":"맞지않다"}]},{"english":"enormous","korean":"거대한, 막대한","sentence":"Moments later, an enormous wave destroyed Sarah's castle.","sentenceKo":"잠시 후, 거대한 파도가 Sarah의 성을 파괴했습니다.","synonyms":[{"en":"huge","ko":"거대한"},{"en":"immense","ko":"광대한"},{"en":"vast","ko":"방대한"},{"en":"massive","ko":"엄청난"}],"antonyms":[{"en":"tiny","ko":"작은"},{"en":"minuscule","ko":"미세한"},{"en":"small","ko":"작은"}]},{"english":"enthusiasm","korean":"열정, 열의","sentence":"Sarah loved this idea and responded with enthusiasm to the idea of building another castle.","sentenceKo":"Sarah는 이 아이디어를 좋아했고 또 다른 성을 짓는 아이디어에 열정적으로 반응했습니다.","synonyms":[{"en":"passion","ko":"열정"},{"en":"eagerness","ko":"열의"},{"en":"zeal","ko":"열성"}],"antonyms":[{"en":"apathy","ko":"무관심"},{"en":"indifference","ko":"냉담"}]},{"english":"struggle with","korean":"~로 고생하다, ~에 어려움을 겪다","sentence":"If you struggle with getting up early in the morning, then write a positive statement.","sentenceKo":"만약 당신이 아침 일찍 일어나는 것으로 고생한다면, 긍정적인 진술을 쓰십시오.","synonyms":[{"en":"grapple with","ko":"씨름하다"},{"en":"wrestle with","ko":"고투하다"},{"en":"contend with","ko":"분투하다"}],"antonyms":[{"en":"master","ko":"숙달하다"},{"en":"breeze through","ko":"쉽게해내다"}]},{"english":"witness","korean":"목격하다, 증명하다","sentence":"Once you write these statements, get ready to witness magic and confidence.","sentenceKo":"이러한 진술들을 쓰고 나면, 마법과 자신감을 목격할 준비를 하십시오.","synonyms":[{"en":"observe","ko":"목격하다"},{"en":"see","ko":"보다"},{"en":"behold","ko":"보다"}],"antonyms":[{"en":"miss","ko":"놓치다"},{"en":"overlook","ko":"간과하다"}]},{"english":"perception","korean":"지각, 인식","sentence":"For a start, Aristotle missed a few in humans: the perception of your own body which is different from touch.","sentenceKo":"우선, 아리스토텔레스는 인간의 몇 가지를 놓쳤습니다: 촉각과는 다른 자신의 신체에 대한 지각.","synonyms":[{"en":"awareness","ko":"인식"},{"en":"view","ko":"견해"},{"en":"understanding","ko":"이해"}],"antonyms":[{"en":"ignorance","ko":"무지"},{"en":"unawareness","ko":"무인식"}]},{"english":"categorize","korean":"분류하다","sentence":"Other animals have senses that are even harder to categorize.","sentenceKo":"다른 동물들은 분류하기가 훨씬 더 어려운 감각들을 가지고 있습니다.","synonyms":[{"en":"classify","ko":"분류하다"},{"en":"sort","ko":"구분하다"},{"en":"group","ko":"그룹화하다"}],"antonyms":[{"en":"mix","ko":"섞다"},{"en":"jumble","ko":"뒤섞다"}]},{"english":"prey","korean":"먹이","sentence":"Some snakes can detect the body heat of their prey.","sentenceKo":"어떤 뱀들은 그들의 먹이의 체온을 탐지할 수 있습니다.","synonyms":[{"en":"victim","ko":"희생자"},{"en":"quarry","ko":"먹이"},{"en":"target","ko":"표적"}],"antonyms":[{"en":"predator","ko":"포식자"},{"en":"hunter","ko":"사냥꾼"}]},{"english":"far-reaching","korean":"광범위한, 영향력이 큰","sentence":"If you consider the historical importance and far-reaching influence of these individuals, leadership might seem like a noble and high goal.","sentenceKo":"만약 당신이 이러한 개인들의 역사적 중요성과 광범위한 영향력을 고려한다면, 리더십은 고귀하고 높은 목표처럼 보일 수 있습니다.","synonyms":[{"en":"extensive","ko":"광범위한"},{"en":"widespread","ko":"널리퍼진"},{"en":"broad","ko":"넓은"}],"antonyms":[{"en":"limited","ko":"제한된"},{"en":"narrow","ko":"좁은"}]},{"english":"diligence","korean":"근면, 성실","sentence":"Through diligence and experience, they improved upon their ideas by sharing them with others.","sentenceKo":"근면과 경험을 통해, 그들은 다른 사람들과 아이디어를 공유함으로써 그것들을 개선했습니다.","synonyms":[{"en":"industriousness","ko":"근면"},{"en":"perseverance","ko":"인내"},{"en":"dedication","ko":"헌신"}],"antonyms":[{"en":"laziness","ko":"게으름"},{"en":"negligence","ko":"태만"}]},{"english":"feedback","korean":"피드백, 반응","sentence":"Through diligence and experience, they improved upon their ideas by sharing them with others, seeking their opinions and feedback.","sentenceKo":"근면과 경험을 통해, 그들은 다른 사람들과 아이디어를 공유하고, 그들의 의견과 피드백을 구하면서 아이디어를 개선했습니다.","synonyms":[{"en":"response","ko":"응답"},{"en":"input","ko":"의견"},{"en":"comment","ko":"논평"}],"antonyms":[{"en":"silence","ko":"침묵"}]},{"english":"accomplish","korean":"성취하다, 달성하다","sentence":"Through diligence and experience, they improved upon their ideas by sharing them with others, seeking their opinions and feedback and constantly looking for the best way to accomplish goals for a group.","sentenceKo":"근면과 경험을 통해, 그들은 다른 사람들과 아이디어를 공유하고, 그들의 의견과 피드백을 구하며, 집단을 위한 목표를 성취하는 최선의 방법을 끊임없이 찾으면서 아이디어를 개선했습니다.","synonyms":[{"en":"achieve","ko":"달성하다"},{"en":"attain","ko":"이루다"},{"en":"complete","ko":"완료하다"}],"antonyms":[{"en":"fail","ko":"실패하다"},{"en":"abandon","ko":"포기하다"}]},{"english":"rotate","korean":"회전하다, 순환하다","sentence":"In year three, the crops will rotate again.","sentenceKo":"3년째에는 작물이 다시 순환할 것입니다.","synonyms":[{"en":"spin","ko":"회전하다"},{"en":"revolve","ko":"돌다"},{"en":"turn","ko":"돌리다"}],"antonyms":[{"en":"fix","ko":"고정하다"},{"en":"stabilize","ko":"안정시키다"}]},{"english":"enrich","korean":"풍부하게 하다, 비옥하게 하다","sentence":"Each crop enriches the soil for the next crop.","sentenceKo":"각각의 작물은 다음 작물을 위해 토양을 비옥하게 합니다.","synonyms":[{"en":"enhance","ko":"향상시키다"},{"en":"improve","ko":"개선하다"},{"en":"augment","ko":"증대시키다"}],"antonyms":[{"en":"deplete","ko":"고갈시키다"},{"en":"impoverish","ko":"빈곤하게하다"}]},{"english":"sustainable","korean":"지속 가능한","sentence":"This type of farming is sustainable because the soil stays healthy.","sentenceKo":"이러한 유형의 농사는 토양이 건강하게 유지되기 때문에 지속 가능합니다.","synonyms":[{"en":"maintainable","ko":"유지가능한"},{"en":"viable","ko":"실행가능한"},{"en":"renewable","ko":"재생가능한"}],"antonyms":[{"en":"unsustainable","ko":"지속불가능한"},{"en":"depleting","ko":"고갈되는"}]},{"english":"concentrate on","korean":"~에 집중하다","sentence":"Working around the whole painting, rather than concentrating on one area at a time, will mean you can stop at any point and the painting can be considered \"finished.\"","sentenceKo":"한 번에 한 영역에 집중하기보다는 그림 전체를 작업하는 것은 당신이 어느 지점에서든 멈출 수 있고 그림을 \"완성된\" 것으로 간주할 수 있다는 것을 의미할 것입니다.","synonyms":[{"en":"focus on","ko":"집중하다"},{"en":"center on","ko":"중심을두다"},{"en":"attend to","ko":"주의를기울이다"}],"antonyms":[{"en":"neglect","ko":"소홀히하다"},{"en":"ignore","ko":"무시하다"}]},{"english":"tempting","korean":"유혹적인, 솔깃한","sentence":"Artists often find it difficult to know when to stop painting, and it can be tempting to keep on adding more to your work.","sentenceKo":"예술가들은 종종 언제 그림 그리기를 멈춰야 할지 알기 어렵다고 생각하며, 작품에 더 많은 것을 계속 추가하는 것이 유혹적일 수 있습니다.","synonyms":[{"en":"enticing","ko":"유혹하는"},{"en":"alluring","ko":"매혹적인"},{"en":"attractive","ko":"매력적인"}],"antonyms":[{"en":"repulsive","ko":"불쾌한"},{"en":"unappealing","ko":"매력없는"}]},{"english":"assess","korean":"평가하다, 판단하다","sentence":"It is important to take a few steps back from the painting from time to time to assess your progress.","sentenceKo":"진행 상황을 평가하기 위해 때때로 그림에서 몇 걸음 물러나는 것이 중요합니다.","synonyms":[{"en":"evaluate","ko":"평가하다"},{"en":"judge","ko":"판단하다"},{"en":"appraise","ko":"감정하다"}],"antonyms":[{"en":"ignore","ko":"무시하다"},{"en":"overlook","ko":"간과하다"}]},{"english":"overworked","korean":"과도하게 작업된, 지나치게 다듬어진","sentence":"Putting too much into a painting can spoil its impact and leave it looking overworked.","sentenceKo":"그림에 너무 많은 것을 넣으면 그것의 영향력을 망칠 수 있고 과도하게 작업된 것처럼 보이게 만들 수 있습니다.","synonyms":[{"en":"exhausted","ko":"지친"},{"en":"overburdened","ko":"과중한부담의"},{"en":"strained","ko":"긴장된"}],"antonyms":[{"en":"rested","ko":"휴식한"},{"en":"refreshed","ko":"상쾌한"}]},{"english":"benefit from","korean":"~로부터 이익을 얻다","sentence":"Then you can decide whether any areas of your painting would benefit from further refinement.","sentenceKo":"그러면 당신은 그림의 어떤 영역이 추가적인 다듬기로부터 이익을 얻을 수 있을지 결정할 수 있습니다.","synonyms":[{"en":"profit from","ko":"이익을얻다"},{"en":"gain from","ko":"얻다"},{"en":"advantage from","ko":"유리하게되다"}],"antonyms":[{"en":"suffer from","ko":"고통받다"},{"en":"lose from","ko":"손해보다"}]},{"english":"refinement","korean":"세련됨, 다듬기","sentence":"Then you can decide whether any areas of your painting would benefit from further refinement.","sentenceKo":"그러면 당신은 그림의 어떤 영역이 추가적인 다듬기로부터 이익을 얻을 수 있을지 결정할 수 있습니다.","synonyms":[{"en":"improvement","ko":"개선"},{"en":"enhancement","ko":"향상"},{"en":"polish","ko":"세련됨"}],"antonyms":[{"en":"crudeness","ko":"조잡함"},{"en":"coarseness","ko":"거칠음"}]},{"english":"delightful","korean":"즐거운, 기분 좋은","sentence":"Join us for a delightful Spring Tea Class for young people.","sentenceKo":"젊은이들을 위한 즐거운 봄 차 수업에 참여하십시오.","synonyms":[{"en":"charming","ko":"매력적인"},{"en":"pleasant","ko":"즐거운"},{"en":"lovely","ko":"사랑스러운"}],"antonyms":[{"en":"unpleasant","ko":"불쾌한"},{"en":"disagreeable","ko":"기분나쁜"}]},{"english":"host","korean":"주최하다, 개최하다","sentence":"We offer special tips for hosting a tea party.","sentenceKo":"우리는 다과회를 주최하기 위한 특별한 팁을 제공합니다.","synonyms":[{"en":"accommodate","ko":"수용하다"},{"en":"hold","ko":"개최하다"},{"en":"entertain","ko":"접대하다"}],"antonyms":[{"en":"attend","ko":"참석하다"},{"en":"guest","ko":"손님되다"}]},{"english":"passionate about","korean":"~에 열정적인","sentence":"Are you passionate about fashion and the environment?","sentenceKo":"당신은 패션과 환경에 열정적입니까?","synonyms":[{"en":"enthusiastic about","ko":"열정적인"},{"en":"devoted to","ko":"헌신적인"},{"en":"fervent about","ko":"열렬한"}],"antonyms":[{"en":"indifferent to","ko":"무관심한"},{"en":"apathetic about","ko":"냉담한"}]},{"english":"upcycle","korean":"업사이클하다, 재활용하여 더 나은 것으로 만들다","sentence":"Take before and after photos of your upcycled clothes.","sentenceKo":"업사이클된 옷의 전후 사진을 찍으십시오.","synonyms":[{"en":"repurpose","ko":"용도변경하다"},{"en":"reclaim","ko":"재활용하다"},{"en":"transform","ko":"변형하다"}],"antonyms":[{"en":"discard","ko":"버리다"},{"en":"waste","ko":"낭비하다"}]},{"english":"overstate","korean":"과장하다","sentence":"It would be hard to overstate how important meaningful work is to human beings.","sentenceKo":"의미 있는 일이 인간에게 얼마나 중요한지 과장하기는 어려울 것입니다.","synonyms":[{"en":"exaggerate","ko":"과장하다"},{"en":"magnify","ko":"확대하다"},{"en":"embellish","ko":"과장하다"}],"antonyms":[{"en":"understate","ko":"축소하다"},{"en":"minimize","ko":"최소화하다"}]},{"english":"fulfillment","korean":"성취감, 충족","sentence":"It would be hard to overstate how important meaningful work is to human beings — work that provides a sense of fulfillment and empowerment.","sentenceKo":"의미 있는 일, 즉 성취감과 역량 강화를 제공하는 일이 인간에게 얼마나 중요한지 과장하기는 어려울 것입니다.","synonyms":[{"en":"satisfaction","ko":"만족"},{"en":"achievement","ko":"성취"},{"en":"realization","ko":"실현"}],"antonyms":[{"en":"dissatisfaction","ko":"불만"},{"en":"emptiness","ko":"공허"}]},{"english":"empowerment","korean":"역량 강화, 권한 부여","sentence":"It would be hard to overstate how important meaningful work is to human beings — work that provides a sense of fulfillment and empowerment.","sentenceKo":"의미 있는 일, 즉 성취감과 역량 강화를 제공하는 일이 인간에게 얼마나 중요한지 과장하기는 어려울 것입니다.","synonyms":[{"en":"enablement","ko":"가능하게함"},{"en":"authorization","ko":"권한부여"},{"en":"strengthening","ko":"강화"}],"antonyms":[{"en":"disempowerment","ko":"무력화"},{"en":"subjugation","ko":"예속"}]},{"english":"energizing","korean":"활력을 주는","sentence":"Those who have found deeper meaning in their careers find their days much more energizing and satisfying.","sentenceKo":"경력에서 더 깊은 의미를 발견한 사람들은 그들의 날들이 훨씬 더 활력을 주고 만족스럽다는 것을 알게 됩니다.","synonyms":[{"en":"invigorating","ko":"활력주는"},{"en":"stimulating","ko":"자극하는"},{"en":"revitalizing","ko":"활성화하는"}],"antonyms":[{"en":"draining","ko":"소진시키는"},{"en":"exhausting","ko":"지치게하는"}]},{"english":"output","korean":"생산량, 산출","sentence":"They not only produce higher quality work and a greater output, but also generally earn higher incomes.","sentenceKo":"그들은 더 높은 질의 작업과 더 많은 생산량을 낼 뿐만 아니라, 일반적으로 더 높은 소득을 얻습니다.","synonyms":[{"en":"production","ko":"생산"},{"en":"yield","ko":"산출량"},{"en":"result","ko":"결과"}],"antonyms":[{"en":"input","ko":"투입"},{"en":"intake","ko":"흡수"}]},{"english":"process","korean":"처리하다, 가공하다","sentence":"The rate of speed at which one is traveling will greatly determine the ability to process detail in the environment.","sentenceKo":"사람이 이동하는 속도는 환경의 세부 사항을 처리하는 능력을 크게 결정할 것입니다.","synonyms":[{"en":"procedure","ko":"절차"},{"en":"method","ko":"방법"},{"en":"operation","ko":"작업"}],"antonyms":[{"en":"result","ko":"결과"},{"en":"outcome","ko":"산출물"}]},{"english":"adapt to","korean":"~에 적응하다","sentence":"In evolutionary terms, human senses are adapted to the speed at which humans move through space under their own power while walking.","sentenceKo":"진화론적 관점에서, 인간의 감각은 걸을 때 자신의 힘으로 공간을 이동하는 속도에 적응되어 있습니다.","synonyms":[{"en":"adjust to","ko":"적응하다"},{"en":"accommodate to","ko":"순응하다"},{"en":"conform to","ko":"맞추다"}],"antonyms":[{"en":"resist","ko":"저항하다"},{"en":"reject","ko":"거부하다"}]},{"english":"suited to","korean":"~에 적합한","sentence":"Our ability to distinguish detail in the environment is therefore ideally suited to movement at speeds of perhaps five miles per hour and under.","sentenceKo":"따라서 환경의 세부 사항을 구별하는 우리의 능력은 시속 5마일 이하의 속도로 움직이는 것에 이상적으로 적합합니다.","synonyms":[{"en":"appropriate for","ko":"적절한"},{"en":"fit for","ko":"알맞은"},{"en":"ideal for","ko":"이상적인"}],"antonyms":[{"en":"unsuited to","ko":"부적합한"},{"en":"inappropriate for","ko":"부적절한"}]},{"english":"motorist","korean":"자동차 운전자","sentence":"The fastest users of the street, motorists, therefore have a much more limited ability to process details along the street.","sentenceKo":"거리의 가장 빠른 사용자인 자동차 운전자들은 따라서 거리를 따라 세부 사항을 처리하는 훨씬 더 제한된 능력을 가지고 있습니다.","synonyms":[{"en":"driver","ko":"운전자"},{"en":"automobilist","ko":"자동차운전자"}],"antonyms":[{"en":"pedestrian","ko":"보행자"},{"en":"passenger","ko":"승객"}]},{"english":"appreciation","korean":"감상, 이해","sentence":"On the other hand, pedestrian travel, being much slower, allows for the appreciation of environmental detail.","sentenceKo":"반면에, 보행자 이동은 훨씬 더 느리기 때문에 환경 세부 사항의 감상을 허용합니다.","synonyms":[{"en":"gratitude","ko":"감사"},{"en":"recognition","ko":"인정"},{"en":"admiration","ko":"감탄"}],"antonyms":[{"en":"ingratitude","ko":"배은망덕"},{"en":"disregard","ko":"무시"}]},{"english":"polar opposite","korean":"정반대","sentence":"Joggers and bicyclists fall somewhere in between these polar opposites.","sentenceKo":"조깅하는 사람들과 자전거 타는 사람들은 이러한 정반대 사이 어딘가에 위치합니다.","synonyms":[{"en":"antithesis","ko":"정반대"},{"en":"contrary","ko":"반대"},{"en":"reverse","ko":"역"}],"antonyms":[{"en":"similar","ko":"유사한"},{"en":"identical","ko":"동일한"}]},{"english":"climatic","korean":"기후의","sentence":"Every species has certain climatic requirements — what degree of heat or cold it can endure, for example.","sentenceKo":"모든 종은 특정한 기후 요구사항을 가지고 있습니다 — 예를 들어, 어느 정도의 더위나 추위를 견딜 수 있는지.","synonyms":[{"en":"atmospheric","ko":"대기의"},{"en":"weather-related","ko":"날씨관련"},{"en":"meteorological","ko":"기상의"}],"antonyms":[]},{"english":"endure","korean":"견디다, 인내하다","sentence":"Every species has certain climatic requirements — what degree of heat or cold it can endure, for example.","sentenceKo":"모든 종은 특정한 기후 요구사항을 가지고 있습니다 — 예를 들어, 어느 정도의 더위나 추위를 견딜 수 있는지.","synonyms":[{"en":"withstand","ko":"견디다"},{"en":"tolerate","ko":"참다"},{"en":"bear","ko":"버티다"}],"antonyms":[{"en":"quit","ko":"그만두다"},{"en":"surrender","ko":"항복하다"}]},{"english":"immobile","korean":"움직이지 않는, 고정된","sentence":"Even creatures that appear immobile, like trees and barnacles, are capable of dispersal at some stage of their life.","sentenceKo":"나무나 따개비처럼 움직이지 않는 것처럼 보이는 생물조차도 삶의 어떤 단계에서는 분산할 수 있습니다.","synonyms":[{"en":"stationary","ko":"정지한"},{"en":"fixed","ko":"고정된"},{"en":"motionless","ko":"움직이지않는"}],"antonyms":[{"en":"mobile","ko":"이동가능한"},{"en":"moving","ko":"움직이는"}]},{"english":"dispersal","korean":"분산, 흩어짐","sentence":"Even creatures that appear immobile, like trees and barnacles, are capable of dispersal at some stage of their life.","sentenceKo":"나무나 따개비처럼 움직이지 않는 것처럼 보이는 생물조차도 삶의 어떤 단계에서는 분산할 수 있습니다.","synonyms":[{"en":"distribution","ko":"분산"},{"en":"spread","ko":"확산"},{"en":"scattering","ko":"흩어짐"}],"antonyms":[{"en":"concentration","ko":"집중"},{"en":"gathering","ko":"모임"}]},{"english":"larva","korean":"유충","sentence":"Even creatures that appear immobile, like trees and barnacles, are capable of dispersal at some stage of their life — as a seed, in the case of the tree, or as a larva, in the case of the barnacle.","sentenceKo":"나무나 따개비처럼 움직이지 않는 것처럼 보이는 생물조차도 삶의 어떤 단계에서는 분산할 수 있습니다 — 나무의 경우 씨앗으로, 따개비의 경우 유충으로.","synonyms":[{"en":"grub","ko":"유충"},{"en":"caterpillar","ko":"애벌레"}],"antonyms":[{"en":"adult","ko":"성체"},{"en":"imago","ko":"성충"}]},{"english":"fossil","korean":"화석","sentence":"From fossils, scientists know that even creatures like trees moved with surprising speed during past periods of climate change.","sentenceKo":"화석으로부터, 과학자들은 나무와 같은 생물조차도 과거 기후 변화 기간 동안 놀라운 속도로 이동했다는 것을 알고 있습니다.","synonyms":[{"en":"relic","ko":"유물"},{"en":"remnant","ko":"잔해"},{"en":"remains","ko":"유해"}],"antonyms":[]},{"english":"respectable","korean":"존경할 만한, 점잖은","sentence":"No respectable boss would say, \"I make it a point to discourage my staff from speaking up, and I maintain a culture that prevents disagreeing viewpoints from ever getting aired.\"","sentenceKo":"존경할 만한 상사라면 \"나는 직원들이 의견을 내는 것을 막는 것을 원칙으로 삼고, 반대 의견이 표출되지 못하게 하는 문화를 유지한다\"고 말하지 않을 것입니다.","synonyms":[{"en":"honorable","ko":"명예로운"},{"en":"reputable","ko":"평판좋은"},{"en":"decent","ko":"품위있는"}],"antonyms":[{"en":"disreputable","ko":"평판나쁜"},{"en":"shameful","ko":"수치스러운"}]},{"english":"discourage","korean":"낙담시키다, 단념시키다","sentence":"No respectable boss would say, \"I make it a point to discourage my staff from speaking up.\"","sentenceKo":"존경할 만한 상사라면 \"나는 직원들이 의견을 내는 것을 막는 것을 원칙으로 삼는다\"고 말하지 않을 것입니다.","synonyms":[{"en":"dishearten","ko":"낙담시키다"},{"en":"deter","ko":"단념시키다"},{"en":"dissuade","ko":"만류하다"}],"antonyms":[{"en":"encourage","ko":"격려하다"},{"en":"motivate","ko":"동기부여하다"}]},{"english":"speak up","korean":"의견을 말하다, 목소리를 내다","sentence":"No respectable boss would say, \"I make it a point to discourage my staff from speaking up.\"","sentenceKo":"존경할 만한 상사라면 \"나는 직원들이 의견을 내는 것을 막는 것을 원칠으로 삼는다\"고 말하지 않을 것입니다.","synonyms":[{"en":"voice","ko":"의견을말하다"},{"en":"express","ko":"표현하다"},{"en":"articulate","ko":"명확히말하다"}],"antonyms":[{"en":"stay silent","ko":"침묵하다"},{"en":"keep quiet","ko":"조용히하다"}]},{"english":"air","korean":"표출하다, 방송하다","sentence":"I maintain a culture that prevents disagreeing viewpoints from ever getting aired.","sentenceKo":"나는 반대 의견이 결코 표출되지 못하게 하는 문화를 유지한다.","synonyms":[{"en":"express","ko":"표현하다"},{"en":"voice","ko":"말하다"},{"en":"ventilate","ko":"털어놓다"}],"antonyms":[{"en":"suppress","ko":"억누르다"},{"en":"conceal","ko":"숨기다"}]},{"english":"internal","korean":"내부의","sentence":"In the interviews, the featured leaders are asked about their management techniques, and regularly claim to continually encourage internal protest from more junior staffers.","sentenceKo":"인터뷰에서, 특집 리더들은 그들의 관리 기법에 대해 질문받고, 정기적으로 하급 직원들로부터의 내부 항의를 지속적으로 장려한다고 주장합니다.","synonyms":[{"en":"inner","ko":"내부의"},{"en":"inside","ko":"안쪽의"},{"en":"interior","ko":"내적인"}],"antonyms":[{"en":"external","ko":"외부의"},{"en":"outer","ko":"바깥의"}]},{"english":"dissenter","korean":"반대자, 이견을 가진 사람","sentence":"I want us to listen to these dissenters because they may intend to tell you why we can't do something.","sentenceKo":"나는 우리가 이러한 반대자들의 말을 듣기를 원합니다. 왜냐하면 그들은 우리가 왜 무언가를 할 수 없는지 말하려고 할 수 있기 때문입니다.","synonyms":[{"en":"objector","ko":"반대자"},{"en":"protester","ko":"항의자"},{"en":"nonconformist","ko":"비순응자"}],"antonyms":[{"en":"conformist","ko":"순응자"},{"en":"supporter","ko":"지지자"}]},{"english":"striking","korean":"두드러진, 놀라운","sentence":"One of the most striking characteristics of a sleeping animal or person is that they do not respond normally to environmental stimuli.","sentenceKo":"잠자는 동물이나 사람의 가장 두드러진 특징 중 하나는 그들이 환경적 자극에 정상적으로 반응하지 않는다는 것입니다.","synonyms":[{"en":"remarkable","ko":"현저한"},{"en":"notable","ko":"주목할만한"},{"en":"impressive","ko":"인상적인"}],"antonyms":[{"en":"unremarkable","ko":"평범한"},{"en":"ordinary","ko":"보통의"}]},{"english":"stimuli","korean":"자극 (stimulus의 복수형)","sentence":"One of the most striking characteristics of a sleeping animal or person is that they do not respond normally to environmental stimuli.","sentenceKo":"잠자는 동물이나 사람의 가장 두드러진 특징 중 하나는 그들이 환경적 자극에 정상적으로 반응하지 않는다는 것입니다.","synonyms":[{"en":"triggers","ko":"자극물"},{"en":"prompts","ko":"촉진제"},{"en":"incentives","ko":"유인"}],"antonyms":[]},{"english":"eyelid","korean":"눈꺼풀","sentence":"If you open the eyelids of a sleeping mammal the eyes will not see normally — they are functionally blind.","sentenceKo":"만약 당신이 잠자는 포유동물의 눈꺼풀을 열면 눈은 정상적으로 보지 못할 것입니다 — 그것들은 기능적으로 장님입니다.","synonyms":[{"en":"lid","ko":"눈꺼풀"}],"antonyms":[]},{"english":"functionally","korean":"기능적으로","sentence":"If you open the eyelids of a sleeping mammal the eyes will not see normally — they are functionally blind.","sentenceKo":"만약 당신이 잠자는 포유동물의 눈꺼풀을 열면 눈은 정상적으로 보지 못할 것입니다 — 그것들은 기능적으로 장님입니다.","synonyms":[{"en":"practically","ko":"실질적으로"},{"en":"operationally","ko":"작동상"}],"antonyms":[{"en":"dysfunctionally","ko":"기능장애로"},{"en":"ineffectively","ko":"비효과적으로"}]},{"english":"register","korean":"기록되다, 등록되다","sentence":"Stimuli are registered but not processed normally and they fail to wake the individual.","sentenceKo":"자극은 기록되지만 정상적으로 처리되지 않고 개체를 깨우는 데 실패합니다.","synonyms":[{"en":"record","ko":"기록하다"},{"en":"detect","ko":"감지하다"},{"en":"perceive","ko":"인지하다"}],"antonyms":[{"en":"ignore","ko":"무시하다"},{"en":"overlook","ko":"간과하다"}]},{"english":"perceptual","korean":"지각의, 인지의","sentence":"Perceptual disengagement probably serves the function of protecting sleep.","sentenceKo":"지각적 분리는 아마도 수면을 보호하는 기능을 제공할 것입니다.","synonyms":[{"en":"sensory","ko":"감각의"},{"en":"cognitive","ko":"인지의"}],"antonyms":[]},{"english":"disengagement","korean":"분리, 철수","sentence":"Perceptual disengagement probably serves the function of protecting sleep.","sentenceKo":"지각적 분리는 아마도 수면을 보호하는 기능을 제공할 것입니다.","synonyms":[{"en":"detachment","ko":"분리"},{"en":"withdrawal","ko":"철수"},{"en":"disconnection","ko":"단절"}],"antonyms":[{"en":"engagement","ko":"참여"},{"en":"involvement","ko":"관여"}]},{"english":"intermediate","korean":"중간의","sentence":"Nevertheless, many animals (including humans) use the intermediate state of drowsiness to derive some benefits of sleep without total perceptual disengagement.","sentenceKo":"그럼에도 불구하고, 많은 동물들(인간 포함)은 완전한 지각적 분리 없이 수면의 일부 이점을 얻기 위해 졸음의 중간 상태를 사용합니다.","synonyms":[{"en":"middle","ko":"중간의"},{"en":"midway","ko":"중간단계"},{"en":"median","ko":"중위의"}],"antonyms":[{"en":"extreme","ko":"극단의"},{"en":"terminal","ko":"말단의"}]},{"english":"drowsiness","korean":"졸음","sentence":"Nevertheless, many animals (including humans) use the intermediate state of drowsiness to derive some benefits of sleep without total perceptual disengagement.","sentenceKo":"그럼에도 불구하고, 많은 동물들(인간 포함)은 완전한 지각적 분리 없이 수면의 일부 이점을 얻기 위해 졸음의 중간 상태를 사용합니다.","synonyms":[{"en":"sleepiness","ko":"졸음"},{"en":"lethargy","ko":"나른함"},{"en":"fatigue","ko":"피로"}],"antonyms":[{"en":"alertness","ko":"각성"},{"en":"wakefulness","ko":"깨어있음"}]},{"english":"derive","korean":"얻다, 도출하다","sentence":"Nevertheless, many animals (including humans) use the intermediate state of drowsiness to derive some benefits of sleep without total perceptual disengagement.","sentenceKo":"그럼에도 불구하고, 많은 동물들(인간 포함)은 완전한 지각적 분리 없이 수면의 일부 이점을 얻기 위해 졸음의 중간 상태를 사용합니다.","synonyms":[{"en":"obtain","ko":"얻다"},{"en":"extract","ko":"추출하다"},{"en":"draw","ko":"이끌어내다"}],"antonyms":[{"en":"provide","ko":"제공하다"},{"en":"give","ko":"주다"}]},{"english":"newcomer","korean":"신참자, 새로 온 사람","sentence":"A number of research studies have shown how experts in a field often experience difficulties when introducing newcomers to that field.","sentenceKo":"많은 연구들이 어떤 분야의 전문가들이 그 분야에 신참자들을 소개할 때 종종 어려움을 경험하는지를 보여주었습니다.","synonyms":[{"en":"novice","ko":"초보자"},{"en":"beginner","ko":"초심자"},{"en":"arrival","ko":"새로온사람"}],"antonyms":[{"en":"veteran","ko":"베테랑"},{"en":"expert","ko":"전문가"}]},{"english":"genuine","korean":"진짜의, 진정한","sentence":"For example, in a genuine training situation, Dr Pamela Hinds found that people expert in using mobile phones were remarkably less accurate than novice phone users in judging how long it takes people to learn to use the phones.","sentenceKo":"예를 들어, 진짜 훈련 상황에서, Pamela Hinds 박사는 휴대폰 사용 전문가들이 사람들이 휴대폰 사용법을 배우는 데 얼마나 걸리는지 판단하는 데 있어서 초보 휴대폰 사용자들보다 현저히 덜 정확하다는 것을 발견했습니다.","synonyms":[{"en":"authentic","ko":"진짜의"},{"en":"real","ko":"진실한"},{"en":"sincere","ko":"진심의"}],"antonyms":[{"en":"fake","ko":"가짜의"},{"en":"false","ko":"거짓의"}]},{"english":"remarkably","korean":"현저하게, 놀랄 만큼","sentence":"For example, in a genuine training situation, Dr Pamela Hinds found that people expert in using mobile phones were remarkably less accurate than novice phone users.","sentenceKo":"예를 들어, 진짜 훈련 상황에서, Pamela Hinds 박사는 휴대폰 사용 전문가들이 초보 휴대폰 사용자들보다 현저히 덜 정확하다는 것을 발견했습니다.","synonyms":[{"en":"notably","ko":"주목할정도로"},{"en":"exceptionally","ko":"예외적으로"},{"en":"strikingly","ko":"두드러지게"}],"antonyms":[{"en":"ordinarily","ko":"보통"},{"en":"unremarkably","ko":"평범하게"}]},{"english":"novice","korean":"초보자","sentence":"For example, in a genuine training situation, Dr Pamela Hinds found that people expert in using mobile phones were remarkably less accurate than novice phone users in judging how long it takes people to learn to use the phones.","sentenceKo":"예를 들어, 진짜 훈련 상황에서, Pamela Hinds 박사는 휴대폰 사용 전문가들이 사람들이 휴대폰 사용법을 배우는 데 얼마나 걸리는지 판단하는 데 있어서 초보 휴대폰 사용자들보다 현저히 덜 정확하다는 것을 발견했습니다.","synonyms":[{"en":"beginner","ko":"초보자"},{"en":"learner","ko":"학습자"},{"en":"rookie","ko":"신출내기"}],"antonyms":[{"en":"expert","ko":"전문가"},{"en":"veteran","ko":"베테랑"}]},{"english":"insensitive","korean":"둔감한, 무감각한","sentence":"Experts can become insensitive to how hard a task is for the beginner, an effect referred to as the 'curse of knowledge'.","sentenceKo":"전문가들은 초보자에게 과제가 얼마나 어려운지에 대해 둔감해질 수 있으며, 이는 '지식의 저주'라고 불리는 효과입니다.","synonyms":[{"en":"callous","ko":"무감각한"},{"en":"unfeeling","ko":"냉담한"},{"en":"thoughtless","ko":"배려없는"}],"antonyms":[{"en":"sensitive","ko":"민감한"},{"en":"considerate","ko":"사려깊은"}]},{"english":"curse","korean":"저주","sentence":"Experts can become insensitive to how hard a task is for the beginner, an effect referred to as the 'curse of knowledge'.","sentenceKo":"전문가들은 초보자에게 과제가 얼마나 어려운지에 대해 둔감해질 수 있으며, 이는 '지식의 저주'라고 불리는 효과입니다.","synonyms":[{"en":"bane","ko":"골칫거리"},{"en":"affliction","ko":"재앙"},{"en":"scourge","ko":"재앙"}],"antonyms":[{"en":"blessing","ko":"축복"},{"en":"boon","ko":"혜택"}]},{"english":"acquire","korean":"습득하다, 획득하다","sentence":"Dr Hinds was able to show that as people acquired the skill, they then began to underestimate the level of difficulty of that skill.","sentenceKo":"Hinds 박사는 사람들이 기술을 습득하면서, 그들이 그 기술의 난이도 수준을 과소평가하기 시작했다는 것을 보여줄 수 있었습니다.","synonyms":[{"en":"obtain","ko":"얻다"},{"en":"gain","ko":"획득하다"},{"en":"procure","ko":"조달하다"}],"antonyms":[{"en":"lose","ko":"잃다"},{"en":"relinquish","ko":"포기하다"}]},{"english":"underestimate","korean":"과소평가하다","sentence":"Dr Hinds was able to show that as people acquired the skill, they then began to underestimate the level of difficulty of that skill.","sentenceKo":"Hinds 박사는 사람들이 기술을 습득하면서, 그들이 그 기술의 난이도 수준을 과소평가하기 시작했다는 것을 보여줄 수 있었습니다.","synonyms":[{"en":"undervalue","ko":"과소평가하다"},{"en":"misjudge","ko":"잘못판단하다"},{"en":"underrate","ko":"저평가하다"}],"antonyms":[{"en":"overestimate","ko":"과대평가하다"},{"en":"overvalue","ko":"과대평가하다"}]},{"english":"assumption","korean":"가정, 추측","sentence":"Knowing that experts forget how hard it was for them to learn, we can understand the need to look at the learning process through students' eyes, rather than making assumptions about how students 'should be' learning.","sentenceKo":"전문가들이 그들이 배우는 것이 얼마나 어려웠는지 잊는다는 것을 알면, 우리는 학생들이 '어떻게 배워야 하는지'에 대한 가정을 하기보다는 학생들의 눈을 통해 학습 과정을 바라볼 필요성을 이해할 수 있습니다.","synonyms":[{"en":"supposition","ko":"가정"},{"en":"premise","ko":"전제"},{"en":"presumption","ko":"추정"}],"antonyms":[{"en":"fact","ko":"사실"},{"en":"certainty","ko":"확실성"}]},{"english":"severe","korean":"심각한, 극심한","sentence":"A group of psychologists studied individuals with severe mental illness who experienced weekly group music therapy.","sentenceKo":"한 심리학자 그룹은 주간 그룹 음악 치료를 경험한 심각한 정신 질환을 가진 개인들을 연구했습니다.","synonyms":[{"en":"harsh","ko":"가혹한"},{"en":"extreme","ko":"극심한"},{"en":"serious","ko":"심각한"}],"antonyms":[{"en":"mild","ko":"온화한"},{"en":"gentle","ko":"부드러운"}]},{"english":"compose","korean":"작곡하다, 구성하다","sentence":"A group of psychologists studied individuals with severe mental illness who experienced weekly group music therapy, including singing familiar songs and composing original songs.","sentenceKo":"한 심리학자 그룹은 친숙한 노래를 부르고 독창적인 노래를 작곡하는 것을 포함하는 주간 그룹 음악 치료를 경험한 심각한 정신 질환을 가진 개인들을 연구했습니다.","synonyms":[{"en":"constitute","ko":"구성하다"},{"en":"form","ko":"형성하다"},{"en":"comprise","ko":"이루다"}],"antonyms":[{"en":"decompose","ko":"분해하다"},{"en":"dismantle","ko":"해체하다"}]},{"english":"efficacy","korean":"효능, 효과","sentence":"Focusing on singing, another group of psychologists reviewed articles on the efficacy of group singing as a mental health treatment.","sentenceKo":"노래 부르기에 초점을 맞추어, 또 다른 심리학자 그룹은 정신 건강 치료로서 그룹 노래 부르기의 효능에 관한 논문들을 검토했습니다.","synonyms":[{"en":"effectiveness","ko":"효과성"},{"en":"potency","ko":"효능"},{"en":"efficiency","ko":"효율성"}],"antonyms":[{"en":"inefficacy","ko":"무효"},{"en":"ineffectiveness","ko":"비효과성"}]},{"english":"wellbeing","korean":"웰빙, 안녕","sentence":"The findings showed that, when people with mental health conditions participated in a choir, their mental health and wellbeing significantly improved.","sentenceKo":"연구 결과는 정신 건강 상태를 가진 사람들이 합창단에 참여했을 때, 그들의 정신 건강과 웰빙이 현저히 개선되었다는 것을 보여주었습니다.","synonyms":[{"en":"welfare","ko":"복지"},{"en":"health","ko":"건강"},{"en":"prosperity","ko":"번영"}],"antonyms":[{"en":"illness","ko":"질병"},{"en":"suffering","ko":"고통"}]},{"english":"enhance","korean":"향상시키다, 증진시키다","sentence":"Group singing provided enjoyment, improved emotional states, developed a sense of belonging and enhanced self-confidence.","sentenceKo":"그룹 노래 부르기는 즐거움을 제공하고, 감정 상태를 개선하며, 소속감을 발달시키고 자신감을 향상시켰습니다.","synonyms":[{"en":"improve","ko":"개선하다"},{"en":"boost","ko":"향상시키다"},{"en":"strengthen","ko":"강화하다"}],"antonyms":[{"en":"diminish","ko":"감소시키다"},{"en":"weaken","ko":"약화시키다"}]},{"english":"impossibility","korean":"불가능성","sentence":"In many sports, people realized the difficulties and even impossibilities of young children participating fully in many adult sport environments.","sentenceKo":"많은 스포츠에서, 사람들은 어린 아이들이 많은 성인 스포츠 환경에 완전히 참여하는 것의 어려움과 심지어 불가능성을 깨달았습니다.","synonyms":[{"en":"unfeasibility","ko":"실행불가능"},{"en":"impracticability","ko":"비실용성"}],"antonyms":[{"en":"possibility","ko":"가능성"},{"en":"feasibility","ko":"실현가능성"}]},{"english":"prevail","korean":"우세하다, 이기다","sentence":"Common sense has prevailed: different sports have made adaptations for children.","sentenceKo":"상식이 우세했습니다: 다양한 스포츠들이 어린이들을 위한 적응을 만들었습니다.","synonyms":[{"en":"triumph","ko":"승리하다"},{"en":"succeed","ko":"성공하다"},{"en":"dominate","ko":"지배하다"}],"antonyms":[{"en":"fail","ko":"실패하다"},{"en":"lose","ko":"지다"}]},{"english":"adaptation","korean":"적응, 개작","sentence":"Common sense has prevailed: different sports have made adaptations for children.","sentenceKo":"상식이 우세했습니다: 다양한 스포츠들이 어린이들을 위한 적응을 만들었습니다.","synonyms":[{"en":"adjustment","ko":"조정"},{"en":"modification","ko":"수정"},{"en":"accommodation","ko":"적응"}],"antonyms":[{"en":"resistance","ko":"저항"},{"en":"rejection","ko":"거부"}]},{"english":"progressive","korean":"진보적인, 점진적인","sentence":"The adaptations are progressive and relate to the age of the child.","sentenceKo":"적응은 점진적이며 아이의 나이와 관련이 있습니다.","synonyms":[{"en":"advanced","ko":"진보적인"},{"en":"forward-thinking","ko":"미래지향적"},{"en":"innovative","ko":"혁신적인"}],"antonyms":[{"en":"conservative","ko":"보수적인"},{"en":"traditional","ko":"전통적인"}]},{"english":"excel at","korean":"~에 뛰어나다","sentence":"With no horses available, the Inca empire excelled at delivering messages on foot.","sentenceKo":"이용 가능한 말이 없었기 때문에, 잉카 제국은 도보로 메시지를 전달하는 데 뛰어났습니다.","synonyms":[{"en":"shine at","ko":"뛰어나다"},{"en":"thrive in","ko":"탁월하다"},{"en":"master","ko":"통달하다"}],"antonyms":[{"en":"struggle with","ko":"고전하다"},{"en":"fail at","ko":"실패하다"}]},{"english":"relay","korean":"전달하다, 중계하다","sentence":"The Inca empire could relay messages 1,000 miles (1,610 km) in three or four days under good conditions.","sentenceKo":"잉카 제국은 좋은 조건 하에서 3일이나 4일 안에 1,000마일(1,610km)의 메시지를 전달할 수 있었습니다.","synonyms":[{"en":"transmit","ko":"전달하다"},{"en":"convey","ko":"전하다"},{"en":"pass on","ko":"넘기다"}],"antonyms":[{"en":"withhold","ko":"보류하다"},{"en":"conceal","ko":"숨기다"}]},{"english":"catch sight of","korean":"~을 목격하다","sentence":"If they caught sight of another messenger coming, they hurried out to meet them.","sentenceKo":"만약 그들이 다가오는 또 다른 전령을 목격하면, 그들은 서둘러 나가서 그들을 만났습니다.","synonyms":[{"en":"spot","ko":"발견하다"},{"en":"glimpse","ko":"언뜻보다"},{"en":"see","ko":"보다"}],"antonyms":[{"en":"miss","ko":"놓치다"},{"en":"overlook","ko":"간과하다"}]},{"english":"overstate","korean":"과대평가하다, 과장하다","sentence":"It would be hard to overstate how important meaningful work is to human beings.","sentenceKo":"의미 있는 일이 인간에게 얼마나 중요한지 과대평가하기는 어려울 것입니다.","synonyms":[{"en":"exaggerate","ko":"과장하다"},{"en":"magnify","ko":"확대하다"},{"en":"embellish","ko":"과장하다"}],"antonyms":[{"en":"understate","ko":"축소하다"},{"en":"minimize","ko":"최소화하다"}]},{"english":"misinterpretation","korean":"오해, 잘못된 해석","sentence":"As it turns out, the map was a misinterpretation and mistranslation of research conducted in Germany at the turn of the twentieth century.","sentenceKo":"알고 보니, 그 지도는 20세기 전환기에 독일에서 수행된 연구의 오해와 오역이었습니다.","synonyms":[{"en":"misunderstanding","ko":"오해"},{"en":"misconstruction","ko":"잘못된해석"}],"antonyms":[{"en":"correct interpretation","ko":"올바른해석"},{"en":"understanding","ko":"이해"}]},{"english":"mistranslation","korean":"오역","sentence":"As it turns out, the map was a misinterpretation and mistranslation of research conducted in Germany at the turn of the twentieth century.","sentenceKo":"알고 보니, 그 지도는 20세기 전환기에 독일에서 수행된 연구의 오해와 오역이었습니다.","synonyms":[{"en":"misrendering","ko":"오역"},{"en":"incorrect translation","ko":"잘못된번역"}],"antonyms":[{"en":"accurate translation","ko":"정확한번역"}]},{"english":"intensity","korean":"강도","sentence":"Sweetness, saltiness, bitterness, and sourness can be tasted everywhere in the mouth, although they may be perceived at a little different intensities at different sites.","sentenceKo":"단맛, 짠맛, 쓴맛, 그리고 신맛은 입 안 어디에서나 맛볼 수 있지만, 다른 위치에서 약간 다른 강도로 인식될 수 있습니다.","synonyms":[{"en":"strength","ko":"강도"},{"en":"force","ko":"힘"},{"en":"severity","ko":"심각성"}],"antonyms":[{"en":"weakness","ko":"약함"},{"en":"mildness","ko":"온화함"}]},{"english":"mechanism","korean":"기제, 메커니즘","sentence":"Moreover, the mechanism at work is not place, but time.","sentenceKo":"더욱이, 작동하는 기제는 장소가 아니라 시간입니다.","synonyms":[{"en":"process","ko":"과정"},{"en":"system","ko":"체계"},{"en":"method","ko":"방법"}],"antonyms":[]},{"english":"domestic","korean":"가정의, 국내의","sentence":"For instance, a cat in a rescue center will respond very differently than a cat within a domestic home environment.","sentenceKo":"예를 들어, 구조 센터에 있는 고양이는 가정 환경에 있는 고양이와는 매우 다르게 반응할 것입니다.","synonyms":[{"en":"home","ko":"가정의"},{"en":"household","ko":"가정용"},{"en":"internal","ko":"국내의"}],"antonyms":[{"en":"foreign","ko":"외국의"},{"en":"international","ko":"국제적인"}]},{"english":"confusion","korean":"혼란","sentence":"In addition, animals that experience healing for physical illness will react differently than those accepting healing for emotional confusion.","sentenceKo":"게다가, 신체적 질병에 대한 치유를 경험하는 동물들은 감정적 혼란에 대한 치유를 받아들이는 동물들과는 다르게 반응할 것입니다.","synonyms":[{"en":"bewilderment","ko":"당혹"},{"en":"perplexity","ko":"혼란"},{"en":"disorientation","ko":"혼동"}],"antonyms":[{"en":"clarity","ko":"명확성"},{"en":"understanding","ko":"이해"}]},{"english":"adjust","korean":"조정하다","sentence":"With this in mind, every healing session needs to be explored differently, and each healing treatment should be adjusted to suit the specific needs of the animal.","sentenceKo":"이것을 염두에 두고, 모든 치유 세션은 다르게 탐구될 필요가 있으며, 각각의 치유 치료는 동물의 특정한 필요에 맞게 조정되어야 합니다.","synonyms":[{"en":"adapt","ko":"적응하다"},{"en":"modify","ko":"수정하다"},{"en":"alter","ko":"변경하다"}],"antonyms":[{"en":"maintain","ko":"유지하다"},{"en":"fix","ko":"고정하다"}]},{"english":"subconscious","korean":"잠재의식의, 무의식의","sentence":"The mind has parts that are known as the conscious mind and the subconscious mind.","sentenceKo":"마음은 의식적 마음과 잠재의식적 마음으로 알려진 부분들을 가지고 있습니다.","synonyms":[{"en":"unconscious","ko":"무의식의"},{"en":"subliminal","ko":"잠재의"}],"antonyms":[{"en":"conscious","ko":"의식적인"},{"en":"aware","ko":"자각하는"}]},{"english":"recognition","korean":"인식, 인정","sentence":"It deals with memories of your responses to life, your memories and recognition.","sentenceKo":"그것은 삶에 대한 당신의 반응들의 기억, 당신의 기억들과 인식을 다룹니다.","synonyms":[{"en":"acknowledgment","ko":"인정"},{"en":"identification","ko":"식별"},{"en":"awareness","ko":"인식"}],"antonyms":[{"en":"ignorance","ko":"무지"},{"en":"neglect","ko":"무시"}]},{"english":"carry on","korean":"계속하다","sentence":"You can choose whether to carry on a thought or to add emotion to it.","sentenceKo":"당신은 생각을 계속할지 또는 그것에 감정을 더할지 선택할 수 있습니다.","synonyms":[{"en":"continue","ko":"계속하다"},{"en":"proceed","ko":"진행하다"},{"en":"persist","ko":"지속하다"}],"antonyms":[{"en":"stop","ko":"멈추다"},{"en":"quit","ko":"그만두다"}]},{"english":"let down","korean":"실망시키다","sentence":"You can choose whether to carry on a thought or to add emotion to it and this is the part of your mind that lets you down frequently.","sentenceKo":"당신은 생각을 계속할지 또는 그것에 감정을 더할지 선택할 수 있으며 이것은 당신을 자주 실망시키는 당신 마음의 부분입니다.","synonyms":[{"en":"disappoint","ko":"실망시키다"},{"en":"fail","ko":"저버리다"},{"en":"betray","ko":"배신하다"}],"antonyms":[{"en":"satisfy","ko":"만족시키다"},{"en":"please","ko":"기쁘게하다"}]},{"english":"fuel","korean":"부추기다, 연료를 공급하다","sentence":"When your judgment is clouded by emotions, this puts in biases and all kinds of other negativities that hold you back.","sentenceKo":"당신의 판단이 감정에 의해 흐려지면, 이것은 당신을 방해하는 편견들과 온갖 다른 부정적인 것들을 넣습니다.","synonyms":[{"en":"power","ko":"동력주다"},{"en":"energize","ko":"에너지주다"},{"en":"drive","ko":"추진하다"}],"antonyms":[{"en":"deplete","ko":"고갈시키다"},{"en":"drain","ko":"소진시키다"}]},{"english":"cloud","korean":"흐리게 하다, 불분명하게 하다","sentence":"When your judgment is clouded by emotions, this puts in biases and all kinds of other negativities that hold you back.","sentenceKo":"당신의 판단이 감정에 의해 흐려지면, 이것은 당신을 방해하는 편견들과 온갖 다른 부정적인 것들을 넣습니다.","synonyms":[{"en":"obscure","ko":"흐리게하다"},{"en":"blur","ko":"흐릿하게하다"},{"en":"confuse","ko":"혼란스럽게하다"}],"antonyms":[{"en":"clarify","ko":"명확히하다"},{"en":"clear","ko":"맑게하다"}]},{"english":"bias","korean":"편견","sentence":"When your judgment is clouded by emotions, this puts in biases and all kinds of other negativities that hold you back.","sentenceKo":"당신의 판단이 감정에 의해 흐려지면,이것은 당신을 방해하는 편견들과 온갖 다른 부정적인 것들을 넣습니다.","synonyms":[{"en":"prejudice","ko":"편견"},{"en":"partiality","ko":"편파성"},{"en":"favoritism","ko":"편애"}],"antonyms":[{"en":"impartiality","ko":"공정성"},{"en":"objectivity","ko":"객관성"}]},{"english":"negativity","korean":"부정성","sentence":"When your judgment is clouded by emotions, this puts in biases and all kinds of other negativities that hold you back.","sentenceKo":"당신의 판단이 감정에 의해 흐려지면, 이것은 당신을 방해하는 편견들과 온갖 다른 부정적인 것들을 넣습니다.","synonyms":[{"en":"pessimism","ko":"비관주의"},{"en":"cynicism","ko":"냉소주의"}],"antonyms":[{"en":"positivity","ko":"긍정성"},{"en":"optimism","ko":"낙관주의"}]},{"english":"hold back","korean":"방해하다, 억제하다","sentence":"When your judgment is clouded by emotions, this puts in biases and all kinds of other negativities that hold you back.","sentenceKo":"당신의 판단이 감정에 의해 흐려지면, 이것은 당신을 방해하는 편견들과 온갖 다른 부정적인 것들을 넣습니다.","synonyms":[{"en":"restrain","ko":"억제하다"},{"en":"hinder","ko":"방해하다"},{"en":"inhibit","ko":"저해하다"}],"antonyms":[{"en":"encourage","ko":"격려하다"},{"en":"promote","ko":"촉진하다"}]},{"english":"originate","korean":"유래하다, 비롯되다","sentence":"There are reasons for all of these fears, but they originate in the conscious mind.","sentenceKo":"이러한 모든 두려움들에 대한 이유들이 있지만, 그것들은 의식적 마음에서 유래합니다.","synonyms":[{"en":"begin","ko":"시작하다"},{"en":"arise","ko":"발생하다"},{"en":"emerge","ko":"나타나다"}],"antonyms":[{"en":"end","ko":"끝나다"},{"en":"terminate","ko":"종료하다"}]},{"english":"norm","korean":"규범, 표준","sentence":"Norms are everywhere, defining what is \"normal\" and guiding our interpretations of social life at every turn.","sentenceKo":"규범은 도처에 있으며, 무엇이 \"정상적\"인지를 정의하고 매 순간 우리의 사회 생활에 대한 해석을 안내합니다.","synonyms":[{"en":"standard","ko":"기준"},{"en":"convention","ko":"관습"},{"en":"rule","ko":"규범"}],"antonyms":[{"en":"exception","ko":"예외"},{"en":"anomaly","ko":"이상"}]},{"english":"interpretation","korean":"해석","sentence":"Norms are everywhere, defining what is \"normal\" and guiding our interpretations of social life at every turn.","sentenceKo":"규범은 도처에 있으며, 무엇이 \"정상적\"인지를 정의하고 매 순간 우리의 사회 생활에 대한 해석을 안내합니다.","synonyms":[{"en":"understanding","ko":"이해"},{"en":"reading","ko":"해석"},{"en":"explanation","ko":"설명"}],"antonyms":[{"en":"misinterpretation","ko":"오해"}]},{"english":"point out","korean":"지적하다","sentence":"As a simple example, there is a norm in Anglo society to say Thank you to strangers who have just done something to help, such as open a door for you, point out that you've just dropped something, or give you directions.","sentenceKo":"간단한 예로, 앵글로 사회에는 방금 도움을 주기 위해 무언가를 한 낯선 사람들에게 감사합니다라고 말하는 규범이 있습니다, 예를 들어 당신을 위해 문을 열어주거나, 당신이 방금 무언가를 떨어뜨렸다고 지적하거나, 당신에게 길을 알려주는 것 등입니다.","synonyms":[{"en":"indicate","ko":"지적하다"},{"en":"identify","ko":"확인하다"},{"en":"highlight","ko":"강조하다"}],"antonyms":[{"en":"ignore","ko":"무시하다"},{"en":"overlook","ko":"간과하다"}]},{"english":"marked","korean":"두드러진, 현저한","sentence":"But if people don't say Thank you in these cases it is marked.","sentenceKo":"그러나 만약 사람들이 이러한 경우에 감사합니다라고 말하지 않으면 그것은 두드러집니다.","synonyms":[{"en":"notable","ko":"주목할만한"},{"en":"pronounced","ko":"뚜렷한"},{"en":"significant","ko":"중요한"}],"antonyms":[{"en":"subtle","ko":"미묘한"},{"en":"slight","ko":"약간의"}]},{"english":"considerable","korean":"상당한","sentence":"To continue the Thank you example, even though another culture may have an expression that appears translatable (many don't), there may be similar norms for its usage, for example, such that you should say Thank you only when the cost someone has caused is considerable.","sentenceKo":"감사합니다 예를 계속하자면, 다른 문화가 번역 가능해 보이는 표현을 가지고 있을지라도, 그것의 사용에 대한 유사한 규범들이 있을 수 있습니다, 예를 들어 누군가가 야기한 비용이 상당할 때만 감사합니다라고 말해야 하는 것 같은 것입니다.","synonyms":[{"en":"substantial","ko":"상당한"},{"en":"significant","ko":"중요한"},{"en":"large","ko":"큰"}],"antonyms":[{"en":"insignificant","ko":"미미한"},{"en":"negligible","ko":"무시할만한"}]},{"english":"ridiculous","korean":"우스꽝스러운, 말도 안 되는","sentence":"In such a case it would sound ridiculous (i.e., unexpected, surprising, and worthy of criticism) if you were to thank someone for something so minor as holding a door open for you.","sentenceKo":"그러한 경우에 만약 당신이 당신을 위해 문을 열어주는 것과 같이 사소한 것에 대해 누군가에게 감사한다면 그것은 우스꽝스럽게 (즉, 예상치 못한, 놀랍고, 비판받을 만한) 들릴 것입니다.","synonyms":[{"en":"absurd","ko":"터무니없는"},{"en":"ludicrous","ko":"우스꽝스러운"},{"en":"preposterous","ko":"어처구니없는"}],"antonyms":[{"en":"reasonable","ko":"합리적인"},{"en":"sensible","ko":"분별있는"}]},{"english":"worthy of","korean":"~할 가치가 있는","sentence":"In such a case it would sound ridiculous (i.e., unexpected, surprising, and worthy of criticism) if you were to thank someone for something so minor as holding a door open for you.","sentenceKo":"그러한 경우에 만약 당신이 당신을 위해 문을 열어주는 것과 같이 사소한 것에 대해 누군가에게 감사한다면 그것은 우스꽝스럽게 (즉, 예상치 못한, 놀랍고, 비판받을 가치가 있는) 들릴 것입니다.","synonyms":[{"en":"deserving of","ko":"가치있는"},{"en":"meriting","ko":"자격있는"}],"antonyms":[{"en":"unworthy of","ko":"가치없는"},{"en":"undeserving of","ko":"자격없는"}]},{"english":"spiritual","korean":"영적인","sentence":"Long ago, when the world was young, an old Native American spiritual leader Odawa had a dream on a high mountain.","sentenceKo":"오래 전, 세상이 젊었을 때, 한 노인 아메리카 원주민 영적 지도자 Odawa가 높은 산에서 꿈을 꾸었습니다.","synonyms":[{"en":"religious","ko":"종교적인"},{"en":"sacred","ko":"신성한"},{"en":"transcendent","ko":"초월적인"}],"antonyms":[{"en":"material","ko":"물질적인"},{"en":"physical","ko":"육체적인"}]},{"english":"adulthood","korean":"성인기","sentence":"We all begin our lives as babies, move on to childhood, and then to adulthood.","sentenceKo":"우리 모두는 아기로 삶을 시작하고, 어린 시절로 나아가며, 그 다음 성인기로 갑니다.","synonyms":[{"en":"maturity","ko":"성숙기"},{"en":"grown-up years","ko":"성인기"}],"antonyms":[{"en":"childhood","ko":"어린시절"},{"en":"youth","ko":"청소년기"}]},{"english":"force","korean":"힘, 세력","sentence":"Iktomi also told him that there are good and bad forces in each stage of life.","sentenceKo":"Iktomi는 또한 그에게 삶의 각 단계에 좋은 힘과 나쁜 힘이 있다고 말했습니다.","synonyms":[{"en":"compel","ko":"강요하다"},{"en":"coerce","ko":"강제하다"},{"en":"pressure","ko":"압박하다"}],"antonyms":[{"en":"allow","ko":"허용하다"},{"en":"permit","ko":"허락하다"}]},{"english":"make good use of","korean":"~을 잘 활용하다","sentence":"Make good use of their ideas, dreams, and visions.","sentenceKo":"그들의 아이디어, 꿈, 그리고 비전을 잘 활용하십시오.","synonyms":[{"en":"utilize","ko":"활용하다"},{"en":"exploit","ko":"이용하다"},{"en":"leverage","ko":"활용하다"}],"antonyms":[{"en":"waste","ko":"낭비하다"},{"en":"squander","ko":"허비하다"}]},{"english":"vision","korean":"비전, 비전","sentence":"Make good use of their ideas, dreams, and visions.","sentenceKo":"그들의 아이디어, 꿈, 그리고 비전을 잘 활용하십시오.","synonyms":[{"en":"foresight","ko":"선견지명"},{"en":"perspective","ko":"관점"},{"en":"goal","ko":"목표"}],"antonyms":[{"en":"blindness","ko":"맹목"},{"en":"shortsightedness","ko":"근시안"}]},{"english":"filter out","korean":"걸러내다","sentence":"Dream catchers are believed to filter out bad dreams.","sentenceKo":"드림캐처는 나쁜 꿈을 걸러낸다고 믿어집니다.","synonyms":[{"en":"screen out","ko":"걸러내다"},{"en":"exclude","ko":"배제하다"},{"en":"eliminate","ko":"제거하다"}],"antonyms":[{"en":"include","ko":"포함하다"},{"en":"admit","ko":"받아들이다"}]}]};
+var SET_SIZE=20;
+function shuffle(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t}return b}
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function trim(s){return(s||'').replace(/^\s+|\s+$/g,'')}
+function maskWord(sen,word){if(!sen||!word)return sen;var lc=sen.toLowerCase(),wl=word.toLowerCase(),res='',i=0;while(i<sen.length){var idx=lc.indexOf(wl,i);if(idx===-1){res+=sen.substring(i);break}res+=sen.substring(i,idx);for(var j=0;j<word.length;j++)res+='_';i=idx+wl.length}return res}
+function SimpleSet(){this._m={};this.size=0}
+SimpleSet.prototype.add=function(v){var k=String(v);if(!this._m[k]){this._m[k]=true;this.size++}};
+SimpleSet.prototype.has=function(v){return this._m[String(v)]===true};
+SimpleSet.prototype.clear=function(){this._m={};this.size=0};
+
+function App(){
+  var self=this;
+  this.allWords=CONFIG.words;
+  this.passThreshold=CONFIG.passThreshold;
+  this.app=document.getElementById('app');
+  this.titleEl=document.getElementById('page-title');
+  this.subEl=document.getElementById('page-subtitle');
+  this.sets=[];
+  for(var i=0;i<this.allWords.length;i+=SET_SIZE){this.sets.push(this.allWords.slice(i,Math.min(i+SET_SIZE,this.allWords.length)))}
+  this.totalSets=this.sets.length;
+  // test state
+  this.masteredWords=new SimpleSet();this.wrongHistory=[];this.setResults=[];
+  this.curSet=0;this.round=0;this.roundWords=[];
+  this.roundCorrect=[];this.roundWrong=[];this.roundHistory=[];
+  this.answered=false;this.setWordsAll=[];
+  this.currentOptions=[];this.currentCorrectMap={};this.selectedIdxs={};this.currentKoMap={};
+  // practice state
+  this.pSeen=new SimpleSet();this.pSetResults=[];this.pCurSet=0;this.pRound=0;
+  this.pCards=[];this.pIdx=0;this.pKnown=[];this.pUnknown=[];this.pFlipped=false;
+
+  document.addEventListener('click',function(e){
+    var t=e.target.closest('[data-chk]');
+    if(t){var ci=parseInt(t.getAttribute('data-chk'),10);self.toggleOption(ci);return}
+    if(e.target.closest('.fc-card')&&!e.target.closest('.fc-btns')&&!e.target.closest('.btn')){self.flipCard();return}
+    var ae=e.target.closest('[data-action]');
+    if(ae){var a=ae.getAttribute('data-action'),ar=ae.getAttribute('data-args');
+      if(typeof self[a]==='function'){if(ar!==null)self[a](parseInt(ar,10));else self[a]()}}
+  },false);
+  this.showHome();
+}
+App.prototype.render=function(h){this.app.innerHTML=h};
+App.prototype.setTitle=function(t){this.titleEl.textContent=t};
+App.prototype.setSub=function(t){this.subEl.textContent=t};
+App.prototype.toTop=function(){window.scrollTo(0,0)};
+
+/* ── Home ── */
+App.prototype.showHome=function(){
+  this.setTitle(CONFIG.title);this.setSub('유의어 학습');
+  this.render(
+    '<div class="fade" style="text-align:center">'+
+    '<div style="font-size:3rem;margin-bottom:10px">🔄</div>'+
+    '<h2 style="font-size:1.2rem;font-weight:700;color:#0f172a;margin-bottom:6px">유의어·반의어 학습</h2>'+
+    '<p style="color:#64748b;font-size:.88rem;word-break:keep-all">플래시카드로 유의어·반의어를 익히고<br>유의어 선택 테스트에 도전하세요!</p>'+
+    '<div class="ig"><div class="ig-row">'+
+    '<div class="ic"><div class="lb">총 단어</div><div class="vl">'+this.allWords.length+'개</div></div>'+
+    '<div class="ic"><div class="lb">세트</div><div class="vl">'+this.totalSets+'세트</div></div></div>'+
+    '<div class="ig-row">'+
+    '<div class="ic"><div class="lb">테스트 유형</div><div class="vl" style="font-size:.8rem">유의어 선택(복수)</div></div>'+
+    '<div class="ic"><div class="lb">통과 기준</div><div class="vl">'+this.passThreshold+'%</div></div></div></div>'+
+    '<button class="btn btn-accent" data-action="startPractice" style="font-size:1.05rem">🃏 플래시카드 연습</button>'+
+    '<button class="btn btn-primary" data-action="startFullTest" style="font-size:1.05rem">📝 유의어 테스트 시작</button>'+
+    '</div>'
+  );
+};
+
+/* ── Practice (Flashcard) ── */
+App.prototype.startPractice=function(){
+  this.pSeen=new SimpleSet();this.pSetResults=[];this.pCurSet=0;this.showPracticeMap();
+};
+App.prototype.showPracticeMap=function(){
+  this.setTitle(CONFIG.title);
+  var totalSeen=this.pSeen.size;
+  var pct=this.allWords.length>0?Math.round((totalSeen/this.allWords.length)*100):0;
+  this.setSub('연습 '+pct+'% ('+totalSeen+'/'+this.allWords.length+')');
+  var setsHtml='';
+  for(var i=0;i<this.totalSets;i++){
+    var sw=this.sets[i],res=null;
+    for(var r=0;r<this.pSetResults.length;r++){if(this.pSetResults[r].setIdx===i){res=this.pSetResults[r];break}}
+    var seen=0;for(var w=0;w<sw.length;w++){if(this.pSeen.has(trim(sw[w].english).toLowerCase()))seen++}
+    var done=!!res,sPct=Math.round((seen/sw.length)*100);
+    var cls=done?'dn':'cur',icon=done?'✅':'▶',stxt=done?sPct+'%':'시작';
+    setsHtml+='<div class="sc-w"><div class="s-card '+cls+'" data-action="practiceSet" data-args="'+i+'">'+
+      '<div class="sn">세트 '+(i+1)+'</div><div class="sw">'+sw.length+'개</div>'+
+      '<div class="sb"><div class="sbf" style="width:'+sPct+'%"></div></div>'+
+      '<div class="ss">'+icon+' '+stxt+'</div></div></div>';
+  }
+  this.render(
+    '<div class="fade"><div style="text-align:center;margin-bottom:16px">'+
+    '<div style="font-size:2rem;margin-bottom:6px">🃏</div>'+
+    '<h2 style="font-size:1.1rem;font-weight:700;color:#0f172a;margin-bottom:3px">플래시카드 연습</h2>'+
+    '<p style="color:#64748b;font-size:.82rem">카드 뒷면에서 유의어·반의어를 확인하세요</p></div>'+
+    '<div class="ob"><div class="ob-top"><span style="color:#64748b">연습 진행률</span><span style="font-weight:700;color:#8b5cf6">'+pct+'%</span></div>'+
+    '<div class="ob-bar"><div class="ob-fill" style="width:'+pct+'%;background:#8b5cf6"></div></div>'+
+    '<div class="ob-sub">'+totalSeen+' / '+this.allWords.length+' 단어</div></div>'+
+    '<div class="sg">'+setsHtml+'</div>'+
+    '<div class="jump-bar"><p>연습 후 테스트로!</p>'+
+    '<button class="btn btn-primary" data-action="startFullTest" style="font-size:.92rem">📝 유의어 테스트 시작</button></div>'+
+    '<button class="btn btn-ghost" data-action="showHome" style="margin-top:6px">← 처음으로</button></div>'
+  );
+};
+App.prototype.practiceSet=function(idx){
+  this.pCurSet=idx;this.pRound=0;
+  var sw=this.sets[idx];
+  var unseen=[];for(var i=0;i<sw.length;i++){if(!this.pSeen.has(trim(sw[i].english).toLowerCase()))unseen.push(sw[i])}
+  this.pCards=unseen.length>0?shuffle(unseen):shuffle(sw.slice());
+  this.pIdx=0;this.pKnown=[];this.pUnknown=[];this.pFlipped=false;this.pRound++;
+  this.showCard();
+};
+App.prototype.showCard=function(){
+  if(this.pIdx>=this.pCards.length){this.endPracticeRound();return}
+  this.pFlipped=false;
+  var word=this.pCards[this.pIdx];
+  var total=this.pCards.length;
+  var pct=Math.round((this.pIdx/total)*100);
+  var dotsHtml='';
+  for(var d=0;d<total;d++){
+    var dc='fc-dot';
+    if(d<this.pIdx){var wk=false;for(var k=0;k<this.pKnown.length;k++){if(this.pKnown[k].english===this.pCards[d].english){wk=true;break}}dc+=wk?' ok':' ng';}
+    else if(d===this.pIdx){dc+=' now'}
+    dotsHtml+='<div class="'+dc+'"></div>';
+  }
+  // Build synonym/antonym tags for back
+  var synHtml='',antHtml='';
+  if(word.synonyms&&word.synonyms.length>0){
+    synHtml='<div class="fc-syn"><div class="fc-syn-title">유의어 (Synonyms)</div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">'+
+      word.synonyms.map(function(s){
+        var ko=s.ko?'<div style="font-size:.7rem;color:#166534;margin-top:2px;font-weight:400">'+esc(s.ko)+'</div>':'';
+        return '<div class="syn-pill s"><div style="font-weight:700">'+esc(s.en)+'</div>'+ko+'</div>';
+      }).join('')+
+    '</div></div>';
+  }
+  if(word.antonyms&&word.antonyms.length>0){
+    antHtml='<div class="fc-ant"><div class="fc-ant-title">반의어 (Antonyms)</div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">'+
+      word.antonyms.map(function(s){
+        var ko=s.ko?'<div style="font-size:.7rem;color:#991b1b;margin-top:2px;font-weight:400">'+esc(s.ko)+'</div>':'';
+        return '<div class="syn-pill a"><div style="font-weight:700">'+esc(s.en)+'</div>'+ko+'</div>';
+      }).join('')+
+    '</div></div>';
+  }
+  var sentFront=word.sentence?'<div style="font-size:.78rem;color:#6d28d9;margin-top:10px;line-height:1.5;padding:9px 12px;background:rgba(139,92,246,.08);border-radius:10px;word-break:keep-all;border:1px solid rgba(139,92,246,.15)">'+esc(maskWord(word.sentence,word.english))+'</div>':'';
+  var sentBack=word.sentenceKo?'<div style="font-size:.78rem;color:#047857;margin-top:8px;line-height:1.5;padding:9px 12px;background:rgba(16,185,129,.08);border-radius:10px;word-break:keep-all;border:1px solid rgba(16,185,129,.15)">'+esc(word.sentenceKo)+'</div>':'';
+
+  this.setTitle('세트 '+(this.pCurSet+1)+' 연습');
+  this.setSub(this.pRound+'라운드 · '+(this.pIdx+1)+'/'+total);
+  this.render(
+    '<div class="fade">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'+
+    '<div class="round-tag">세트'+(this.pCurSet+1)+' · '+this.pRound+'R</div>'+
+    '<div class="back-link" data-action="showPracticeMap">← 목록</div></div>'+
+    '<div class="fc-dots">'+dotsHtml+'</div>'+
+    '<div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%;background:#8b5cf6"></div></div>'+
+    '<div id="fc-action" style="display:none;margin-bottom:12px">'+
+      '<div class="fc-btns">'+
+        '<button class="btn btn-dunno" data-action="pMarkUnknown">❌ 몰라요</button>'+
+        '<button class="btn btn-know" data-action="pMarkKnown">⭕ 알아요</button>'+
+      '</div></div>'+
+    '<div class="fc-scene">'+
+      '<div class="fc-card" id="fc-card">'+
+        '<div class="fc-face fc-front">'+
+          '<div class="fc-label">한글 뜻</div>'+
+          '<div class="fc-word">'+esc(word.korean)+'</div>'+
+          sentFront+
+          '<div class="fc-tap">카드를 탭하여 유의어 확인 →</div>'+
+        '</div>'+
+        '<div class="fc-face fc-back">'+
+          '<div class="fc-label">English</div>'+
+          '<div class="fc-word">'+esc(word.english)+'</div>'+
+          '<div class="fc-sub">'+esc(word.korean)+'</div>'+
+          synHtml+antHtml+sentBack+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    '</div>'
+  );
+};
+App.prototype.flipCard=function(){
+  this.pFlipped=!this.pFlipped;
+  var el=document.getElementById('fc-card');if(el)el.className=this.pFlipped?'fc-card flipped':'fc-card';
+  var ab=document.getElementById('fc-action');if(ab)ab.style.display=this.pFlipped?'block':'none';
+};
+App.prototype.pMarkKnown=function(){
+  var word=this.pCards[this.pIdx];this.pKnown.push(word);
+  this.pSeen.add(trim(word.english).toLowerCase());this.pIdx++;this.showCard();
+};
+App.prototype.pMarkUnknown=function(){
+  var word=this.pCards[this.pIdx];this.pUnknown.push(word);this.pIdx++;this.showCard();
+};
+App.prototype.endPracticeRound=function(){
+  var sw=this.sets[this.pCurSet];
+  var seenCount=0;for(var i=0;i<sw.length;i++){if(this.pSeen.has(trim(sw[i].english).toLowerCase()))seenCount++}
+  if(this.pUnknown.length===0){
+    var res={setIdx:this.pCurSet,rounds:this.pRound,known:seenCount,total:sw.length};
+    var ex=-1;for(var r=0;r<this.pSetResults.length;r++){if(this.pSetResults[r].setIdx===this.pCurSet){ex=r;break}}
+    if(ex>=0)this.pSetResults[ex]=res;else this.pSetResults.push(res);
+    this.setTitle('세트 '+(this.pCurSet+1)+' 완료!');this.setSub(this.pRound+'라운드');
+    var hasNext=this.pCurSet<this.totalSets-1;
+    this.render('<div class="fade" style="text-align:center">'+
+      '<div style="font-size:2rem;margin-bottom:8px">🎯</div>'+
+      '<h2 style="font-size:1.1rem;font-weight:700;color:#0f172a;margin-bottom:6px">세트 '+(this.pCurSet+1)+' 완료!</h2>'+
+      '<div class="sc g">100%</div>'+
+      (hasNext?'<button class="btn btn-accent" data-action="goNextPracticeSet">다음 세트 →</button>':'')+
+      '<button class="btn btn-ghost" data-action="showPracticeMap">세트 목록</button>'+
+      '<div class="jump-bar"><p>이제 테스트에 도전!</p>'+
+      '<button class="btn btn-primary" data-action="startFullTest">📝 유의어 테스트 시작</button></div></div>');
+  }else{
+    this.pCards=shuffle(this.pUnknown.slice());this.pIdx=0;this.pKnown=[];this.pUnknown=[];this.pRound++;this.showCard();
+  }
+};
+App.prototype.goNextPracticeSet=function(){this.pCurSet++;this.practiceSet(this.pCurSet)};
+
+/* ── Test Mode ── */
+App.prototype.startFullTest=function(){
+  this.masteredWords=new SimpleSet();this.wrongHistory=[];this.setResults=[];this.curSet=0;this.showSetMap();
+};
+App.prototype.showSetMap=function(){
+  this.setTitle(CONFIG.title);
+  var overallPct=this.allWords.length>0?Math.round((this.masteredWords.size/this.allWords.length)*100):0;
+  var passed=overallPct>=this.passThreshold;
+  if(this.setResults.length===this.totalSets&&passed){this.showFinalCelebration();return}
+  this.setSub('테스트 '+overallPct+'% ('+this.masteredWords.size+'/'+this.allWords.length+')');
+  var setsHtml='';
+  for(var i=0;i<this.totalSets;i++){
+    var sw=this.sets[i],result=null;
+    for(var r=0;r<this.setResults.length;r++){if(this.setResults[r].setIdx===i){result=this.setResults[r];break}}
+    var m=0;for(var w=0;w<sw.length;w++){if(this.masteredWords.has(trim(sw[w].english).toLowerCase()))m++}
+    var done=!!result,sPct=Math.round((m/sw.length)*100);
+    var cls,icon,stxt,act;
+    if(done&&sPct===100){cls='dn';icon='⭐';stxt='완벽';act=' data-action="retrySet" data-args="'+i+'"'}
+    else if(done){cls='dn';icon='✅';stxt=sPct+'%';act=' data-action="retrySet" data-args="'+i+'"'}
+    else{cls='cur';icon='▶';stxt='시작';act=' data-action="startSet" data-args="'+i+'"'}
+    setsHtml+='<div class="sc-w"><div class="s-card '+cls+'"'+act+'><div class="sn">세트 '+(i+1)+'</div><div class="sw">'+sw.length+'개</div>'+
+      '<div class="sb"><div class="sbf" style="width:'+sPct+'%"></div></div><div class="ss">'+icon+' '+stxt+'</div></div></div>';
+  }
+  var barColor=passed?'#10b981':'#8b5cf6';
+  this.render(
+    '<div class="fade"><div style="text-align:center;margin-bottom:16px">'+
+    '<div style="font-size:2rem;margin-bottom:6px">📊</div>'+
+    '<h2 style="font-size:1.1rem;font-weight:700;color:#0f172a;margin-bottom:3px">유의어 테스트 현황</h2>'+
+    '<p style="color:#64748b;font-size:.82rem">맞는 유의어를 모두 선택하세요</p></div>'+
+    '<div class="ob"><div class="ob-top"><span style="color:#64748b">전체 성취도</span><span style="font-weight:700;color:'+barColor+'">'+overallPct+'% / '+this.passThreshold+'%</span></div>'+
+    '<div class="ob-bar"><div class="ob-fill" style="width:'+overallPct+'%;background:'+barColor+'"></div>'+
+    '<div class="ob-mark" style="left:'+this.passThreshold+'%"></div></div>'+
+    '<div class="ob-sub">'+this.masteredWords.size+' / '+this.allWords.length+' 단어</div></div>'+
+    '<div class="sg">'+setsHtml+'</div>'+
+    '<button class="btn btn-ghost" data-action="showHome">← 처음으로</button></div>'
+  );
+};
+App.prototype.startSet=function(idx){
+  this.curSet=idx;this.round=0;this.roundHistory=[];
+  var sw=this.sets[idx];this.setWordsAll=sw;
+  var un=[];for(var i=0;i<sw.length;i++){if(!this.masteredWords.has(trim(sw[i].english).toLowerCase()))un.push(sw[i])}
+  this.roundWords=un.length>0?un:sw.slice();this.startSetRound();
+};
+App.prototype.retrySet=function(idx){this.startSet(idx)};
+App.prototype.startSetRound=function(){
+  this.round++;this.roundWords=shuffle(this.roundWords);
+  this.qIndex=0;this.roundCorrect=[];this.roundWrong=[];this.answered=false;
+  this.setTitle('세트 '+(this.curSet+1)+' / '+this.totalSets);this.setSub(this.round+'라운드');
+  this.showQuestion();
+};
+App.prototype.buildOptions=function(word){
+  var synEn=(word.synonyms||[]).map(function(s){return s.en});
+  var antEn=(word.antonyms||[]).map(function(s){return s.en});
+  var allCorrect=[word.english].concat(synEn);
+  var distractors=antEn;
+  var usedCorrect,numD;
+  if(allCorrect.length>=4){usedCorrect=allCorrect.slice(0,3);}
+  else if(allCorrect.length===3){usedCorrect=allCorrect;}
+  else{usedCorrect=allCorrect;}
+  numD=Math.max(1,5-usedCorrect.length);
+  if(numD>distractors.length)numD=distractors.length;
+  var total=usedCorrect.length+numD;
+  if(total<4&&distractors.length>numD)numD=Math.min(distractors.length,4-usedCorrect.length);
+  var usedD=distractors.slice(0,numD);
+  var options=shuffle(usedCorrect.concat(usedD));
+  var cmap={};for(var i=0;i<usedCorrect.length;i++){cmap[usedCorrect[i].toLowerCase()]=true;}
+  // Build english→korean lookup for all options
+  var koMap={};
+  koMap[word.english.toLowerCase()]=word.korean;
+  for(var i=0;i<(word.synonyms||[]).length;i++){if(word.synonyms[i].ko)koMap[word.synonyms[i].en.toLowerCase()]=word.synonyms[i].ko;}
+  for(var i=0;i<(word.antonyms||[]).length;i++){if(word.antonyms[i].ko)koMap[word.antonyms[i].en.toLowerCase()]=word.antonyms[i].ko;}
+  return{options:options,correctMap:cmap,correctCount:usedCorrect.length,koMap:koMap};
+};
+App.prototype.showQuestion=function(){
+  if(this.qIndex>=this.roundWords.length){this.endSetRound();return}
+  this.answered=false;this.selectedIdxs={};
+  var word=this.roundWords[this.qIndex];
+  var built=this.buildOptions(word);
+  this.currentOptions=built.options;this.currentCorrectMap=built.correctMap;this.currentCorrectCount=built.correctCount;this.currentKoMap=built.koMap;
+  var total=this.roundWords.length;
+  var pct=Math.round((this.qIndex/total)*100);
+  var masked=maskWord(word.sentence,word.english);
+  var senHtml=masked?'<div class="sentence-area">'+esc(masked)+'</div>':'';
+  var optsHtml='<div class="opts">';
+  for(var i=0;i<built.options.length;i++){
+    optsHtml+='<button class="chk-btn" data-chk="'+i+'">'+
+      '<div class="chk-box"></div>'+
+      '<span>'+esc(built.options[i])+'</span></button>';
+  }
+  optsHtml+='</div>';
+  var pluralHint=built.correctCount>1?'정답 '+built.correctCount+'개 — ':'';
+  this.setTitle('세트 '+(this.curSet+1)+' / '+this.totalSets);
+  this.setSub(this.round+'R · '+(this.qIndex+1)+'/'+total);
+  this.render(
+    '<div class="fade">'+
+    '<div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%;background:#8b5cf6"></div></div>'+
+    '<div class="q-counter">'+(this.qIndex+1)+' / '+total+'</div>'+
+    '<div class="round-tag">'+this.round+'라운드</div>'+
+    '<div class="kor-word">'+esc(word.korean)+'</div>'+
+    senHtml+
+    '<div class="q-hint">'+pluralHint+'유의어를 모두 선택 후 제출하세요</div>'+
+    optsHtml+
+    '<button class="btn btn-accent" data-action="submitSynonym" style="margin-top:14px">✓ 제출</button>'+
+    '</div>'
+  );
+};
+App.prototype.toggleOption=function(ci){
+  if(this.answered)return;
+  var btn=document.querySelector('[data-chk="'+ci+'"]');if(!btn)return;
+  if(this.selectedIdxs[ci]){delete this.selectedIdxs[ci];btn.classList.remove('selected');btn.querySelector('.chk-box').textContent=''}
+  else{this.selectedIdxs[ci]=true;btn.classList.add('selected');btn.querySelector('.chk-box').textContent='✓'}
+};
+App.prototype.submitSynonym=function(){
+  if(this.answered)return;
+  this.answered=true;
+  var word=this.roundWords[this.qIndex];
+  var btns=document.querySelectorAll('.chk-btn');
+  var selectedWords=[];
+  for(var i=0;i<btns.length;i++){if(this.selectedIdxs[i])selectedWords.push(this.currentOptions[i]);}
+  // Check: all correct selected AND no wrong selected
+  var isCorrect=true;
+  var cmap=this.currentCorrectMap;
+  // All correct words must be in selected
+  for(var k in cmap){var found=false;for(var j=0;j<selectedWords.length;j++){if(selectedWords[j].toLowerCase()===k){found=true;break}}if(!found){isCorrect=false;break}}
+  // No wrong words in selected
+  if(isCorrect){for(var j=0;j<selectedWords.length;j++){if(!cmap[selectedWords[j].toLowerCase()]){isCorrect=false;break}}}
+  // Visual feedback + append Korean meaning to every button
+  for(var i=0;i<btns.length;i++){
+    btns[i].disabled=true;btns[i].style.cursor='default';
+    var optW=this.currentOptions[i];var isC=!!cmap[optW.toLowerCase()];var wasSel=!!this.selectedIdxs[i];
+    if(isC&&wasSel){btns[i].className='chk-btn correct';btns[i].querySelector('.chk-box').textContent='✓'}
+    else if(isC&&!wasSel){btns[i].className='chk-btn reveal';btns[i].querySelector('.chk-box').textContent='○'}
+    else if(!isC&&wasSel){btns[i].className='chk-btn wrong';btns[i].querySelector('.chk-box').textContent='✕'}
+    // Append Korean meaning
+    var ko=this.currentKoMap[optW.toLowerCase()]||'';
+    if(ko){
+      var koEl=document.createElement('span');
+      koEl.style.cssText='font-size:.75rem;font-weight:400;color:inherit;opacity:.75;margin-left:6px;';
+      koEl.textContent='('+ko+')';
+      var spanEl=btns[i].querySelector('span');
+      if(spanEl)spanEl.appendChild(koEl);
+    }
+  }
+  // Record result
+  if(isCorrect){this.roundCorrect.push(word);this.masteredWords.add(trim(word.english).toLowerCase())}
+  else{this.roundWrong.push({english:word.english,korean:word.korean,sentence:word.sentence||'',sentenceKo:word.sentenceKo||'',synonyms:word.synonyms||[],antonyms:word.antonyms||[],userAnswer:selectedWords.join(', ')});
+    this.wrongHistory.push({english:word.english,korean:word.korean,userAnswer:selectedWords.join(', '),round:this.round,set:this.curSet+1})}
+  var correctList=Object.keys(cmap).join(', ');
+  var fb=isCorrect?'<div class="fb ok">정답입니다! ✅</div>':
+    '<div class="fb ng">오답입니다 ❌<div class="ans">정답: <strong>'+esc(correctList)+'</strong></div></div>';
+  var nb='<button class="btn btn-primary" data-action="nextQuestion" style="margin-top:12px">다음 문제</button>';
+  var d=document.createElement('div');d.innerHTML=fb+nb;
+  var ct=this.app.querySelector('div');if(ct)ct.appendChild(d);
+};
+App.prototype.nextQuestion=function(){this.qIndex++;this.showQuestion()};
+App.prototype.endSetRound=function(){
+  var sw=this.setWordsAll,m=0;
+  for(var i=0;i<sw.length;i++){if(this.masteredWords.has(trim(sw[i].english).toLowerCase()))m++}
+  this.roundHistory.push({round:this.round,tested:this.roundWords.length,correct:this.roundCorrect.length,wrong:this.roundWrong.length});
+  if(m===sw.length||this.roundWrong.length===0)this.showSetComplete();
+  else this.showSetRoundSummary();
+};
+App.prototype.showSetRoundSummary=function(){
+  var sw=this.setWordsAll,m=0;
+  for(var i=0;i<sw.length;i++){if(this.masteredWords.has(trim(sw[i].english).toLowerCase()))m++}
+  var sPct=Math.round((m/sw.length)*100),remaining=this.roundWrong.length;
+  this.setSub('세트 '+(this.curSet+1)+' · '+this.round+'R 결과');
+  this.render(
+    '<div class="fade"><div class="sc r">'+sPct+'%</div>'+
+    '<div style="text-align:center;margin:14px 0"><h3 style="font-size:1.1rem;font-weight:700;color:#0f172a;margin-bottom:6px">'+this.round+'라운드 결과</h3>'+
+    '<p style="color:#64748b;font-size:.85rem">'+m+'/'+sw.length+' 단어 완료</p></div>'+
+    '<div class="card"><div class="sr"><span class="sl">문제 수</span><span class="sv">'+this.roundWords.length+'개</span></div>'+
+    '<div class="sr"><span class="sl">정답</span><span class="sv g">'+this.roundCorrect.length+'개</span></div>'+
+    '<div class="sr"><span class="sl">오답</span><span class="sv r">'+this.roundWrong.length+'개</span></div></div>'+
+    '<div class="alert-r">틀린 '+remaining+'개로 다시 도전!</div>'+
+    '<button class="btn btn-accent" style="margin-top:14px" data-action="continueSetRound">다음 라운드 ('+remaining+'개)</button></div>'
+  );this.toTop();
+};
+App.prototype.continueSetRound=function(){
+  var next=[];for(var i=0;i<this.roundWrong.length;i++){next.push(this.roundWrong[i])}
+  this.roundWords=next;this.startSetRound();
+};
+App.prototype.showSetComplete=function(){
+  var sw=this.setWordsAll,m=0;
+  for(var i=0;i<sw.length;i++){if(this.masteredWords.has(trim(sw[i].english).toLowerCase()))m++}
+  var sPct=Math.round((m/sw.length)*100);
+  var overallPct=Math.round((this.masteredWords.size/this.allWords.length)*100);
+  var passed=overallPct>=this.passThreshold;
+  var ex=-1;for(var r=0;r<this.setResults.length;r++){if(this.setResults[r].setIdx===this.curSet){ex=r;break}}
+  var res={setIdx:this.curSet,rounds:this.round,correct:m,total:sw.length,pct:sPct};
+  if(ex>=0)this.setResults[ex]=res;else this.setResults.push(res);
+  var allDone=this.setResults.length===this.totalSets;
+  var hasNext=this.curSet<this.totalSets-1;
+  var btnsHtml='';
+  if(allDone&&passed){btnsHtml='<button class="btn btn-accent" data-action="showFinalCelebration" style="font-size:1.05rem">🎉 최종 결과</button>'}
+  else if(hasNext){btnsHtml='<button class="btn btn-accent" data-action="goNextSet">다음 세트 →</button><button class="btn btn-ghost" data-action="showSetMap">세트 목록</button>'}
+  else{btnsHtml='<button class="btn btn-accent" data-action="showSetMap">세트 목록으로</button>'}
+  this.setTitle('세트 '+(this.curSet+1)+' 완료!');this.setSub('전체 '+overallPct+'%');
+  this.render(
+    '<div class="fade"><div style="text-align:center;margin-bottom:12px">'+
+    '<div style="font-size:2rem;margin-bottom:6px">🎯</div>'+
+    '<h2 style="font-size:1.1rem;font-weight:700;color:#0f172a;margin-bottom:4px">세트 '+(this.curSet+1)+' 완료!</h2>'+
+    '<p style="color:#64748b;font-size:.85rem">'+m+'/'+sw.length+' · '+this.round+'라운드</p></div>'+
+    '<div class="sc g">'+sPct+'%</div>'+
+    '<div class="card"><h3>세트 결과</h3>'+
+    '<div class="sr"><span class="sl">단어 수</span><span class="sv">'+sw.length+'개</span></div>'+
+    '<div class="sr"><span class="sl">정복</span><span class="sv g">'+m+'개</span></div>'+
+    '<div class="sr"><span class="sl">라운드</span><span class="sv">'+this.round+'회</span></div></div>'+
+    '<div class="ob"><div class="ob-top"><span style="color:#64748b">전체 진행률</span><span style="font-weight:700">'+overallPct+'% / '+this.passThreshold+'%</span></div>'+
+    '<div class="ob-bar"><div class="ob-fill" style="width:'+overallPct+'%;background:#8b5cf6"></div>'+
+    '<div class="ob-mark" style="left:'+this.passThreshold+'%"></div></div>'+
+    '<div class="ob-sub">'+this.masteredWords.size+' / '+this.allWords.length+' 단어</div></div>'+
+    btnsHtml+'</div>'
+  );this.toTop();
+};
+App.prototype.goNextSet=function(){this.curSet++;this.startSet(this.curSet)};
+App.prototype.showFinalCelebration=function(){
+  var overallPct=Math.round((this.masteredWords.size/this.allWords.length)*100);
+  this.setTitle('테스트 완료!');this.setSub('축하합니다!');this.showConfetti();
+  var wlHtml='';
+  if(this.wrongHistory.length>0){wlHtml='<div class="wl"><h3 style="font-size:.95rem;font-weight:700;color:#0f172a;margin-bottom:10px">틀렸던 문제</h3>';
+    for(var w=0;w<this.wrongHistory.length;w++){var wh=this.wrongHistory[w];
+      wlHtml+='<div class="wi"><div><div class="ww">'+esc(wh.korean)+'</div><div class="wr">세트'+wh.set+' · '+wh.round+'R</div></div>'+
+        '<div style="text-align:right"><div class="wa">'+esc(wh.userAnswer||'')+'</div><div class="wc">'+esc(wh.english)+'</div></div></div>'}
+    wlHtml+='</div>'}
+  this.render(
+    '<div class="fade"><div class="celeb"><div class="em">🎉</div><h2>축하합니다!</h2><p>유의어 테스트를 통과했습니다!</p></div>'+
+    '<div class="sc g">'+overallPct+'%</div>'+
+    '<div class="card"><h3>최종 결과</h3>'+
+    '<div class="sr"><span class="sl">전체 단어</span><span class="sv">'+this.allWords.length+'개</span></div>'+
+    '<div class="sr"><span class="sl">정복</span><span class="sv g">'+this.masteredWords.size+'개</span></div>'+
+    '<div class="sr"><span class="sl">성취도</span><span class="sv g">'+overallPct+'%</span></div>'+
+    '<div class="sr"><span class="sl">총 오답</span><span class="sv'+(this.wrongHistory.length>0?' r':' g')+'">'+this.wrongHistory.length+'회</span></div></div>'+
+    wlHtml+
+    '<button class="btn btn-accent" style="margin-top:20px" data-action="startFullTest">처음부터 다시</button>'+
+    '<button class="btn btn-ghost" data-action="showHome">홈으로</button></div>'
+  );this.toTop();
+};
+App.prototype.showConfetti=function(){
+  var c=document.createElement('div');c.className='conf';
+  var cols=['#8b5cf6','#f59e0b','#10b981','#3b82f6','#ec4899','#ef4444'];
+  for(var i=0;i<50;i++){var p=document.createElement('i');
+    var dur=2+Math.random()*2,delay=Math.random()*2;
+    p.style.cssText='animation:fall '+dur+'s '+delay+'s ease-in forwards;left:'+(Math.random()*100)+'%';
+    var sz=6+Math.random()*8;p.style.width=sz+'px';p.style.height=sz+'px';
+    p.style.borderRadius=Math.random()>.5?'50%':'2px';
+    p.style.background=cols[Math.floor(Math.random()*cols.length)];c.appendChild(p)}
+  document.body.appendChild(c);setTimeout(function(){if(c.parentNode)c.parentNode.removeChild(c)},5500);
+};
+new App();
+</script>
+</body>
+</html>
