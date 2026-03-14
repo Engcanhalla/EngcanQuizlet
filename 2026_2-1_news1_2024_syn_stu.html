@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>영어 단어 테스트 유의어 테스트</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%;-webkit-text-size-adjust:100%}
+body{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Malgun Gothic',sans-serif;background:#0f172a;min-height:100%;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0);-webkit-font-smoothing:antialiased;overscroll-behavior-y:contain}
+.wrap{max-width:500px;margin:0 auto;min-height:100vh;background:#fff;display:flex;flex-direction:column}
+.header{background:#0f172a;padding:20px;color:#fff;text-align:center;position:sticky;top:0;z-index:10;flex-shrink:0}
+.header h1{font-size:1.1rem;font-weight:700;margin-bottom:2px;line-height:1.3;word-break:keep-all}
+.header p{opacity:.7;font-size:.78rem}
+.content{padding:20px 16px 32px;flex:1}
+.prog-bar{height:6px;background:#e2e8f0;border-radius:3px;margin-bottom:20px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .4s ease}
+.q-counter{text-align:center;font-size:.82rem;color:#64748b;margin-bottom:6px;font-weight:500}
+.round-tag{display:inline-block;background:rgba(139,92,246,.12);color:#7c3aed;padding:5px 14px;border-radius:20px;font-size:.78rem;font-weight:700;margin-bottom:14px;border:1px solid rgba(139,92,246,.25)}
+.kor-word{text-align:center;font-size:1.5rem;font-weight:700;color:#0f172a;margin:16px 0;padding:20px 16px;background:#f8fafc;border-radius:14px;border:2px solid #e2e8f0;line-height:1.4;word-break:keep-all}
+.sentence-area{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;font-size:.9rem;color:#1e40af;line-height:1.6;margin-bottom:12px;word-break:keep-all;text-align:center}
+.q-hint{text-align:center;font-size:.8rem;color:#8b5cf6;font-weight:600;margin-bottom:12px;padding:8px;background:rgba(139,92,246,.06);border-radius:8px}
+/* Multi-select checkbox buttons */
+.opts{margin-top:4px;display:flex;flex-direction:column;gap:10px}
+.chk-btn{display:flex;align-items:center;gap:12px;width:100%;padding:14px 18px;background:#fff;border:2px solid #e2e8f0;border-radius:14px;font-size:.95rem;font-weight:500;cursor:pointer;transition:all .15s;text-align:left;font-family:inherit;color:#0f172a;min-height:52px;line-height:1.3}
+.chk-btn:active{transform:scale(.98)}
+.chk-box{width:20px;height:20px;border-radius:5px;border:2px solid #cbd5e1;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;transition:all .15s;background:white}
+.chk-btn.selected .chk-box{background:#8b5cf6;border-color:#8b5cf6;color:white}
+.chk-btn.selected{border-color:#8b5cf6;background:rgba(139,92,246,.06)}
+.chk-btn.correct{border-color:#10b981;background:#ecfdf5;color:#065f46}
+.chk-btn.correct .chk-box{background:#10b981;border-color:#10b981;color:white}
+.chk-btn.wrong{border-color:#ef4444;background:#fef2f2;color:#991b1b}
+.chk-btn.wrong .chk-box{background:#ef4444;border-color:#ef4444;color:white}
+.chk-btn.reveal{border-color:#10b981;background:#ecfdf5;color:#065f46}
+.chk-btn.reveal .chk-box{border-color:#10b981}
+.chk-btn[disabled]{cursor:default}
+.syn-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700;margin-right:3px;margin-bottom:3px}
+.syn-tag.s{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.syn-tag.a{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+.syn-pill{display:inline-flex;flex-direction:column;align-items:center;padding:6px 12px;border-radius:12px;font-size:.82rem;text-align:center;min-width:60px}
+.syn-pill.s{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.syn-pill.a{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+.btn{display:block;width:100%;padding:16px 24px;border:none;border-radius:14px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit;text-align:center;min-height:52px;line-height:1.2}
+.btn:active{transform:scale(.97);opacity:.9}
+.btn+.btn{margin-top:10px}
+.btn-accent{background:#8b5cf6;color:#fff}
+.btn-primary{background:#0f172a;color:#fff}
+.btn-secondary{background:#f1f5f9;color:#475569}
+.btn-ghost{background:transparent;color:#64748b;border:1px solid #e2e8f0}
+.btn-know{background:#10b981;color:#fff}
+.btn-dunno{background:#ef4444;color:#fff}
+.fb{text-align:center;padding:16px;border-radius:14px;margin-top:16px;font-weight:600;font-size:.95rem}
+.fb.ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+.fb.ng{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.fb .ans{font-weight:400;margin-top:8px;font-size:.85rem}
+.card{background:#f8fafc;border-radius:14px;padding:20px 16px;margin-bottom:14px;border:1px solid #e2e8f0}
+.card h3{font-size:1rem;font-weight:700;margin-bottom:10px;color:#0f172a}
+.sr{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #e2e8f0;font-size:.88rem;align-items:center}
+.sr:last-child{border-bottom:none}
+.sl{color:#64748b}
+.sv{font-weight:600;color:#0f172a}
+.sv.g{color:#10b981}
+.sv.r{color:#ef4444}
+.sc{width:110px;height:110px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:16px auto;font-size:1.8rem;font-weight:800;border:5px solid}
+.sc.g{border-color:#10b981;color:#10b981;background:#ecfdf5}
+.sc.r{border-color:#ef4444;color:#ef4444;background:#fef2f2}
+.sc.purple{border-color:#8b5cf6;color:#8b5cf6;background:#f5f3ff}
+.ig{margin:20px 0}
+.ig-row{display:flex;margin-bottom:10px}
+.ig-row .ic{flex:1;background:#f8fafc;border-radius:12px;padding:14px 10px;text-align:center;border:1px solid #e2e8f0}
+.ig-row .ic+.ic{margin-left:10px}
+.ic .lb{font-size:.78rem;color:#64748b;margin-bottom:3px}
+.ic .vl{font-size:1rem;font-weight:700;color:#0f172a}
+.sg{display:flex;flex-wrap:wrap;margin-bottom:14px;margin-left:-5px;margin-right:-5px}
+.sc-w{width:50%;padding:5px;box-sizing:border-box}
+.s-card{padding:14px 10px;border-radius:12px;border:2px solid #e2e8f0;background:#fff;text-align:center;transition:all .15s;cursor:default;height:100%}
+.s-card .sn{font-weight:700;font-size:.9rem;color:#0f172a;margin-bottom:2px}
+.s-card .sw{font-size:.72rem;color:#94a3b8;margin-bottom:8px}
+.s-card .sb{height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden;margin-bottom:6px}
+.s-card .sbf{height:100%;border-radius:2px;transition:width .3s}
+.s-card .ss{font-size:.78rem;font-weight:600;color:#94a3b8}
+.s-card.cur{border-color:#8b5cf6;background:#f5f3ff;cursor:pointer}
+.s-card.cur .ss{color:#7c3aed}
+.s-card.cur .sbf{background:#8b5cf6}
+.s-card.dn{border-color:#86efac;background:#f0fdf4;cursor:pointer}
+.s-card.dn .ss{color:#059669}
+.s-card.dn .sbf{background:#10b981}
+.ob{margin-bottom:18px;padding:14px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0}
+.ob-top{display:flex;justify-content:space-between;margin-bottom:6px;font-size:.82rem}
+.ob-bar{height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;position:relative}
+.ob-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.ob-mark{position:absolute;top:0;height:100%;width:2px;background:rgba(0,0,0,.25)}
+.ob-sub{font-size:.72rem;color:#94a3b8;margin-top:4px}
+.wl{margin-top:14px}
+.wi{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#fff;border-radius:10px;margin-bottom:8px;border:1px solid #fecaca;font-size:.82rem}
+.wi .ww{font-weight:600;color:#0f172a}
+.wi .wr{color:#94a3b8;font-size:.72rem}
+.wi .wa{color:#ef4444;text-decoration:line-through}
+.wi .wc{color:#10b981;font-weight:600}
+.celeb{text-align:center;padding:16px 0}
+.celeb .em{font-size:3.5rem;margin-bottom:12px}
+.celeb h2{font-size:1.3rem;font-weight:800;color:#0f172a;margin-bottom:6px}
+.celeb p{color:#64748b;font-size:.9rem;line-height:1.5;word-break:keep-all}
+.alert-r{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:14px;border-radius:12px;text-align:center;margin-top:14px;font-size:.88rem;font-weight:600;word-break:keep-all}
+.alert-g{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;padding:14px;border-radius:12px;text-align:center;margin-top:14px;font-size:.88rem;font-weight:600;word-break:keep-all}
+.conf{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1000;overflow:hidden}
+.conf i{position:absolute;top:-12px;display:block}
+/* Flashcard */
+.fc-scene{perspective:1000px;margin:0 0 24px 0;transform:translateZ(0)}
+.fc-card{width:100%;position:relative;cursor:pointer;transform-style:preserve-3d;transition:transform .45s ease;will-change:transform;transform:translateZ(0)}
+.fc-card.flipped{transform:rotateY(180deg)}
+.fc-face{width:100%;min-height:240px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;backface-visibility:hidden;text-align:center;transform:translateZ(0)}
+.fc-front{background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:2px solid #c4b5fd}
+.fc-back{position:absolute;top:0;left:0;right:0;background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:2px solid #86efac;transform:rotateY(180deg);min-height:240px}
+.fc-front .fc-label{font-size:.75rem;color:#7c3aed;font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
+.fc-front .fc-word{font-size:1.8rem;font-weight:800;color:#1e1b4b;word-break:keep-all;line-height:1.3}
+.fc-front .fc-tap{font-size:.75rem;color:#a78bfa;margin-top:14px}
+.fc-back .fc-label{font-size:.75rem;color:#059669;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.fc-back .fc-word{font-size:1.9rem;font-weight:800;color:#064e3b;line-height:1.2}
+.fc-back .fc-sub{font-size:.9rem;color:#047857;margin-top:6px;font-weight:500}
+.fc-syn{margin-top:14px;width:100%;background:rgba(16,185,129,.08);border-radius:10px;border:1px solid rgba(16,185,129,.2);padding:10px 12px;text-align:left}
+.fc-syn .fc-syn-title{font-size:.7rem;font-weight:700;color:#047857;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.fc-ant{margin-top:8px;width:100%;background:rgba(239,68,68,.06);border-radius:10px;border:1px solid rgba(239,68,68,.15);padding:10px 12px;text-align:left}
+.fc-ant .fc-ant-title{font-size:.7rem;font-weight:700;color:#b91c1c;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.fc-btns{display:flex;gap:10px;margin-top:8px}
+.fc-btns .btn{flex:1;padding:14px 10px;font-size:.92rem;min-height:50px}
+.fc-dots{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;justify-content:center}
+.fc-dot{width:10px;height:10px;border-radius:50%;background:#e2e8f0;transition:background .2s}
+.fc-dot.ok{background:#10b981}
+.fc-dot.ng{background:#ef4444}
+.fc-dot.now{background:#8b5cf6;transform:scale(1.3)}
+.jump-bar{margin-top:20px;padding:14px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;text-align:center}
+.jump-bar p{font-size:.8rem;color:#64748b;margin-bottom:8px}
+.back-link{display:inline-block;font-size:.78rem;color:#94a3b8;padding:6px 12px;border-radius:8px;background:#f8fafc;cursor:pointer;border:1px solid #e2e8f0}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(400px) rotate(720deg);opacity:0}}
+.fade{animation:fadeIn .35s ease}
+@media(max-width:360px){.kor-word{font-size:1.3rem}.fc-front .fc-word{font-size:1.5rem}.fc-back .fc-word{font-size:1.6rem}.fc-face{min-height:200px;padding:20px 14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1 id="page-title"></h1>
+    <p id="page-subtitle"></p>
+  </div>
+  <div class="content" id="app"></div>
+</div>
+<script>
+var CONFIG={"title":"영어 단어 테스트 — 유의어 테스트","passThreshold":80,"words":[{"english":"recognition","korean":"인식","sentence":"Recently, banks and fin-tech firms have rolled out services known as \"pay-by-face,\" which allow transactions just by scanning the face.","sentenceKo":"최근 은행과 핀테크 기업들은 얼굴을 스캔하는 것만으로 거래를 가능하게 하는 \"얼굴 결제\" 서비스를 출시했다.","synonyms":[{"en":"acknowledgment","ko":"인정"},{"en":"identification","ko":"식별"},{"en":"acceptance","ko":"수용"}],"antonyms":[{"en":"ignorance","ko":"무시"},{"en":"denial","ko":"부인"}]},{"english":"transaction","korean":"거래","sentence":"Recently, banks and fin-tech firms have rolled out services known as \"pay-by-face,\" which allow transactions just by scanning the face.","sentenceKo":"최근 은행과 핀테크 기업들은 얼굴을 스캔하는 것만으로 거래를 가능하게 하는 \"얼굴 결제\" 서비스를 출시했다.","synonyms":[{"en":"deal","ko":"거래"},{"en":"exchange","ko":"교환"},{"en":"operation","ko":"업무"}],"antonyms":[]},{"english":"advanced","korean":"진보한, 발전된","sentence":"These payment systems use advanced facial recognition and AI technology.","sentenceKo":"이러한 결제 시스템들은 진보된 얼굴 인식과 인공지능 기술을 사용한다.","synonyms":[{"en":"sophisticated","ko":"정교한"},{"en":"progressive","ko":"진보적인"},{"en":"developed","ko":"발달된"}],"antonyms":[{"en":"primitive","ko":"원시적인"},{"en":"basic","ko":"기초적인"},{"en":"backward","ko":"후진적인"}]},{"english":"outweigh","korean":"~보다 더 중요하다, ~보다 크다","sentence":"However, there are those who question whether the benefits truly outweigh the risks.","sentenceKo":"하지만 혜택이 정말로 위험보다 더 큰지 의문을 제기하는 사람들도 있다.","synonyms":[{"en":"exceed","ko":"초과하다"},{"en":"surpass","ko":"능가하다"},{"en":"override","ko":"우선하다"}],"antonyms":[]},{"english":"adopt","korean":"채택하다","sentence":"This has led to debate about whether companies should adopt facial recognition payment systems.","sentenceKo":"이것은 기업들이 얼굴 인식 결제 시스템을 채택해야 하는지에 대한 논쟁으로 이어졌다.","synonyms":[{"en":"embrace","ko":"받아들이다"},{"en":"implement","ko":"시행하다"},{"en":"accept","ko":"수용하다"}],"antonyms":[{"en":"reject","ko":"거부하다"},{"en":"abandon","ko":"포기하다"}]},{"english":"convenience","korean":"편리함","sentence":"Supporters argue that the technology improves convenience and is more hygienic.","sentenceKo":"지지자들은 그 기술이 편리함을 향상시키고 더 위생적이라고 주장한다.","synonyms":[{"en":"ease","ko":"용이함"},{"en":"comfort","ko":"편안함"},{"en":"accessibility","ko":"접근성"}],"antonyms":[{"en":"inconvenience","ko":"불편"},{"en":"difficulty","ko":"어려움"}]},{"english":"hygienic","korean":"위생적인","sentence":"Supporters argue that the technology improves convenience and is more hygienic.","sentenceKo":"지지자들은 그 기술이 편리함을 향상시키고 더 위생적이라고 주장한다.","synonyms":[{"en":"sanitary","ko":"위생적인"},{"en":"clean","ko":"청결한"},{"en":"sterile","ko":"멸균된"}],"antonyms":[{"en":"unsanitary","ko":"비위생적인"},{"en":"dirty","ko":"더러운"}]},{"english":"privacy","korean":"사생활, 개인정보 보호","sentence":"Meanwhile, critics raise concerns about the risks to privacy and the reliability of the technology.","sentenceKo":"한편 비판자들은 사생활과 기술의 신뢰성에 대한 위험에 대해 우려를 제기한다.","synonyms":[{"en":"confidentiality","ko":"기밀성"},{"en":"secrecy","ko":"비밀"},{"en":"seclusion","ko":"은둔"}],"antonyms":[{"en":"publicity","ko":"공개성"},{"en":"exposure","ko":"노출"}]},{"english":"reliability","korean":"신뢰성","sentence":"Meanwhile, critics raise concerns about the risks to privacy and the reliability of the technology.","sentenceKo":"한편 비판자들은 사생활과 기술의 신뢰성에 대한 위험에 대해 우려를 제기한다.","synonyms":[{"en":"dependability","ko":"신뢰성"},{"en":"trustworthiness","ko":"믿음직함"},{"en":"consistency","ko":"일관성"}],"antonyms":[{"en":"unreliability","ko":"불안정성"},{"en":"inconsistency","ko":"불일치"}]},{"english":"complete","korean":"완료하다","sentence":"Customers do not need to carry cash, cards, or even smartphones to complete a transaction.","sentenceKo":"고객들은 거래를 완료하기 위해 현금, 카드, 심지어 스마트폰도 휴대할 필요가 없다.","synonyms":[{"en":"finish","ko":"끝내다"},{"en":"conclude","ko":"완료하다"},{"en":"accomplish","ko":"성취하다"}],"antonyms":[{"en":"incomplete","ko":"불완전한"},{"en":"unfinished","ko":"미완성의"}]},{"english":"advocate","korean":"옹호자, 지지자","sentence":"Advocates also claim that facial recognition payments are more hygienic than other payment options.","sentenceKo":"옹호자들은 또한 얼굴 인식 결제가 다른 결제 옵션보다 더 위생적이라고 주장한다.","synonyms":[{"en":"supporter","ko":"지지자"},{"en":"proponent","ko":"옹호자"},{"en":"champion","ko":"옹호자"}],"antonyms":[{"en":"opponent","ko":"반대자"},{"en":"critic","ko":"비판자"}]},{"english":"claim","korean":"주장하다","sentence":"Advocates also claim that facial recognition payments are more hygienic than other payment options.","sentenceKo":"옹호자들은 또한 얼굴 인식 결제가 다른 결제 옵션보다 더 위생적이라고 주장한다.","synonyms":[{"en":"assert","ko":"주장하다"},{"en":"maintain","ko":"주장하다"},{"en":"declare","ko":"선언하다"}],"antonyms":[{"en":"deny","ko":"부인하다"},{"en":"refute","ko":"반박하다"}]},{"english":"beneficial","korean":"유익한","sentence":"Supporters see this as especially beneficial in public spaces and during disease outbreaks.","sentenceKo":"지지자들은 이것이 특히 공공장소와 질병 발생 시에 유익하다고 본다.","synonyms":[{"en":"advantageous","ko":"유리한"},{"en":"helpful","ko":"도움되는"},{"en":"favorable","ko":"유익한"}],"antonyms":[{"en":"harmful","ko":"해로운"},{"en":"detrimental","ko":"유해한"}]},{"english":"outbreak","korean":"발생, 발발","sentence":"Supporters see this as especially beneficial in public spaces and during disease outbreaks.","sentenceKo":"지지자들은 이것이 특히 공공장소와 질병 발생 시에 유익하다고 본다.","synonyms":[{"en":"epidemic","ko":"전염병"},{"en":"eruption","ko":"발발"},{"en":"occurrence","ko":"발생"}],"antonyms":[{"en":"containment","ko":"억제"},{"en":"prevention","ko":"예방"}]},{"english":"sensitive","korean":"민감한","sentence":"The systems require companies to collect and store sensitive biometric data, such as facial scans.","sentenceKo":"그 시스템들은 기업들이 얼굴 스캔과 같은 민감한 생체 데이터를 수집하고 저장하도록 요구한다.","synonyms":[{"en":"delicate","ko":"민감한"},{"en":"susceptible","ko":"영향받기쉬운"},{"en":"responsive","ko":"반응하는"}],"antonyms":[{"en":"insensitive","ko":"둔감한"},{"en":"unresponsive","ko":"무반응의"}]},{"english":"biometric","korean":"생체 인식의","sentence":"The systems require companies to collect and store sensitive biometric data, such as facial scans.","sentenceKo":"그 시스템들은 기업들이 얼굴 스캔과 같은 민감한 생체 데이터를 수집하고 저장하도록 요구한다.","synonyms":[{"en":"biological","ko":"생체의"},{"en":"physiological","ko":"생리학적"}],"antonyms":[]},{"english":"opponent","korean":"반대자","sentence":"Opponents worry this personal information could be misused, hacked, or shared without proper consent from the users.","sentenceKo":"반대자들은 이 개인 정보가 사용자의 적절한 동의 없이 오용되거나, 해킹되거나, 공유될 수 있다고 우려한다.","synonyms":[{"en":"adversary","ko":"적대자"},{"en":"rival","ko":"경쟁자"},{"en":"critic","ko":"비판자"}],"antonyms":[{"en":"supporter","ko":"지지자"},{"en":"advocate","ko":"옹호자"},{"en":"ally","ko":"동맹"}]},{"english":"misuse","korean":"오용하다","sentence":"Opponents worry this personal information could be misused, hacked, or shared without proper consent from the users.","sentenceKo":"반대자들은 이 개인 정보가 사용자의 적절한 동의 없이 오용되거나, 해킹되거나, 공유될 수 있다고 우려한다.","synonyms":[{"en":"abuse","ko":"남용"},{"en":"misapplication","ko":"오용"},{"en":"exploitation","ko":"착취"}],"antonyms":[{"en":"proper use","ko":"적절한사용"}]},{"english":"consent","korean":"동의","sentence":"Opponents worry this personal information could be misused, hacked, or shared without proper consent from the users.","sentenceKo":"반대자들은 이 개인 정보가 사용자의 적절한 동의 없이 오용되거나, 해킹되거나, 공유될 수 있다고 우려한다.","synonyms":[{"en":"approval","ko":"승인"},{"en":"permission","ko":"허가"},{"en":"agreement","ko":"동의"}],"antonyms":[{"en":"refusal","ko":"거절"},{"en":"denial","ko":"거부"}]},{"english":"financial","korean":"재정적인","sentence":"Furthermore, consumers could suffer from financial losses due to errors made by such payment systems.","sentenceKo":"게다가, 소비자들은 그러한 결제 시스템에 의해 발생한 오류로 인해 재정적 손실을 겪을 수 있다.","synonyms":[{"en":"monetary","ko":"금융의"},{"en":"economic","ko":"경제적인"},{"en":"fiscal","ko":"재정의"}],"antonyms":[]},{"english":"vehicle","korean":"차량","sentence":"Yes, the vehicle would have been able to move forward on its own, but it could not slow down, stop, or turn to avoid barriers.","sentenceKo":"그렇다, 그 차량은 스스로 앞으로 움직일 수 있었겠지만, 속도를 줄이거나, 멈추거나, 장애물을 피하기 위해 방향을 틀 수 없었을 것이다.","synonyms":[{"en":"transportation","ko":"운송수단"},{"en":"conveyance","ko":"운반도구"},{"en":"carrier","ko":"운반체"}],"antonyms":[]},{"english":"barrier","korean":"장애물","sentence":"Yes, the vehicle would have been able to move forward on its own, but it could not slow down, stop, or turn to avoid barriers.","sentenceKo":"그렇다, 그 차량은 스스로 앞으로 움직일 수 있었겠지만, 속도를 줄이거나, 멈추거나, 장애물을 피하기 위해 방향을 틀 수 없었을 것이다.","synonyms":[{"en":"obstacle","ko":"장애물"},{"en":"impediment","ko":"방해물"},{"en":"hindrance","ko":"장벽"}],"antonyms":[{"en":"aid","ko":"도움"},{"en":"facilitator","ko":"촉진자"}]},{"english":"pursue","korean":"추구하다","sentence":"But does that mean the entire concept of the self-driving car is not worth pursuing?","sentenceKo":"하지만 그것이 자율 주행 자동차의 전체 개념이 추구할 가치가 없다는 것을 의미하는가?","synonyms":[{"en":"chase","ko":"추구하다"},{"en":"follow","ko":"따르다"},{"en":"seek","ko":"찾다"}],"antonyms":[{"en":"abandon","ko":"포기하다"},{"en":"avoid","ko":"피하다"}]},{"english":"operate","korean":"작동하다","sentence":"No, it only means that at the time we did not yet have the tools we now possess to help enable vehicles to operate both autonomously and safely.","sentenceKo":"아니다, 그것은 단지 당시에 우리가 지금 소유한, 차량이 자율적이고 안전하게 작동하도록 돕는 도구를 아직 갖지 못했다는 것을 의미할 뿐이다.","synonyms":[{"en":"function","ko":"작동하다"},{"en":"run","ko":"운영하다"},{"en":"work","ko":"작동하다"}],"antonyms":[{"en":"cease","ko":"중단하다"},{"en":"stop","ko":"멈추다"}]},{"english":"autonomously","korean":"자율적으로","sentence":"No, it only means that at the time we did not yet have the tools we now possess to help enable vehicles to operate both autonomously and safely.","sentenceKo":"아니다, 그것은 단지 당시에 우리가 지금 소유한, 차량이 자율적이고 안전하게 작동하도록 돕는 도구를 아직 갖지 못했다는 것을 의미할 뿐이다.","synonyms":[{"en":"independently","ko":"독립적으로"},{"en":"self-sufficiently","ko":"자급자족하여"}],"antonyms":[{"en":"dependently","ko":"의존적으로"}]},{"english":"appropriate","korean":"적절한","sentence":"Today, we are approaching the point where we can begin to bring some appropriate technology to bear in ways that advance our understanding of patients as unique individuals.","sentenceKo":"오늘날 우리는 환자를 독특한 개인으로 이해하는 것을 발전시키는 방식으로 적절한 기술을 활용하기 시작할 수 있는 시점에 접근하고 있다.","synonyms":[{"en":"suitable","ko":"적합한"},{"en":"proper","ko":"적절한"},{"en":"fitting","ko":"알맞은"}],"antonyms":[{"en":"inappropriate","ko":"부적절한"},{"en":"unsuitable","ko":"부적합한"}]},{"english":"advance","korean":"발전시키다","sentence":"Today, we are approaching the point where we can begin to bring some appropriate technology to bear in ways that advance our understanding of patients as unique individuals.","sentenceKo":"오늘날 우리는 환자를 독특한 개인으로 이해하는 것을 발전시키는 방식으로 적절한 기술을 활용하기 시작할 수 있는 시점에 접근하고 있다.","synonyms":[{"en":"progress","ko":"진전"},{"en":"development","ko":"발전"},{"en":"improvement","ko":"개선"}],"antonyms":[{"en":"retreat","ko":"후퇴"},{"en":"decline","ko":"쇠퇴"}]},{"english":"specific","korean":"구체적인","sentence":"In fact, many patients are already wearing devices that monitor their conditions in real time, which allows doctors to talk to their patients in a specific, refined, and feedback-driven way that was not even possible a decade ago.","sentenceKo":"사실, 많은 환자들이 이미 그들의 상태를 실시간으로 모니터하는 장치를 착용하고 있으며, 이는 의사들이 10년 전에는 가능하지도 않았던 구체적이고 세련되고 피드백 중심적인 방식으로 환자들과 대화할 수 있게 한다.","synonyms":[{"en":"particular","ko":"특정한"},{"en":"precise","ko":"정확한"},{"en":"explicit","ko":"명시적인"}],"antonyms":[{"en":"general","ko":"일반적인"},{"en":"vague","ko":"모호한"}]},{"english":"refined","korean":"세련된","sentence":"In fact, many patients are already wearing devices that monitor their conditions in real time, which allows doctors to talk to their patients in a specific, refined, and feedback-driven way that was not even possible a decade ago.","sentenceKo":"사실, 많은 환자들이 이미 그들의 상태를 실시간으로 모니터하는 장치를 착용하고 있으며, 이는 의사들이 10년 전에는 가능하지도 않았던 구체적이고 세련되고 피드백 중심적인 방식으로 환자들과 대화할 수 있게 한다.","synonyms":[{"en":"polished","ko":"세련된"},{"en":"sophisticated","ko":"정교한"},{"en":"purified","ko":"정제된"}],"antonyms":[{"en":"crude","ko":"조잡한"},{"en":"rough","ko":"거친"}]},{"english":"overrate","korean":"과대평가하다","sentence":"We tend to overrate the impact of new technologies in part because older technologies have become absorbed into the furniture of our lives, so as to be almost invisible.","sentenceKo":"우리는 부분적으로 오래된 기술들이 우리 삶의 가구 속으로 흡수되어 거의 보이지 않게 되었기 때문에 새로운 기술의 영향을 과대평가하는 경향이 있다.","synonyms":[{"en":"overestimate","ko":"과대평가하다"},{"en":"overvalue","ko":"과대평가하다"}],"antonyms":[{"en":"underrate","ko":"과소평가하다"},{"en":"underestimate","ko":"과소평가하다"}]},{"english":"impact","korean":"영향","sentence":"We tend to overrate the impact of new technologies in part because older technologies have become absorbed into the furniture of our lives, so as to be almost invisible.","sentenceKo":"우리는 부분적으로 오래된 기술들이 우리 삶의 가구 속으로 흡수되어 거의 보이지 않게 되었기 때문에 새로운 기술의 영향을 과대평가하는 경향이 있다.","synonyms":[{"en":"effect","ko":"영향"},{"en":"influence","ko":"영향력"},{"en":"consequence","ko":"결과"}],"antonyms":[]},{"english":"absorb","korean":"흡수하다","sentence":"We tend to overrate the impact of new technologies in part because older technologies have become absorbed into the furniture of our lives, so as to be almost invisible.","sentenceKo":"우리는 부분적으로 오래된 기술들이 우리 삶의 가구 속으로 흡수되어 거의 보이지 않게 되었기 때문에 새로운 기술의 영향을 과대평가하는 경향이 있다.","synonyms":[{"en":"assimilate","ko":"흡수하다"},{"en":"soak up","ko":"흡수하다"},{"en":"take in","ko":"받아들이다"}],"antonyms":[{"en":"emit","ko":"방출하다"},{"en":"release","ko":"배출하다"}]},{"english":"implement","korean":"도구","sentence":"Here is a simple implement that has transformed a fundamental human experience for vast numbers of infants and mothers, yet it finds no place in our histories of technology.","sentenceKo":"여기 수많은 유아들과 엄마들의 근본적인 인간 경험을 변화시킨 간단한 도구가 있지만, 그것은 우리의 기술 역사에서 자리를 찾지 못한다.","synonyms":[{"en":"execute","ko":"실행하다"},{"en":"carry out","ko":"수행하다"},{"en":"apply","ko":"적용하다"}],"antonyms":[{"en":"abandon","ko":"포기하다"},{"en":"neglect","ko":"무시하다"}]},{"english":"transform","korean":"변화시키다","sentence":"Here is a simple implement that has transformed a fundamental human experience for vast numbers of infants and mothers, yet it finds no place in our histories of technology.","sentenceKo":"여기 수많은 유아들과 엄마들의 근본적인 인간 경험을 변화시킨 간단한 도구가 있지만, 그것은 우리의 기술 역사에서 자리를 찾지 못한다.","synonyms":[{"en":"convert","ko":"변환하다"},{"en":"change","ko":"바꾸다"},{"en":"alter","ko":"변경하다"}],"antonyms":[{"en":"maintain","ko":"유지하다"},{"en":"preserve","ko":"보존하다"}]},{"english":"fundamental","korean":"근본적인","sentence":"Here is a simple implement that has transformed a fundamental human experience for vast numbers of infants and mothers, yet it finds no place in our histories of technology.","sentenceKo":"여기 수많은 유아들과 엄마들의 근본적인 인간 경험을 변화시킨 간단한 도구가 있지만, 그것은 우리의 기술 역사에서 자리를 찾지 못한다.","synonyms":[{"en":"basic","ko":"기본적인"},{"en":"essential","ko":"필수적인"},{"en":"primary","ko":"주요한"}],"antonyms":[{"en":"secondary","ko":"부차적인"},{"en":"superficial","ko":"표면적인"}]},{"english":"vast","korean":"거대한, 수많은","sentence":"Here is a simple implement that has transformed a fundamental human experience for vast numbers of infants and mothers, yet it finds no place in our histories of technology.","sentenceKo":"여기 수많은 유아들과 엄마들의 근본적인 인간 경험을 변화시킨 간단한 도구가 있지만, 그것은 우리의 기술 역사에서 자리를 찾지 못한다.","synonyms":[{"en":"enormous","ko":"거대한"},{"en":"immense","ko":"막대한"},{"en":"extensive","ko":"광범위한"}],"antonyms":[{"en":"tiny","ko":"아주작은"},{"en":"limited","ko":"제한된"}]},{"english":"infant","korean":"유아","sentence":"Here is a simple implement that has transformed a fundamental human experience for vast numbers of infants and mothers, yet it finds no place in our histories of technology.","sentenceKo":"여기 수많은 유아들과 엄마들의 근본적인 인간 경험을 변화시킨 간단한 도구가 있지만, 그것은 우리의 기술 역사에서 자리를 찾지 못한다.","synonyms":[{"en":"baby","ko":"아기"},{"en":"newborn","ko":"신생아"},{"en":"toddler","ko":"유아"}],"antonyms":[{"en":"adult","ko":"성인"}]},{"english":"exercise","korean":"행사하다, 발휘하다","sentence":"This technology might be thought of as a classic time-shifting device, as it enables mothers to exercise more control over the timing of feeding.","sentenceKo":"이 기술은 엄마들이 수유 시간에 대해 더 많은 통제를 행사할 수 있게 하기 때문에 고전적인 시간 이동 장치로 생각될 수 있다.","synonyms":[{"en":"practice","ko":"실행하다"},{"en":"utilize","ko":"활용하다"},{"en":"exert","ko":"행사하다"}],"antonyms":[{"en":"neglect","ko":"무시하다"},{"en":"abandon","ko":"포기하다"}]},{"english":"substitute","korean":"대신하다","sentence":"It can also function to save time, as bottle feeding allows for someone else to substitute for the mother's time.","sentenceKo":"그것은 또한 시간을 절약하는 기능을 할 수 있는데, 병 수유가 다른 누군가가 엄마의 시간을 대신할 수 있게 하기 때문이다.","synonyms":[{"en":"replacement","ko":"대체물"},{"en":"alternative","ko":"대안"},{"en":"proxy","ko":"대리"}],"antonyms":[{"en":"original","ko":"원본"}]},{"english":"implication","korean":"영향, 의미","sentence":"Potentially, therefore, it has huge implications for the management of time in everyday life, yet it is entirely overlooked in discussions of high-speed society.","sentenceKo":"따라서 잠재적으로 그것은 일상생활에서의 시간 관리에 엄청난 영향을 미치지만, 고속 사회에 대한 논의에서 완전히 간과된다.","synonyms":[{"en":"consequence","ko":"결과"},{"en":"ramification","ko":"파생결과"},{"en":"suggestion","ko":"암시"}],"antonyms":[]},{"english":"entirely","korean":"완전히","sentence":"Potentially, therefore, it has huge implications for the management of time in everyday life, yet it is entirely overlooked in discussions of high-speed society.","sentenceKo":"따라서 잠재적으로 그것은 일상생활에서의 시간 관리에 엄청난 영향을 미치지만, 고속 사회에 대한 논의에서 완전히 간과된다.","synonyms":[{"en":"completely","ko":"완전히"},{"en":"totally","ko":"전적으로"},{"en":"wholly","ko":"전부"}],"antonyms":[{"en":"partially","ko":"부분적으로"},{"en":"partly","ko":"일부"}]},{"english":"overlook","korean":"간과하다","sentence":"Potentially, therefore, it has huge implications for the management of time in everyday life, yet it is entirely overlooked in discussions of high-speed society.","sentenceKo":"따라서 잠재적으로 그것은 일상생활에서의 시간 관리에 엄청난 영향을 미치지만, 고속 사회에 대한 논의에서 완전히 간과된다.","synonyms":[{"en":"miss","ko":"놓치다"},{"en":"ignore","ko":"무시하다"},{"en":"neglect","ko":"간과하다"}],"antonyms":[{"en":"notice","ko":"알아차리다"},{"en":"observe","ko":"관찰하다"}]},{"english":"address","korean":"다루다, 해결하다","sentence":"For years, many psychologists have held strongly to the belief that the key to addressing negative health habits is to change behavior.","sentenceKo":"수년간 많은 심리학자들은 부정적인 건강 습관을 다루는 열쇠는 행동을 바꾸는 것이라는 믿음을 강하게 견지해 왔다.","synonyms":[{"en":"tackle","ko":"다루다"},{"en":"deal with","ko":"처리하다"},{"en":"handle","ko":"처리하다"}],"antonyms":[{"en":"ignore","ko":"무시하다"},{"en":"avoid","ko":"회피하다"}]},{"english":"category","korean":"범주","sentence":"Process-addiction behaviors (workaholism, shopaholism, and the like) fall into this category as well.","sentenceKo":"과정 중독 행동(일중독, 쇼핑중독 등)도 이 범주에 속한다.","synonyms":[{"en":"classification","ko":"분류"},{"en":"class","ko":"부류"},{"en":"group","ko":"그룹"}],"antonyms":[]},{"english":"imagery","korean":"심상","sentence":"Mental imagery combined with power of suggestion was taken up as the premise of behavioral medicine to help people change negative health behaviors into positive ones.","sentenceKo":"정신적 심상은 암시의 힘과 결합되어 사람들이 부정적인 건강 행동을 긍정적인 것으로 바꾸도록 돕기 위한 행동 의학의 전제로 받아들여졌다.","synonyms":[{"en":"pictures","ko":"그림"},{"en":"visuals","ko":"시각자료"},{"en":"illustrations","ko":"삽화"}],"antonyms":[]},{"english":"suggestion","korean":"암시","sentence":"Mental imagery combined with power of suggestion was taken up as the premise of behavioral medicine to help people change negative health behaviors into positive ones.","sentenceKo":"정신적 심상은 암시의 힘과 결합되어 사람들이 부정적인 건강 행동을 긍정적인 것으로 바꾸도록 돕기 위한 행동 의학의 전제로 받아들여졌다.","synonyms":[{"en":"proposal","ko":"제안"},{"en":"recommendation","ko":"권고"},{"en":"advice","ko":"조언"}],"antonyms":[]},{"english":"premise","korean":"전제","sentence":"Mental imagery combined with power of suggestion was taken up as the premise of behavioral medicine to help people change negative health behaviors into positive ones.","sentenceKo":"정신적 심상은 암시의 힘과 결합되어 사람들이 부정적인 건강 행동을 긍정적인 것으로 바꾸도록 돕기 위한 행동 의학의 전제로 받아들여졌다.","synonyms":[{"en":"assumption","ko":"가정"},{"en":"basis","ko":"근거"},{"en":"foundation","ko":"토대"}],"antonyms":[{"en":"conclusion","ko":"결론"}]},{"english":"produce","korean":"만들어내다, 생산하다","sentence":"Although this technique alone will not produce changes, when used alongside other behavior modification tactics and coping strategies, behavioral changes have proved effective for some people.","sentenceKo":"이 기법만으로는 변화를 만들어내지 못하지만, 다른 행동 수정 전술과 대처 전략과 함께 사용될 때, 행동 변화는 일부 사람들에게 효과적인 것으로 입증되었다.","synonyms":[{"en":"generate","ko":"생성하다"},{"en":"create","ko":"창조하다"},{"en":"manufacture","ko":"제조하다"}],"antonyms":[{"en":"destroy","ko":"파괴하다"},{"en":"consume","ko":"소비하다"}]},{"english":"alongside","korean":"~와 함께","sentence":"Although this technique alone will not produce changes, when used alongside other behavior modification tactics and coping strategies, behavioral changes have proved effective for some people.","sentenceKo":"이 기법만으로는 변화를 만들어내지 못하지만, 다른 행동 수정 전술과 대처 전략과 함께 사용될 때, 행동 변화는 일부 사람들에게 효과적인 것으로 입증되었다.","synonyms":[{"en":"beside","ko":"옆에"},{"en":"together with","ko":"함께"},{"en":"along with","ko":"~와함께"}],"antonyms":[{"en":"apart from","ko":"떨어져서"},{"en":"separate from","ko":"분리되어"}]},{"english":"modification","korean":"수정, 변경","sentence":"Although this technique alone will not produce changes, when used alongside other behavior modification tactics and coping strategies, behavioral changes have proved effective for some people.","sentenceKo":"이 기법만으로는 변화를 만들어내지 못하지만, 다른 행동 수정 전술과 대처 전략과 함께 사용될 때, 행동 변화는 일부 사람들에게 효과적인 것으로 입증되었다.","synonyms":[{"en":"alteration","ko":"변경"},{"en":"adjustment","ko":"조정"},{"en":"change","ko":"수정"}],"antonyms":[{"en":"preservation","ko":"보존"},{"en":"maintenance","ko":"유지"}]},{"english":"tactic","korean":"전술","sentence":"Although this technique alone will not produce changes, when used alongside other behavior modification tactics and coping strategies, behavioral changes have proved effective for some people.","sentenceKo":"이 기법만으로는 변화를 만들어내지 못하지만, 다른 행동 수정 전술과 대처 전략과 함께 사용될 때, 행동 변화는 일부 사람들에게 효과적인 것으로 입증되었다.","synonyms":[{"en":"strategy","ko":"전략"},{"en":"approach","ko":"접근법"},{"en":"method","ko":"방법"}],"antonyms":[]},{"english":"reinforce","korean":"강화하다","sentence":"What mental imagery does is reinforce a new desired behavior.","sentenceKo":"정신적 심상이 하는 것은 새로운 원하는 행동을 강화하는 것이다.","synonyms":[{"en":"strengthen","ko":"강화하다"},{"en":"bolster","ko":"보강하다"},{"en":"support","ko":"지지하다"}],"antonyms":[{"en":"weaken","ko":"약화시키다"},{"en":"undermine","ko":"약화시키다"}]},{"english":"regulation","korean":"조절, 규제","sentence":"Emotion socialization — learning from other people about emotions and how to deal with them — starts early in life and plays a foundational role for emotion regulation development.","sentenceKo":"감정 사회화 — 다른 사람들로부터 감정과 그것을 다루는 방법에 대해 배우는 것 — 는 인생 초기에 시작되고 감정 조절 발달에 기초적인 역할을 한다.","synonyms":[{"en":"rule","ko":"규칙"},{"en":"law","ko":"법"},{"en":"guideline","ko":"지침"}],"antonyms":[{"en":"deregulation","ko":"규제완화"},{"en":"freedom","ko":"자유"}]},{"english":"foundational","korean":"기초적인","sentence":"Emotion socialization — learning from other people about emotions and how to deal with them — starts early in life and plays a foundational role for emotion regulation development.","sentenceKo":"감정 사회화 — 다른 사람들로부터 감정과 그것을 다루는 방법에 대해 배우는 것 — 는 인생 초기에 시작되고 감정 조절 발달에 기초적인 역할을 한다.","synonyms":[{"en":"basic","ko":"기본적인"},{"en":"fundamental","ko":"근본적인"},{"en":"essential","ko":"필수적인"}],"antonyms":[{"en":"superficial","ko":"표면적인"},{"en":"secondary","ko":"부차적인"}]},{"english":"adolescence","korean":"청소년기","sentence":"Although extra-familial influences, such as peers or media, gain in importance during adolescence, parents remain the primary socialization agents.","sentenceKo":"또래나 미디어와 같은 가족 외 영향이 청소년기 동안 중요성이 커지지만, 부모는 주요 사회화 주체로 남는다.","synonyms":[{"en":"teenage years","ko":"10대"},{"en":"youth","ko":"청소년기"},{"en":"puberty","ko":"사춘기"}],"antonyms":[{"en":"adulthood","ko":"성인기"},{"en":"childhood","ko":"아동기"}]},{"english":"primary","korean":"주요한","sentence":"Although extra-familial influences, such as peers or media, gain in importance during adolescence, parents remain the primary socialization agents.","sentenceKo":"또래나 미디어와 같은 가족 외 영향이 청소년기 동안 중요성이 커지지만, 부모는 주요 사회화 주체로 남는다.","synonyms":[{"en":"main","ko":"주요한"},{"en":"principal","ko":"주된"},{"en":"chief","ko":"최고의"}],"antonyms":[{"en":"secondary","ko":"부차적인"},{"en":"minor","ko":"사소한"}]},{"english":"response","korean":"반응","sentence":"For example, their own responses to emotional situations serve as a role model for emotion regulation, increasing the likelihood that their children will show similar reactions in comparable situations.","sentenceKo":"예를 들어, 감정적인 상황에 대한 그들 자신의 반응은 감정 조절의 역할 모델 역할을 하여, 그들의 자녀가 비슷한 상황에서 유사한 반응을 보일 가능성을 증가시킨다.","synonyms":[{"en":"reply","ko":"답변"},{"en":"reaction","ko":"반응"},{"en":"answer","ko":"응답"}],"antonyms":[{"en":"question","ko":"질문"},{"en":"inquiry","ko":"문의"}]},{"english":"likelihood","korean":"가능성","sentence":"For example, their own responses to emotional situations serve as a role model for emotion regulation, increasing the likelihood that their children will show similar reactions in comparable situations.","sentenceKo":"예를 들어, 감정적인 상황에 대한 그들 자신의 반응은 감정 조절의 역할 모델 역할을 하여, 그들의 자녀가 비슷한 상황에서 유사한 반응을 보일 가능성을 증가시킨다.","synonyms":[{"en":"probability","ko":"확률"},{"en":"chance","ko":"가능성"},{"en":"possibility","ko":"가능성"}],"antonyms":[{"en":"impossibility","ko":"불가능성"},{"en":"unlikelihood","ko":"희박함"}]},{"english":"reaction","korean":"반응","sentence":"For example, their own responses to emotional situations serve as a role model for emotion regulation, increasing the likelihood that their children will show similar reactions in comparable situations.","sentenceKo":"예를 들어, 감정적인 상황에 대한 그들 자신의 반응은 감정 조절의 역할 모델 역할을 하여, 그들의 자녀가 비슷한 상황에서 유사한 반응을 보일 가능성을 증가시킨다.","synonyms":[{"en":"response","ko":"반응"},{"en":"reply","ko":"응답"},{"en":"feedback","ko":"피드백"}],"antonyms":[{"en":"inaction","ko":"무반응"},{"en":"passivity","ko":"수동성"}]},{"english":"comparable","korean":"비슷한","sentence":"For example, their own responses to emotional situations serve as a role model for emotion regulation, increasing the likelihood that their children will show similar reactions in comparable situations.","sentenceKo":"예를 들어, 감정적인 상황에 대한 그들 자신의 반응은 감정 조절의 역할 모델 역할을 하여, 그들의 자녀가 비슷한 상황에서 유사한 반응을 보일 가능성을 증가시킨다.","synonyms":[{"en":"similar","ko":"유사한"},{"en":"equivalent","ko":"동등한"},{"en":"analogous","ko":"비슷한"}],"antonyms":[{"en":"different","ko":"다른"},{"en":"dissimilar","ko":"상이한"}]},{"english":"intrude","korean":"침해하다","sentence":"Whereas direct soothing and directive guidance of what to do are beneficial for younger children, they may intrude on adolescents' autonomy striving.","sentenceKo":"직접적인 진정과 무엇을 해야 하는지에 대한 지시적 안내가 어린 아이들에게는 유익하지만, 그것들은 청소년들의 자율성 추구를 침해할 수 있다.","synonyms":[{"en":"interfere","ko":"간섭하다"},{"en":"invade","ko":"침입하다"},{"en":"encroach","ko":"침범하다"}],"antonyms":[{"en":"respect","ko":"존중하다"},{"en":"withdraw","ko":"물러나다"}]},{"english":"autonomy","korean":"자율성","sentence":"Whereas direct soothing and directive guidance of what to do are beneficial for younger children, they may intrude on adolescents' autonomy striving.","sentenceKo":"직접적인 진정과 무엇을 해야 하는지에 대한 지시적 안내가 어린 아이들에게는 유익하지만, 그것들은 청소년들의 자율성 추구를 침해할 수 있다.","synonyms":[{"en":"independence","ko":"독립"},{"en":"self-governance","ko":"자치"},{"en":"freedom","ko":"자유"}],"antonyms":[{"en":"dependence","ko":"의존"},{"en":"subjugation","ko":"종속"}]},{"english":"crisis","korean":"위기","sentence":"In consequence, adolescents might pull away from, rather than turn toward, their parents in times of emotional crisis, unless parental practices are adjusted.","sentenceKo":"결과적으로, 청소년들은 부모의 관행이 조정되지 않는 한, 감정적 위기 시에 부모에게 다가가기보다는 멀어질 수 있다.","synonyms":[{"en":"emergency","ko":"비상사태"},{"en":"catastrophe","ko":"재난"},{"en":"disaster","ko":"재해"}],"antonyms":[{"en":"stability","ko":"안정"},{"en":"calm","ko":"평온"}]},{"english":"suitable","korean":"적합한","sentence":"More suitable in adolescence is indirect support of autonomous emotion regulation, such as through interest in, as well as awareness and nonjudgmental acceptance of, adolescents' emotional experiences, and being available when the adolescent wants to talk.","sentenceKo":"청소년기에 더 적합한 것은 청소년의 감정적 경험에 대한 관심과 인식 및 비판단적 수용, 그리고 청소년이 이야기하고 싶을 때 이용 가능한 것과 같은 자율적 감정 조절의 간접적 지원이다.","synonyms":[{"en":"appropriate","ko":"적절한"},{"en":"fitting","ko":"알맞은"},{"en":"proper","ko":"적합한"}],"antonyms":[{"en":"unsuitable","ko":"부적합한"},{"en":"inappropriate","ko":"부적절한"}]},{"english":"indirect","korean":"간접적인","sentence":"More suitable in adolescence is indirect support of autonomous emotion regulation, such as through interest in, as well as awareness and nonjudgmental acceptance of, adolescents' emotional experiences, and being available when the adolescent wants to talk.","sentenceKo":"청소년기에 더 적합한 것은 청소년의 감정적 경험에 대한 관심과 인식 및 비판단적 수용, 그리고 청소년이 이야기하고 싶을 때 이용 가능한 것과 같은 자율적 감정 조절의 간접적 지원이다.","synonyms":[{"en":"roundabout","ko":"우회적인"},{"en":"circuitous","ko":"간접적인"},{"en":"implicit","ko":"암시적인"}],"antonyms":[{"en":"direct","ko":"직접적인"},{"en":"straightforward","ko":"솔직한"}]},{"english":"awareness","korean":"인식","sentence":"More suitable in adolescence is indirect support of autonomous emotion regulation, such as through interest in, as well as awareness and nonjudgmental acceptance of, adolescents' emotional experiences, and being available when the adolescent wants to talk.","sentenceKo":"청소년기에 더 적합한 것은 청소년의 감정적 경험에 대한 관심과 인식 및 비판단적 수용, 그리고 청소년이 이야기하고 싶을 때 이용 가능한 것과 같은 자율적 감정 조절의 간접적 지원이다.","synonyms":[{"en":"consciousness","ko":"의식"},{"en":"knowledge","ko":"인식"},{"en":"recognition","ko":"자각"}],"antonyms":[{"en":"ignorance","ko":"무지"},{"en":"unawareness","ko":"무인식"}]},{"english":"acceptance","korean":"수용","sentence":"More suitable in adolescence is indirect support of autonomous emotion regulation, such as through interest in, as well as awareness and nonjudgmental acceptance of, adolescents' emotional experiences, and being available when the adolescent wants to talk.","sentenceKo":"청소년기에 더 적합한 것은 청소년의 감정적 경험에 대한 관심과 인식 및 비판단적 수용, 그리고 청소년이 이야기하고 싶을 때 이용 가능한 것과 같은 자율적 감정 조절의 간접적 지원이다.","synonyms":[{"en":"approval","ko":"승인"},{"en":"recognition","ko":"인정"},{"en":"adoption","ko":"수용"}],"antonyms":[{"en":"rejection","ko":"거부"},{"en":"refusal","ko":"거절"}]},{"english":"available","korean":"이용 가능한","sentence":"More suitable in adolescence is indirect support of autonomous emotion regulation, such as through interest in, as well as awareness and nonjudgmental acceptance of, adolescents' emotional experiences, and being available when the adolescent wants to talk.","sentenceKo":"청소년기에 더 적합한 것은 청소년의 감정적 경험에 대한 관심과 인식 및 비판단적 수용, 그리고 청소년이 이야기하고 싶을 때 이용 가능한 것과 같은 자율적 감정 조절의 간접적 지원이다.","synonyms":[{"en":"accessible","ko":"이용가능한"},{"en":"obtainable","ko":"입수가능한"},{"en":"ready","ko":"준비된"}],"antonyms":[{"en":"unavailable","ko":"이용불가능한"},{"en":"inaccessible","ko":"접근불가능한"}]},{"english":"explore","korean":"탐구하다","sentence":"We must explore the relationship between children's film production and consumption habits.","sentenceKo":"우리는 어린이 영화 제작과 소비 습관 사이의 관계를 탐구해야 한다.","synonyms":[{"en":"investigate","ko":"조사하다"},{"en":"examine","ko":"탐구하다"},{"en":"study","ko":"연구하다"}],"antonyms":[{"en":"ignore","ko":"무시하다"},{"en":"neglect","ko":"간과하다"}]},{"english":"relationship","korean":"관계","sentence":"We must explore the relationship between children's film production and consumption habits.","sentenceKo":"우리는 어린이 영화 제작과 소비 습관 사이의 관계를 탐구해야 한다.","synonyms":[{"en":"connection","ko":"관계"},{"en":"association","ko":"연관"},{"en":"bond","ko":"유대"}],"antonyms":[{"en":"separation","ko":"분리"},{"en":"disconnection","ko":"단절"}]},{"english":"consumption","korean":"소비","sentence":"We must explore the relationship between children's film production and consumption habits.","sentenceKo":"우리는 어린이 영화 제작과 소비 습관 사이의 관계를 탐구해야 한다.","synonyms":[{"en":"usage","ko":"사용"},{"en":"utilization","ko":"활용"},{"en":"intake","ko":"섭취"}],"antonyms":[{"en":"production","ko":"생산"},{"en":"conservation","ko":"보존"}]},{"english":"imply","korean":"암시하다","sentence":"The term \"children's film\" implies ownership by children —their cinema — but films supposedly made for children have always been consumed by audiences of all ages , particularly in commercial cinemas.","sentenceKo":"\"어린이 영화\"라는 용어는 어린이의 소유권 — 그들의 영화 — 을 암시하지만, 어린이를 위해 만들어졌다고 추정되는 영화들은 항상 모든 연령대의 관객들에 의해, 특히 상업 영화관에서 소비되어 왔다.","synonyms":[{"en":"suggest","ko":"시사하다"},{"en":"indicate","ko":"나타내다"},{"en":"hint","ko":"암시하다"}],"antonyms":[{"en":"state","ko":"명시하다"},{"en":"declare","ko":"선언하다"}]},{"english":"ownership","korean":"소유권","sentence":"The term \"children's film\" implies ownership by children —their cinema — but films supposedly made for children have always been consumed by audiences of all ages , particularly in commercial cinemas.","sentenceKo":"\"어린이 영화\"라는 용어는 어린이의 소유권 — 그들의 영화 — 을 암시하지만, 어린이를 위해 만들어졌다고 추정되는 영화들은 항상 모든 연령대의 관객들에 의해, 특히 상업 영화관에서 소비되어 왔다.","synonyms":[{"en":"possession","ko":"소유"},{"en":"proprietorship","ko":"소유권"}],"antonyms":[]},{"english":"supposedly","korean":"추정상, 아마도","sentence":"The term \"children's film\" implies ownership by children —their cinema — but films supposedly made for children have always been consumed by audiences of all ages , particularly in commercial cinemas.","sentenceKo":"\"어린이 영화\"라는 용어는 어린이의 소유권 — 그들의 영화 — 을 암시하지만, 어린이를 위해 만들어졌다고 추정되는 영화들은 항상 모든 연령대의 관객들에 의해, 특히 상업 영화관에서 소비되어 왔다.","synonyms":[{"en":"allegedly","ko":"추정상"},{"en":"presumably","ko":"아마도"},{"en":"reportedly","ko":"전하는바에의하면"}],"antonyms":[{"en":"certainly","ko":"확실히"},{"en":"definitely","ko":"분명히"}]},{"english":"audience","korean":"관객","sentence":"The term \"children's film\" implies ownership by children —their cinema — but films supposedly made for children have always been consumed by audiences of all ages , particularly in commercial cinemas.","sentenceKo":"\"어린이 영화\"라는 용어는 어린이의 소유권 — 그들의 영화 — 을 암시하지만, 어린이를 위해 만들어졌다고 추정되는 영화들은 항상 모든 연령대의 관객들에 의해, 특히 상업 영화관에서 소비되어 왔다.","synonyms":[{"en":"viewers","ko":"시청자"},{"en":"spectators","ko":"관중"},{"en":"listeners","ko":"청중"}],"antonyms":[{"en":"performer","ko":"공연자"}]},{"english":"particularly","korean":"특히","sentence":"The term \"children's film\" implies ownership by children —their cinema — but films supposedly made for children have always been consumed by audiences of all ages , particularly in commercial cinemas.","sentenceKo":"\"어린이 영화\"라는 용어는 어린이의 소유권 — 그들의 영화 — 을 암시하지만, 어린이를 위해 만들어졌다고 추정되는 영화들은 항상 모든 연령대의 관객들에 의해, 특히 상업 영화관에서 소비되어 왔다.","synonyms":[{"en":"especially","ko":"특히"},{"en":"specifically","ko":"특별히"},{"en":"notably","ko":"특히"}],"antonyms":[{"en":"generally","ko":"일반적으로"}]},{"english":"commercial","korean":"상업적인","sentence":"The term \"children's film\" implies ownership by children —their cinema — but films supposedly made for children have always been consumed by audiences of all ages , particularly in commercial cinemas.","sentenceKo":"\"어린이 영화\"라는 용어는 어린이의 소유권 — 그들의 영화 — 을 암시하지만, 어린이를 위해 만들어졌다고 추정되는 영화들은 항상 모든 연령대의 관객들에 의해, 특히 상업 영화관에서 소비되어 왔다.","synonyms":[{"en":"business","ko":"사업의"},{"en":"trade","ko":"무역의"},{"en":"mercantile","ko":"상업의"}],"antonyms":[{"en":"non-commercial","ko":"비상업적인"},{"en":"private","ko":"사적인"}]},{"english":"considerable","korean":"상당한","sentence":"The considerable crossover in audience composition for children's films can be shown by the fact that, in 2007, eleven Danish children's and youth films attracted 59 per cent of theatrical admissions, and in 2014, German children's films comprised seven out of the top twenty films at the national box office.","sentenceKo":"어린이 영화의 관객 구성에서의 상당한 교차는 2007년에 11편의 덴마크 어린이 및 청소년 영화가 극장 입장의 59%를 끌어들였고, 2014년에 독일 어린이 영화가 국내 박스 오피스 상위 20편 영화 중 7편을 차지했다는 사실에 의해 보여질 수 있다.","synonyms":[{"en":"substantial","ko":"상당한"},{"en":"significant","ko":"중요한"},{"en":"notable","ko":"주목할만한"}],"antonyms":[{"en":"insignificant","ko":"미미한"},{"en":"negligible","ko":"무시할만한"}]},{"english":"composition","korean":"구성","sentence":"The considerable crossover in audience composition for children's films can be shown by the fact that, in 2007, eleven Danish children's and youth films attracted 59 per cent of theatrical admissions, and in 2014, German children's films comprised seven out of the top twenty films at the national box office.","sentenceKo":"어린이 영화의 관객 구성에서의 상당한 교차는 2007년에 11편의 덴마크 어린이 및 청소년 영화가 극장 입장의 59%를 끌어들였고, 2014년에 독일 어린이 영화가 국내 박스 오피스 상위 20편 영화 중 7편을 차지했다는 사실에 의해 보여질 수 있다.","synonyms":[{"en":"structure","ko":"구조"},{"en":"makeup","ko":"구성"},{"en":"arrangement","ko":"배열"}],"antonyms":[]},{"english":"comprise","korean":"구성하다, 차지하다","sentence":"The considerable crossover in audience composition for children's films can be shown by the fact that, in 2007, eleven Danish children's and youth films attracted 59 per cent of theatrical admissions, and in 2014, German children's films comprised seven out of the top twenty films at the national box office.","sentenceKo":"어린이 영화의 관객 구성에서의 상당한 교차는 2007년에 11편의 덴마크 어린이 및 청소년 영화가 극장 입장의 59%를 끌어들였고, 2014년에 독일 어린이 영화가 국내 박스 오피스 상위 20편 영화 중 7편을 차지했다는 사실에 의해 보여질 수 있다.","synonyms":[{"en":"consist of","ko":"구성되다"},{"en":"include","ko":"포함하다"},{"en":"contain","ko":"포함하다"}],"antonyms":[{"en":"exclude","ko":"제외하다"}]},{"english":"phenomenon","korean":"현상","sentence":"This phenomenon corresponds with a broader, international embrace of what is seemingly children's culture among audiences of diverse ages.","sentenceKo":"이 현상은 다양한 연령대의 관객들 사이에서 겉보기에 어린이 문화인 것에 대한 더 광범위하고 국제적인 수용과 일치한다.","synonyms":[{"en":"occurrence","ko":"현상"},{"en":"event","ko":"사건"},{"en":"happening","ko":"일어남"}],"antonyms":[]},{"english":"embrace","korean":"수용","sentence":"This phenomenon corresponds with a broader, international embrace of what is seemingly children's culture among audiences of diverse ages.","sentenceKo":"이 현상은 다양한 연령대의 관객들 사이에서 겉보기에 어린이 문화인 것에 대한 더 광범위하고 국제적인 수용과 일치한다.","synonyms":[{"en":"accept","ko":"받아들이다"},{"en":"adopt","ko":"채택하다"},{"en":"welcome","ko":"환영하다"}],"antonyms":[{"en":"reject","ko":"거부하다"},{"en":"refuse","ko":"거절하다"}]},{"english":"seemingly","korean":"겉보기에","sentence":"This phenomenon corresponds with a broader, international embrace of what is seemingly children's culture among audiences of diverse ages.","sentenceKo":"이 현상은 다양한 연령대의 관객들 사이에서 겉보기에 어린이 문화인 것에 대한 더 광범위하고 국제적인 수용과 일치한다.","synonyms":[{"en":"apparently","ko":"겉보기에"},{"en":"ostensibly","ko":"표면상"},{"en":"evidently","ko":"명백히"}],"antonyms":[{"en":"actually","ko":"실제로"},{"en":"truly","ko":"진정으로"}]},{"english":"prejudice","korean":"편견","sentence":"The old prejudice that children's film is some other realm, separate from (and forever subordinate to) a more legitimate cinema for adults is not supported by the realities of consumption: children's film is at the heart of contemporary popular culture.","sentenceKo":"어린이 영화가 성인을 위한 더 정당한 영화와 분리되어 있고 (그리고 영원히 종속적인) 어떤 다른 영역이라는 오래된 편견은 소비의 현실에 의해 뒷받침되지 않는다: 어린이 영화는 현대 대중문화의 중심에 있다.","synonyms":[{"en":"bias","ko":"편견"},{"en":"preconception","ko":"선입견"},{"en":"discrimination","ko":"차별"}],"antonyms":[{"en":"fairness","ko":"공정"},{"en":"impartiality","ko":"공평"}]},{"english":"realm","korean":"영역","sentence":"The old prejudice that children's film is some other realm, separate from (and forever subordinate to) a more legitimate cinema for adults is not supported by the realities of consumption: children's film is at the heart of contemporary popular culture.","sentenceKo":"어린이 영화가 성인을 위한 더 정당한 영화와 분리되어 있고 (그리고 영원히 종속적인) 어떤 다른 영역이라는 오래된 편견은 소비의 현실에 의해 뒷받침되지 않는다: 어린이 영화는 현대 대중문화의 중심에 있다.","synonyms":[{"en":"domain","ko":"영역"},{"en":"sphere","ko":"분야"},{"en":"field","ko":"분야"}],"antonyms":[]},{"english":"subordinate","korean":"종속적인","sentence":"The old prejudice that children's film is some other realm, separate from (and forever subordinate to) a more legitimate cinema for adults is not supported by the realities of consumption: children's film is at the heart of contemporary popular culture.","sentenceKo":"어린이 영화가 성인을 위한 더 정당한 영화와 분리되어 있고 (그리고 영원히 종속적인) 어떤 다른 영역이라는 오래된 편견은 소비의 현실에 의해 뒷받침되지 않는다: 어린이 영화는 현대 대중문화의 중심에 있다.","synonyms":[{"en":"inferior","ko":"하위의"},{"en":"secondary","ko":"부차적인"},{"en":"dependent","ko":"종속적인"}],"antonyms":[{"en":"superior","ko":"상위의"},{"en":"dominant","ko":"지배적인"}]},{"english":"legitimate","korean":"정당한","sentence":"The old prejudice that children's film is some other realm, separate from (and forever subordinate to) a more legitimate cinema for adults is not supported by the realities of consumption: children's film is at the heart of contemporary popular culture.","sentenceKo":"어린이 영화가 성인을 위한 더 정당한 영화와 분리되어 있고 (그리고 영원히 종속적인) 어떤 다른 영역이라는 오래된 편견은 소비의 현실에 의해 뒷받침되지 않는다: 어린이 영화는 현대 대중문화의 중심에 있다.","synonyms":[{"en":"valid","ko":"타당한"},{"en":"lawful","ko":"합법적인"},{"en":"authorized","ko":"인가된"}],"antonyms":[{"en":"illegitimate","ko":"불법적인"},{"en":"invalid","ko":"무효한"}]},{"english":"contemporary","korean":"현대의","sentence":"The old prejudice that children's film is some other realm, separate from (and forever subordinate to) a more legitimate cinema for adults is not supported by the realities of consumption: children's film is at the heart of contemporary popular culture.","sentenceKo":"어린이 영화가 성인을 위한 더 정당한 영화와 분리되어 있고 (그리고 영원히 종속적인) 어떤 다른 영역이라는 오래된 편견은 소비의 현실에 의해 뒷받침되지 않는다: 어린이 영화는 현대 대중문화의 중심에 있다.","synonyms":[{"en":"modern","ko":"현대의"},{"en":"current","ko":"현재의"},{"en":"present-day","ko":"현대의"}],"antonyms":[{"en":"ancient","ko":"고대의"},{"en":"outdated","ko":"구식의"}]}]};
+var SET_SIZE=20;
+function shuffle(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t}return b}
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function trim(s){return(s||'').replace(/^\s+|\s+$/g,'')}
+function maskWord(sen,word){if(!sen||!word)return sen;var lc=sen.toLowerCase(),wl=word.toLowerCase(),res='',i=0;while(i<sen.length){var idx=lc.indexOf(wl,i);if(idx===-1){res+=sen.substring(i);break}res+=sen.substring(i,idx);for(var j=0;j<word.length;j++)res+='_';i=idx+wl.length}return res}
+function SimpleSet(){this._m={};this.size=0}
+SimpleSet.prototype.add=function(v){var k=String(v);if(!this._m[k]){this._m[k]=true;this.size++}};
+SimpleSet.prototype.has=function(v){return this._m[String(v)]===true};
+SimpleSet.prototype.clear=function(){this._m={};this.size=0};
+
+function App(){
+  var self=this;
+  this.allWords=CONFIG.words;
+  this.passThreshold=CONFIG.passThreshold;
+  this.app=document.getElementById('app');
+  this.titleEl=document.getElementById('page-title');
+  this.subEl=document.getElementById('page-subtitle');
+  this.sets=[];
+  for(var i=0;i<this.allWords.length;i+=SET_SIZE){this.sets.push(this.allWords.slice(i,Math.min(i+SET_SIZE,this.allWords.length)))}
+  this.totalSets=this.sets.length;
+  // test state
+  this.masteredWords=new SimpleSet();this.wrongHistory=[];this.setResults=[];
+  this.curSet=0;this.round=0;this.roundWords=[];
+  this.roundCorrect=[];this.roundWrong=[];this.roundHistory=[];
+  this.answered=false;this.setWordsAll=[];
+  this.currentOptions=[];this.currentCorrectMap={};this.selectedIdxs={};this.currentKoMap={};
+  // practice state
+  this.pSeen=new SimpleSet();this.pSetResults=[];this.pCurSet=0;this.pRound=0;
+  this.pCards=[];this.pIdx=0;this.pKnown=[];this.pUnknown=[];this.pFlipped=false;
+
+  document.addEventListener('click',function(e){
+    var t=e.target.closest('[data-chk]');
+    if(t){var ci=parseInt(t.getAttribute('data-chk'),10);self.toggleOption(ci);return}
+    if(e.target.closest('.fc-card')&&!e.target.closest('.fc-btns')&&!e.target.closest('.btn')){self.flipCard();return}
+    var ae=e.target.closest('[data-action]');
+    if(ae){var a=ae.getAttribute('data-action'),ar=ae.getAttribute('data-args');
+      if(typeof self[a]==='function'){if(ar!==null)self[a](parseInt(ar,10));else self[a]()}}
+  },false);
+  this.showHome();
+}
+App.prototype.render=function(h){this.app.innerHTML=h};
+App.prototype.setTitle=function(t){this.titleEl.textContent=t};
+App.prototype.setSub=function(t){this.subEl.textContent=t};
+App.prototype.toTop=function(){window.scrollTo(0,0)};
+
+/* ── Home ── */
+App.prototype.showHome=function(){
+  this.setTitle(CONFIG.title);this.setSub('유의어 학습');
+  this.render(
+    '<div class="fade" style="text-align:center">'+
+    '<div style="font-size:3rem;margin-bottom:10px">🔄</div>'+
+    '<h2 style="font-size:1.2rem;font-weight:700;color:#0f172a;margin-bottom:6px">유의어·반의어 학습</h2>'+
+    '<p style="color:#64748b;font-size:.88rem;word-break:keep-all">플래시카드로 유의어·반의어를 익히고<br>유의어 선택 테스트에 도전하세요!</p>'+
+    '<div class="ig"><div class="ig-row">'+
+    '<div class="ic"><div class="lb">총 단어</div><div class="vl">'+this.allWords.length+'개</div></div>'+
+    '<div class="ic"><div class="lb">세트</div><div class="vl">'+this.totalSets+'세트</div></div></div>'+
+    '<div class="ig-row">'+
+    '<div class="ic"><div class="lb">테스트 유형</div><div class="vl" style="font-size:.8rem">유의어 선택(복수)</div></div>'+
+    '<div class="ic"><div class="lb">통과 기준</div><div class="vl">'+this.passThreshold+'%</div></div></div></div>'+
+    '<button class="btn btn-accent" data-action="startPractice" style="font-size:1.05rem">🃏 플래시카드 연습</button>'+
+    '<button class="btn btn-primary" data-action="startFullTest" style="font-size:1.05rem">📝 유의어 테스트 시작</button>'+
+    '</div>'
+  );
+};
+
+/* ── Practice (Flashcard) ── */
+App.prototype.startPractice=function(){
+  this.pSeen=new SimpleSet();this.pSetResults=[];this.pCurSet=0;this.showPracticeMap();
+};
+App.prototype.showPracticeMap=function(){
+  this.setTitle(CONFIG.title);
+  var totalSeen=this.pSeen.size;
+  var pct=this.allWords.length>0?Math.round((totalSeen/this.allWords.length)*100):0;
+  this.setSub('연습 '+pct+'% ('+totalSeen+'/'+this.allWords.length+')');
+  var setsHtml='';
+  for(var i=0;i<this.totalSets;i++){
+    var sw=this.sets[i],res=null;
+    for(var r=0;r<this.pSetResults.length;r++){if(this.pSetResults[r].setIdx===i){res=this.pSetResults[r];break}}
+    var seen=0;for(var w=0;w<sw.length;w++){if(this.pSeen.has(trim(sw[w].english).toLowerCase()))seen++}
+    var done=!!res,sPct=Math.round((seen/sw.length)*100);
+    var cls=done?'dn':'cur',icon=done?'✅':'▶',stxt=done?sPct+'%':'시작';
+    setsHtml+='<div class="sc-w"><div class="s-card '+cls+'" data-action="practiceSet" data-args="'+i+'">'+
+      '<div class="sn">세트 '+(i+1)+'</div><div class="sw">'+sw.length+'개</div>'+
+      '<div class="sb"><div class="sbf" style="width:'+sPct+'%"></div></div>'+
+      '<div class="ss">'+icon+' '+stxt+'</div></div></div>';
+  }
+  this.render(
+    '<div class="fade"><div style="text-align:center;margin-bottom:16px">'+
+    '<div style="font-size:2rem;margin-bottom:6px">🃏</div>'+
+    '<h2 style="font-size:1.1rem;font-weight:700;color:#0f172a;margin-bottom:3px">플래시카드 연습</h2>'+
+    '<p style="color:#64748b;font-size:.82rem">카드 뒷면에서 유의어·반의어를 확인하세요</p></div>'+
+    '<div class="ob"><div class="ob-top"><span style="color:#64748b">연습 진행률</span><span style="font-weight:700;color:#8b5cf6">'+pct+'%</span></div>'+
+    '<div class="ob-bar"><div class="ob-fill" style="width:'+pct+'%;background:#8b5cf6"></div></div>'+
+    '<div class="ob-sub">'+totalSeen+' / '+this.allWords.length+' 단어</div></div>'+
+    '<div class="sg">'+setsHtml+'</div>'+
+    '<div class="jump-bar"><p>연습 후 테스트로!</p>'+
+    '<button class="btn btn-primary" data-action="startFullTest" style="font-size:.92rem">📝 유의어 테스트 시작</button></div>'+
+    '<button class="btn btn-ghost" data-action="showHome" style="margin-top:6px">← 처음으로</button></div>'
+  );
+};
+App.prototype.practiceSet=function(idx){
+  this.pCurSet=idx;this.pRound=0;
+  var sw=this.sets[idx];
+  var unseen=[];for(var i=0;i<sw.length;i++){if(!this.pSeen.has(trim(sw[i].english).toLowerCase()))unseen.push(sw[i])}
+  this.pCards=unseen.length>0?shuffle(unseen):shuffle(sw.slice());
+  this.pIdx=0;this.pKnown=[];this.pUnknown=[];this.pFlipped=false;this.pRound++;
+  this.showCard();
+};
+App.prototype.showCard=function(){
+  if(this.pIdx>=this.pCards.length){this.endPracticeRound();return}
+  this.pFlipped=false;
+  var word=this.pCards[this.pIdx];
+  var total=this.pCards.length;
+  var pct=Math.round((this.pIdx/total)*100);
+  var dotsHtml='';
+  for(var d=0;d<total;d++){
+    var dc='fc-dot';
+    if(d<this.pIdx){var wk=false;for(var k=0;k<this.pKnown.length;k++){if(this.pKnown[k].english===this.pCards[d].english){wk=true;break}}dc+=wk?' ok':' ng';}
+    else if(d===this.pIdx){dc+=' now'}
+    dotsHtml+='<div class="'+dc+'"></div>';
+  }
+  // Build synonym/antonym tags for back
+  var synHtml='',antHtml='';
+  if(word.synonyms&&word.synonyms.length>0){
+    synHtml='<div class="fc-syn"><div class="fc-syn-title">유의어 (Synonyms)</div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">'+
+      word.synonyms.map(function(s){
+        var ko=s.ko?'<div style="font-size:.7rem;color:#166534;margin-top:2px;font-weight:400">'+esc(s.ko)+'</div>':'';
+        return '<div class="syn-pill s"><div style="font-weight:700">'+esc(s.en)+'</div>'+ko+'</div>';
+      }).join('')+
+    '</div></div>';
+  }
+  if(word.antonyms&&word.antonyms.length>0){
+    antHtml='<div class="fc-ant"><div class="fc-ant-title">반의어 (Antonyms)</div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">'+
+      word.antonyms.map(function(s){
+        var ko=s.ko?'<div style="font-size:.7rem;color:#991b1b;margin-top:2px;font-weight:400">'+esc(s.ko)+'</div>':'';
+        return '<div class="syn-pill a"><div style="font-weight:700">'+esc(s.en)+'</div>'+ko+'</div>';
+      }).join('')+
+    '</div></div>';
+  }
+  var sentFront=word.sentence?'<div style="font-size:.78rem;color:#6d28d9;margin-top:10px;line-height:1.5;padding:9px 12px;background:rgba(139,92,246,.08);border-radius:10px;word-break:keep-all;border:1px solid rgba(139,92,246,.15)">'+esc(maskWord(word.sentence,word.english))+'</div>':'';
+  var sentBack=word.sentenceKo?'<div style="font-size:.78rem;color:#047857;margin-top:8px;line-height:1.5;padding:9px 12px;background:rgba(16,185,129,.08);border-radius:10px;word-break:keep-all;border:1px solid rgba(16,185,129,.15)">'+esc(word.sentenceKo)+'</div>':'';
+
+  this.setTitle('세트 '+(this.pCurSet+1)+' 연습');
+  this.setSub(this.pRound+'라운드 · '+(this.pIdx+1)+'/'+total);
+  this.render(
+    '<div class="fade">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'+
+    '<div class="round-tag">세트'+(this.pCurSet+1)+' · '+this.pRound+'R</div>'+
+    '<div class="back-link" data-action="showPracticeMap">← 목록</div></div>'+
+    '<div class="fc-dots">'+dotsHtml+'</div>'+
+    '<div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%;background:#8b5cf6"></div></div>'+
+    '<div id="fc-action" style="display:none;margin-bottom:12px">'+
+      '<div class="fc-btns">'+
+        '<button class="btn btn-dunno" data-action="pMarkUnknown">❌ 몰라요</button>'+
+        '<button class="btn btn-know" data-action="pMarkKnown">⭕ 알아요</button>'+
+      '</div></div>'+
+    '<div class="fc-scene">'+
+      '<div class="fc-card" id="fc-card">'+
+        '<div class="fc-face fc-front">'+
+          '<div class="fc-label">한글 뜻</div>'+
+          '<div class="fc-word">'+esc(word.korean)+'</div>'+
+          sentFront+
+          '<div class="fc-tap">카드를 탭하여 유의어 확인 →</div>'+
+        '</div>'+
+        '<div class="fc-face fc-back">'+
+          '<div class="fc-label">English</div>'+
+          '<div class="fc-word">'+esc(word.english)+'</div>'+
+          '<div class="fc-sub">'+esc(word.korean)+'</div>'+
+          synHtml+antHtml+sentBack+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    '</div>'
+  );
+};
+App.prototype.flipCard=function(){
+  this.pFlipped=!this.pFlipped;
+  var el=document.getElementById('fc-card');if(el)el.className=this.pFlipped?'fc-card flipped':'fc-card';
+  var ab=document.getElementById('fc-action');if(ab)ab.style.display=this.pFlipped?'block':'none';
+};
+App.prototype.pMarkKnown=function(){
+  var word=this.pCards[this.pIdx];this.pKnown.push(word);
+  this.pSeen.add(trim(word.english).toLowerCase());this.pIdx++;this.showCard();
+};
+App.prototype.pMarkUnknown=function(){
+  var word=this.pCards[this.pIdx];this.pUnknown.push(word);this.pIdx++;this.showCard();
+};
+App.prototype.endPracticeRound=function(){
+  var sw=this.sets[this.pCurSet];
+  var seenCount=0;for(var i=0;i<sw.length;i++){if(this.pSeen.has(trim(sw[i].english).toLowerCase()))seenCount++}
+  if(this.pUnknown.length===0){
+    var res={setIdx:this.pCurSet,rounds:this.pRound,known:seenCount,total:sw.length};
+    var ex=-1;for(var r=0;r<this.pSetResults.length;r++){if(this.pSetResults[r].setIdx===this.pCurSet){ex=r;break}}
+    if(ex>=0)this.pSetResults[ex]=res;else this.pSetResults.push(res);
+    this.setTitle('세트 '+(this.pCurSet+1)+' 완료!');this.setSub(this.pRound+'라운드');
+    var hasNext=this.pCurSet<this.totalSets-1;
+    this.render('<div class="fade" style="text-align:center">'+
+      '<div style="font-size:2rem;margin-bottom:8px">🎯</div>'+
+      '<h2 style="font-size:1.1rem;font-weight:700;color:#0f172a;margin-bottom:6px">세트 '+(this.pCurSet+1)+' 완료!</h2>'+
+      '<div class="sc g">100%</div>'+
+      (hasNext?'<button class="btn btn-accent" data-action="goNextPracticeSet">다음 세트 →</button>':'')+
+      '<button class="btn btn-ghost" data-action="showPracticeMap">세트 목록</button>'+
+      '<div class="jump-bar"><p>이제 테스트에 도전!</p>'+
+      '<button class="btn btn-primary" data-action="startFullTest">📝 유의어 테스트 시작</button></div></div>');
+  }else{
+    this.pCards=shuffle(this.pUnknown.slice());this.pIdx=0;this.pKnown=[];this.pUnknown=[];this.pRound++;this.showCard();
+  }
+};
+App.prototype.goNextPracticeSet=function(){this.pCurSet++;if(this.pCurSet>=this.totalSets){this.showPracticeMap();return}this.practiceSet(this.pCurSet)};
+
+/* ── Test Mode ── */
+App.prototype.startFullTest=function(){
+  this.masteredWords=new SimpleSet();this.wrongHistory=[];this.setResults=[];this.curSet=0;this.showSetMap();
+};
+App.prototype.showSetMap=function(){
+  this.setTitle(CONFIG.title);
+  var overallPct=this.allWords.length>0?Math.round((this.masteredWords.size/this.allWords.length)*100):0;
+  var passed=overallPct>=this.passThreshold;
+  if(this.setResults.length===this.totalSets&&passed){this.showFinalCelebration();return}
+  this.setSub('테스트 '+overallPct+'% ('+this.masteredWords.size+'/'+this.allWords.length+')');
+  var setsHtml='';
+  for(var i=0;i<this.totalSets;i++){
+    var sw=this.sets[i],result=null;
+    for(var r=0;r<this.setResults.length;r++){if(this.setResults[r].setIdx===i){result=this.setResults[r];break}}
+    var m=0;for(var w=0;w<sw.length;w++){if(this.masteredWords.has(trim(sw[w].english).toLowerCase()))m++}
+    var done=!!result,sPct=Math.round((m/sw.length)*100);
+    var cls,icon,stxt,act;
+    if(done&&sPct===100){cls='dn';icon='⭐';stxt='완벽';act=' data-action="retrySet" data-args="'+i+'"'}
+    else if(done){cls='dn';icon='✅';stxt=sPct+'%';act=' data-action="retrySet" data-args="'+i+'"'}
+    else{cls='cur';icon='▶';stxt='시작';act=' data-action="startSet" data-args="'+i+'"'}
+    setsHtml+='<div class="sc-w"><div class="s-card '+cls+'"'+act+'><div class="sn">세트 '+(i+1)+'</div><div class="sw">'+sw.length+'개</div>'+
+      '<div class="sb"><div class="sbf" style="width:'+sPct+'%"></div></div><div class="ss">'+icon+' '+stxt+'</div></div></div>';
+  }
+  var barColor=passed?'#10b981':'#8b5cf6';
+  this.render(
+    '<div class="fade"><div style="text-align:center;margin-bottom:16px">'+
+    '<div style="font-size:2rem;margin-bottom:6px">📊</div>'+
+    '<h2 style="font-size:1.1rem;font-weight:700;color:#0f172a;margin-bottom:3px">유의어 테스트 현황</h2>'+
+    '<p style="color:#64748b;font-size:.82rem">맞는 유의어를 모두 선택하세요</p></div>'+
+    '<div class="ob"><div class="ob-top"><span style="color:#64748b">전체 성취도</span><span style="font-weight:700;color:'+barColor+'">'+overallPct+'% / '+this.passThreshold+'%</span></div>'+
+    '<div class="ob-bar"><div class="ob-fill" style="width:'+overallPct+'%;background:'+barColor+'"></div>'+
+    '<div class="ob-mark" style="left:'+this.passThreshold+'%"></div></div>'+
+    '<div class="ob-sub">'+this.masteredWords.size+' / '+this.allWords.length+' 단어</div></div>'+
+    '<div class="sg">'+setsHtml+'</div>'+
+    '<button class="btn btn-ghost" data-action="showHome">← 처음으로</button></div>'
+  );
+};
+App.prototype.startSet=function(idx){
+  this.curSet=idx;this.round=0;this.roundHistory=[];
+  var sw=this.sets[idx];this.setWordsAll=sw;
+  var un=[];for(var i=0;i<sw.length;i++){if(!this.masteredWords.has(trim(sw[i].english).toLowerCase()))un.push(sw[i])}
+  this.roundWords=un.length>0?un:sw.slice();this.startSetRound();
+};
+App.prototype.retrySet=function(idx){this.startSet(idx)};
+App.prototype.startSetRound=function(){
+  this.round++;this.roundWords=shuffle(this.roundWords);
+  this.qIndex=0;this.roundCorrect=[];this.roundWrong=[];this.answered=false;
+  this.setTitle('세트 '+(this.curSet+1)+' / '+this.totalSets);this.setSub(this.round+'라운드');
+  this.showQuestion();
+};
+App.prototype.buildOptions=function(word){
+  var synEn=(word.synonyms||[]).map(function(s){return s.en});
+  var antEn=(word.antonyms||[]).map(function(s){return s.en});
+  var allCorrect=[word.english].concat(synEn);
+  var distractors=antEn.slice();
+  // antonyms가 부족할 때 다른 단어의 유의어/반의어에서 오답 보충
+  if(distractors.length<2){
+    var correctSet={};for(var c=0;c<allCorrect.length;c++){correctSet[allCorrect[c].toLowerCase()]=true}
+    for(var d=0;d<distractors.length;d++){correctSet[distractors[d].toLowerCase()]=true}
+    var pool=[];
+    for(var wi=0;wi<this.allWords.length;wi++){
+      var ow=this.allWords[wi];
+      if(ow.english.toLowerCase()===word.english.toLowerCase())continue;
+      var oSyns=(ow.synonyms||[]);var oAnts=(ow.antonyms||[]);
+      for(var si=0;si<oSyns.length;si++){var w=oSyns[si];if(!correctSet[w.en.toLowerCase()]){pool.push(w);correctSet[w.en.toLowerCase()]=true}}
+      for(var ai=0;ai<oAnts.length;ai++){var w=oAnts[ai];if(!correctSet[w.en.toLowerCase()]){pool.push(w);correctSet[w.en.toLowerCase()]=true}}
+    }
+    pool=shuffle(pool);
+    var need=2-distractors.length;
+    for(var pi=0;pi<Math.min(need,pool.length);pi++){distractors.push(pool[pi].en)}
+  }
+  var usedCorrect;
+  if(allCorrect.length>=4){usedCorrect=allCorrect.slice(0,3);}
+  else{usedCorrect=allCorrect;}
+  var numD=Math.max(1,5-usedCorrect.length);
+  if(numD>distractors.length)numD=distractors.length;
+  var total=usedCorrect.length+numD;
+  if(total<4&&distractors.length>numD)numD=Math.min(distractors.length,4-usedCorrect.length);
+  var usedD=distractors.slice(0,numD);
+  var options=shuffle(usedCorrect.concat(usedD));
+  var cmap={};for(var i=0;i<usedCorrect.length;i++){cmap[usedCorrect[i].toLowerCase()]=true;}
+  // Build english→korean lookup for all options
+  var koMap={};
+  koMap[word.english.toLowerCase()]=word.korean;
+  for(var i=0;i<(word.synonyms||[]).length;i++){if(word.synonyms[i].ko)koMap[word.synonyms[i].en.toLowerCase()]=word.synonyms[i].ko;}
+  for(var i=0;i<(word.antonyms||[]).length;i++){if(word.antonyms[i].ko)koMap[word.antonyms[i].en.toLowerCase()]=word.antonyms[i].ko;}
+  // 보충된 오답의 한글 뜻도 추가
+  for(var i=0;i<this.allWords.length;i++){var ow=this.allWords[i];
+    var oAll=(ow.synonyms||[]).concat(ow.antonyms||[]);
+    for(var j=0;j<oAll.length;j++){if(!koMap[oAll[j].en.toLowerCase()]&&oAll[j].ko)koMap[oAll[j].en.toLowerCase()]=oAll[j].ko}}
+  return{options:options,correctMap:cmap,correctCount:usedCorrect.length,koMap:koMap};
+};
+App.prototype.showQuestion=function(){
+  if(this.qIndex>=this.roundWords.length){this.endSetRound();return}
+  this.answered=false;this.selectedIdxs={};
+  var word=this.roundWords[this.qIndex];
+  var built=this.buildOptions(word);
+  this.currentOptions=built.options;this.currentCorrectMap=built.correctMap;this.currentCorrectCount=built.correctCount;this.currentKoMap=built.koMap;
+  var total=this.roundWords.length;
+  var pct=Math.round((this.qIndex/total)*100);
+  var masked=maskWord(word.sentence,word.english);
+  var senHtml=masked?'<div class="sentence-area">'+esc(masked)+'</div>':'';
+  var optsHtml='<div class="opts">';
+  for(var i=0;i<built.options.length;i++){
+    optsHtml+='<button class="chk-btn" data-chk="'+i+'">'+
+      '<div class="chk-box"></div>'+
+      '<span>'+esc(built.options[i])+'</span></button>';
+  }
+  optsHtml+='</div>';
+  var pluralHint=built.correctCount>1?'정답 '+built.correctCount+'개 — ':'';
+  this.setTitle('세트 '+(this.curSet+1)+' / '+this.totalSets);
+  this.setSub(this.round+'R · '+(this.qIndex+1)+'/'+total);
+  this.render(
+    '<div class="fade">'+
+    '<div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%;background:#8b5cf6"></div></div>'+
+    '<div class="q-counter">'+(this.qIndex+1)+' / '+total+'</div>'+
+    '<div class="round-tag">'+this.round+'라운드</div>'+
+    '<div class="kor-word">'+esc(word.korean)+'</div>'+
+    senHtml+
+    '<div class="q-hint">'+pluralHint+'유의어를 모두 선택 후 제출하세요</div>'+
+    optsHtml+
+    '<button class="btn btn-accent" data-action="submitSynonym" style="margin-top:14px">✓ 제출</button>'+
+    '</div>'
+  );
+};
+App.prototype.toggleOption=function(ci){
+  if(this.answered)return;
+  var btn=document.querySelector('[data-chk="'+ci+'"]');if(!btn)return;
+  if(this.selectedIdxs[ci]){delete this.selectedIdxs[ci];btn.classList.remove('selected');btn.querySelector('.chk-box').textContent=''}
+  else{this.selectedIdxs[ci]=true;btn.classList.add('selected');btn.querySelector('.chk-box').textContent='✓'}
+};
+App.prototype.submitSynonym=function(){
+  if(this.answered)return;
+  this.answered=true;
+  var word=this.roundWords[this.qIndex];
+  var btns=document.querySelectorAll('.chk-btn');
+  var selectedWords=[];
+  for(var i=0;i<btns.length;i++){if(this.selectedIdxs[i])selectedWords.push(this.currentOptions[i]);}
+  // Check: all correct selected AND no wrong selected
+  var isCorrect=true;
+  var cmap=this.currentCorrectMap;
+  // All correct words must be in selected
+  for(var k in cmap){var found=false;for(var j=0;j<selectedWords.length;j++){if(selectedWords[j].toLowerCase()===k){found=true;break}}if(!found){isCorrect=false;break}}
+  // No wrong words in selected
+  if(isCorrect){for(var j=0;j<selectedWords.length;j++){if(!cmap[selectedWords[j].toLowerCase()]){isCorrect=false;break}}}
+  // Visual feedback + append Korean meaning to every button
+  for(var i=0;i<btns.length;i++){
+    btns[i].disabled=true;btns[i].style.cursor='default';
+    var optW=this.currentOptions[i];var isC=!!cmap[optW.toLowerCase()];var wasSel=!!this.selectedIdxs[i];
+    if(isC&&wasSel){btns[i].className='chk-btn correct';btns[i].querySelector('.chk-box').textContent='✓'}
+    else if(isC&&!wasSel){btns[i].className='chk-btn reveal';btns[i].querySelector('.chk-box').textContent='○'}
+    else if(!isC&&wasSel){btns[i].className='chk-btn wrong';btns[i].querySelector('.chk-box').textContent='✕'}
+    // Append Korean meaning
+    var ko=this.currentKoMap[optW.toLowerCase()]||'';
+    if(ko){
+      var koEl=document.createElement('span');
+      koEl.style.cssText='font-size:.75rem;font-weight:400;color:inherit;opacity:.75;margin-left:6px;';
+      koEl.textContent='('+ko+')';
+      var spanEl=btns[i].querySelector('span');
+      if(spanEl)spanEl.appendChild(koEl);
+    }
+  }
+  // Record result
+  if(isCorrect){this.roundCorrect.push(word);this.masteredWords.add(trim(word.english).toLowerCase())}
+  else{this.roundWrong.push({english:word.english,korean:word.korean,sentence:word.sentence||'',sentenceKo:word.sentenceKo||'',synonyms:word.synonyms||[],antonyms:word.antonyms||[],userAnswer:selectedWords.join(', ')});
+    this.wrongHistory.push({english:word.english,korean:word.korean,userAnswer:selectedWords.join(', '),round:this.round,set:this.curSet+1})}
+  var correctList=Object.keys(cmap).join(', ');
+  var fb=isCorrect?'<div class="fb ok">정답입니다! ✅</div>':
+    '<div class="fb ng">오답입니다 ❌<div class="ans">정답: <strong>'+esc(correctList)+'</strong></div></div>';
+  var nb='<button class="btn btn-primary" data-action="nextQuestion" style="margin-top:12px">다음 문제</button>';
+  var d=document.createElement('div');d.innerHTML=fb+nb;
+  var ct=this.app.querySelector('div');if(ct)ct.appendChild(d);
+};
+App.prototype.nextQuestion=function(){this.qIndex++;this.showQuestion()};
+App.prototype.endSetRound=function(){
+  var sw=this.setWordsAll,m=0;
+  for(var i=0;i<sw.length;i++){if(this.masteredWords.has(trim(sw[i].english).toLowerCase()))m++}
+  this.roundHistory.push({round:this.round,tested:this.roundWords.length,correct:this.roundCorrect.length,wrong:this.roundWrong.length});
+  if(m===sw.length||this.roundWrong.length===0)this.showSetComplete();
+  else this.showSetRoundSummary();
+};
+App.prototype.showSetRoundSummary=function(){
+  var sw=this.setWordsAll,m=0;
+  for(var i=0;i<sw.length;i++){if(this.masteredWords.has(trim(sw[i].english).toLowerCase()))m++}
+  var sPct=Math.round((m/sw.length)*100),remaining=this.roundWrong.length;
+  this.setSub('세트 '+(this.curSet+1)+' · '+this.round+'R 결과');
+  this.render(
+    '<div class="fade"><div class="sc r">'+sPct+'%</div>'+
+    '<div style="text-align:center;margin:14px 0"><h3 style="font-size:1.1rem;font-weight:700;color:#0f172a;margin-bottom:6px">'+this.round+'라운드 결과</h3>'+
+    '<p style="color:#64748b;font-size:.85rem">'+m+'/'+sw.length+' 단어 완료</p></div>'+
+    '<div class="card"><div class="sr"><span class="sl">문제 수</span><span class="sv">'+this.roundWords.length+'개</span></div>'+
+    '<div class="sr"><span class="sl">정답</span><span class="sv g">'+this.roundCorrect.length+'개</span></div>'+
+    '<div class="sr"><span class="sl">오답</span><span class="sv r">'+this.roundWrong.length+'개</span></div></div>'+
+    '<div class="alert-r">틀린 '+remaining+'개로 다시 도전!</div>'+
+    '<button class="btn btn-accent" style="margin-top:14px" data-action="continueSetRound">다음 라운드 ('+remaining+'개)</button></div>'
+  );this.toTop();
+};
+App.prototype.continueSetRound=function(){
+  var next=[];for(var i=0;i<this.roundWrong.length;i++){next.push(this.roundWrong[i])}
+  this.roundWords=next;this.startSetRound();
+};
+App.prototype.showSetComplete=function(){
+  var sw=this.setWordsAll,m=0;
+  for(var i=0;i<sw.length;i++){if(this.masteredWords.has(trim(sw[i].english).toLowerCase()))m++}
+  var sPct=Math.round((m/sw.length)*100);
+  var overallPct=Math.round((this.masteredWords.size/this.allWords.length)*100);
+  var passed=overallPct>=this.passThreshold;
+  var ex=-1;for(var r=0;r<this.setResults.length;r++){if(this.setResults[r].setIdx===this.curSet){ex=r;break}}
+  var res={setIdx:this.curSet,rounds:this.round,correct:m,total:sw.length,pct:sPct};
+  if(ex>=0)this.setResults[ex]=res;else this.setResults.push(res);
+  var allDone=this.setResults.length===this.totalSets;
+  var hasNext=this.curSet<this.totalSets-1;
+  var btnsHtml='';
+  if(allDone&&passed){btnsHtml='<button class="btn btn-accent" data-action="showFinalCelebration" style="font-size:1.05rem">🎉 최종 결과</button>'}
+  else if(hasNext){btnsHtml='<button class="btn btn-accent" data-action="goNextSet">다음 세트 →</button><button class="btn btn-ghost" data-action="showSetMap">세트 목록</button>'}
+  else{btnsHtml='<button class="btn btn-accent" data-action="showSetMap">세트 목록으로</button>'}
+  this.setTitle('세트 '+(this.curSet+1)+' 완료!');this.setSub('전체 '+overallPct+'%');
+  this.render(
+    '<div class="fade"><div style="text-align:center;margin-bottom:12px">'+
+    '<div style="font-size:2rem;margin-bottom:6px">🎯</div>'+
+    '<h2 style="font-size:1.1rem;font-weight:700;color:#0f172a;margin-bottom:4px">세트 '+(this.curSet+1)+' 완료!</h2>'+
+    '<p style="color:#64748b;font-size:.85rem">'+m+'/'+sw.length+' · '+this.round+'라운드</p></div>'+
+    '<div class="sc g">'+sPct+'%</div>'+
+    '<div class="card"><h3>세트 결과</h3>'+
+    '<div class="sr"><span class="sl">단어 수</span><span class="sv">'+sw.length+'개</span></div>'+
+    '<div class="sr"><span class="sl">정복</span><span class="sv g">'+m+'개</span></div>'+
+    '<div class="sr"><span class="sl">라운드</span><span class="sv">'+this.round+'회</span></div></div>'+
+    '<div class="ob"><div class="ob-top"><span style="color:#64748b">전체 진행률</span><span style="font-weight:700">'+overallPct+'% / '+this.passThreshold+'%</span></div>'+
+    '<div class="ob-bar"><div class="ob-fill" style="width:'+overallPct+'%;background:#8b5cf6"></div>'+
+    '<div class="ob-mark" style="left:'+this.passThreshold+'%"></div></div>'+
+    '<div class="ob-sub">'+this.masteredWords.size+' / '+this.allWords.length+' 단어</div></div>'+
+    btnsHtml+'</div>'
+  );this.toTop();
+};
+App.prototype.goNextSet=function(){this.curSet++;if(this.curSet>=this.totalSets){this.showSetMap();return}this.startSet(this.curSet)};
+App.prototype.showFinalCelebration=function(){
+  var overallPct=Math.round((this.masteredWords.size/this.allWords.length)*100);
+  this.setTitle('테스트 완료!');this.setSub('축하합니다!');this.showConfetti();
+  var wlHtml='';
+  if(this.wrongHistory.length>0){wlHtml='<div class="wl"><h3 style="font-size:.95rem;font-weight:700;color:#0f172a;margin-bottom:10px">틀렸던 문제</h3>';
+    for(var w=0;w<this.wrongHistory.length;w++){var wh=this.wrongHistory[w];
+      wlHtml+='<div class="wi"><div><div class="ww">'+esc(wh.korean)+'</div><div class="wr">세트'+wh.set+' · '+wh.round+'R</div></div>'+
+        '<div style="text-align:right"><div class="wa">'+esc(wh.userAnswer||'')+'</div><div class="wc">'+esc(wh.english)+'</div></div></div>'}
+    wlHtml+='</div>'}
+  this.render(
+    '<div class="fade"><div class="celeb"><div class="em">🎉</div><h2>축하합니다!</h2><p>유의어 테스트를 통과했습니다!</p></div>'+
+    '<div class="sc g">'+overallPct+'%</div>'+
+    '<div class="card"><h3>최종 결과</h3>'+
+    '<div class="sr"><span class="sl">전체 단어</span><span class="sv">'+this.allWords.length+'개</span></div>'+
+    '<div class="sr"><span class="sl">정복</span><span class="sv g">'+this.masteredWords.size+'개</span></div>'+
+    '<div class="sr"><span class="sl">성취도</span><span class="sv g">'+overallPct+'%</span></div>'+
+    '<div class="sr"><span class="sl">총 오답</span><span class="sv'+(this.wrongHistory.length>0?' r':' g')+'">'+this.wrongHistory.length+'회</span></div></div>'+
+    wlHtml+
+    '<button class="btn btn-accent" style="margin-top:20px" data-action="startFullTest">처음부터 다시</button>'+
+    '<button class="btn btn-ghost" data-action="showHome">홈으로</button></div>'
+  );this.toTop();
+};
+App.prototype.showConfetti=function(){
+  var c=document.createElement('div');c.className='conf';
+  var cols=['#8b5cf6','#f59e0b','#10b981','#3b82f6','#ec4899','#ef4444'];
+  for(var i=0;i<50;i++){var p=document.createElement('i');
+    var dur=2+Math.random()*2,delay=Math.random()*2;
+    p.style.cssText='animation:fall '+dur+'s '+delay+'s ease-in forwards;left:'+(Math.random()*100)+'%';
+    var sz=6+Math.random()*8;p.style.width=sz+'px';p.style.height=sz+'px';
+    p.style.borderRadius=Math.random()>.5?'50%':'2px';
+    p.style.background=cols[Math.floor(Math.random()*cols.length)];c.appendChild(p)}
+  document.body.appendChild(c);setTimeout(function(){if(c.parentNode)c.parentNode.removeChild(c)},5500);
+};
+new App();
+</script>
+</body>
+</html>
