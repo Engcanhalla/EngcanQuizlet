@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blank Generator - 영어 빈칸 채우기 생성기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:#f0f2f5;color:#1a1a2e;font-size:15px;}
+.app-header{background:linear-gradient(135deg,#1e3a5f,#2d6a9f);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+.app-header h1{font-size:22px;font-weight:700;}
+.app-header .subtitle{font-size:13px;opacity:.8;}
+.steps-bar{display:flex;background:#fff;border-bottom:1px solid #ddd;padding:0 16px;overflow-x:auto;}
+.step-tab{padding:13px 18px;cursor:pointer;font-size:14px;font-weight:600;color:#888;border-bottom:3px solid transparent;transition:.2s;white-space:nowrap;}
+.step-tab.active{color:#1e3a5f;border-bottom-color:#2d6a9f;}
+.step-tab.completed{color:#27ae60;}
+.step-tab.completed::after{content:' ✓';}
+.step-tab.disabled{pointer-events:none;opacity:.4;}
+.main-content{max-width:1400px;margin:0 auto;padding:16px;}
+.panel{background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:20px;margin-bottom:16px;display:none;}
+.panel.active{display:block;}
+.panel h2{font-size:17px;color:#1e3a5f;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #e8edf2;}
+.passage-tabs{display:flex;gap:4px;margin-bottom:0;}
+.passage-tab{padding:8px 16px;border-radius:6px 6px 0 0;cursor:pointer;font-size:14px;font-weight:600;background:#e8edf2;color:#888;border:1px solid #d0d7de;border-bottom:none;transition:.2s;position:relative;}
+.passage-tab.active{background:#fff;color:#1e3a5f;border-color:#2d6a9f;z-index:1;}
+.passage-tab.has-content::after{content:'';position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:#27ae60;}
+.passage-input{width:100%;min-height:180px;border:2px solid #2d6a9f;border-radius:0 8px 8px 8px;padding:14px;font-size:15px;line-height:1.8;resize:vertical;font-family:inherit;transition:.2s;display:none;}
+.passage-input.active{display:block;}
+.passage-input:focus{border-color:#1e3a5f;outline:none;box-shadow:0 0 0 3px rgba(45,106,159,.15);}
+.passage-status{font-size:14px;color:#666;margin-top:6px;padding:4px 0;}
+.passage-status .filled{color:#27ae60;font-weight:700;}
+.btn{padding:10px 20px;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:#2d6a9f;color:#fff;}.btn-primary:hover{background:#1e3a5f;}
+.btn-success{background:#27ae60;color:#fff;}.btn-success:hover{background:#1e8449;}
+.btn-warning{background:#f39c12;color:#fff;}.btn-warning:hover{background:#d68910;}
+.btn-danger{background:#e74c3c;color:#fff;}.btn-danger:hover{background:#c0392b;}
+.btn-outline{background:transparent;border:2px solid #2d6a9f;color:#2d6a9f;}.btn-outline:hover{background:#2d6a9f;color:#fff;}
+.btn-sm{padding:7px 14px;font-size:13px;}
+.input-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+.level-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.level-badge{display:inline-block;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:700;color:#fff;}
+.level-badge.easy{background:#27ae60;}.level-badge.medium{background:#f39c12;}.level-badge.hard{background:#e74c3c;}
+.blank-count{font-size:14px;color:#666;}
+.editor-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.word-select-area{line-height:2.4;padding:16px;background:#fafbfc;border-radius:8px;border:1px solid #e8edf2;max-height:520px;overflow-y:auto;}
+.sentence-block{margin-bottom:12px;padding:8px 10px;border-radius:6px;border-left:3px solid #d0d7de;}
+.sentence-block:hover{background:#f0f4f8;}
+.sentence-num{font-size:12px;color:#888;font-weight:700;margin-right:6px;}
+.word-token{display:inline-block;padding:3px 5px;margin:1px;border-radius:3px;cursor:pointer;transition:.15s;font-size:15px;user-select:none;}
+.word-token:hover{background:#dbeafe;}
+.word-token.blanked-easy{background:#d4edda;color:#155724;border:1px solid #a3d9b1;font-weight:600;}
+.word-token.blanked-medium{background:#fff3cd;color:#856404;border:1px solid #ffc107;font-weight:600;}
+.word-token.blanked-hard{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;font-weight:600;}
+.word-token.locked{opacity:.7;cursor:default;}
+.right-panel{background:#f8f9fa;border-radius:8px;border:1px solid #e8edf2;padding:16px;max-height:520px;overflow-y:auto;}
+.right-panel h3{font-size:15px;color:#1e3a5f;margin-bottom:10px;}
+.translation-item{padding:8px 10px;margin-bottom:6px;border-radius:6px;font-size:14px;line-height:1.7;border-left:3px solid #2d6a9f;background:#fff;}
+.translation-item .sentence-ref{font-size:12px;color:#888;font-weight:600;}
+.translation-item .kor-text{color:#333;margin-top:2px;min-height:22px;border:1px dashed #ccc;padding:3px 6px;border-radius:3px;font-size:14px;}
+.hint-item{padding:8px 10px;margin-bottom:6px;border-radius:6px;font-size:14px;line-height:1.7;border-left:3px solid #f39c12;background:#fff;}
+.trans-loading{color:#999;font-style:italic;font-size:14px;}
+.preview-tabs{display:flex;gap:8px;margin-bottom:0;}
+.preview-tab{padding:9px 18px;border-radius:6px 6px 0 0;cursor:pointer;font-size:14px;font-weight:600;background:#e8edf2;color:#666;border:1px solid #d0d7de;border-bottom:none;}
+.preview-tab.active{background:#1e3a5f;color:#fff;border-color:#1e3a5f;}
+.preview-frame{border:2px solid #1e3a5f;border-radius:0 8px 8px 8px;background:#fff;min-height:500px;overflow:auto;}
+.preview-inner{padding:20px;font-family:'Times New Roman','Malgun Gothic',serif;font-size:12pt;line-height:1.9;color:#1a1a1a;max-width:210mm;margin:0 auto;}
+.preview-inner .p-header{text-align:center;margin-bottom:12pt;padding-bottom:8pt;}
+.preview-inner .p-header h1{font-size:16pt;margin-bottom:2pt;}
+.preview-inner .p-header .info{font-size:10pt;color:#666;}
+.preview-inner .name-line{text-align:right;margin-bottom:10pt;font-size:11pt;}
+.preview-inner .name-line span{display:inline-block;border-bottom:1pt solid #333;width:120pt;margin-left:4pt;}
+.preview-inner .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16pt;}
+.preview-inner .col-left{padding-right:10pt;border-right:1pt solid #ddd;}
+.preview-inner .col-right{padding-left:10pt;font-size:11pt;color:#444;}
+.preview-inner .col-title{font-size:11pt;font-weight:bold;margin-bottom:8pt;padding-bottom:4pt;border-bottom:1pt solid #eee;}
+.preview-inner .psent{margin-bottom:6pt;font-size:12pt;}
+.preview-inner .psn{font-size:9pt;color:#888;font-weight:bold;margin-right:3pt;}
+.preview-inner .pblank{border-bottom:1.5pt solid #333;letter-spacing:2pt;font-family:monospace;padding:0 2pt;font-size:11pt;}
+.preview-inner .pfl{font-weight:bold;font-size:13pt;}
+.preview-inner .pans{font-weight:bold;border-radius:3pt;padding:1pt 4pt;font-size:12pt;}
+.preview-inner .pans-easy{background:#d4edda;color:#155724;border:1pt solid #a3d9b1;}
+.preview-inner .pans-medium{background:#fff3cd;color:#856404;border:1pt solid #ffc107;}
+.preview-inner .pans-hard{background:#f8d7da;color:#721c24;border:1pt solid #f5c6cb;}
+.preview-inner .rt-item{margin-bottom:5pt;font-size:10.5pt;line-height:1.7;padding:2pt 0;border-bottom:0.5pt dotted #ddd;}
+.preview-inner .rt-num{font-size:9pt;color:#888;font-weight:bold;}
+.preview-inner .passage-divider{font-size:9pt;font-weight:bold;margin:8pt 0 3pt;}
+.preview-inner .passage-hr{border:none;border-top:1pt dashed #aaa;margin:6pt 0;}
+.preview-inner .teacher-note{padding:8pt;margin-top:10pt;font-size:10pt;border-radius:4pt;}
+.export-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
+.file-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px;}
+#fileName{padding:9px 14px;border:2px solid #d0d7de;border-radius:6px;font-size:14px;width:260px;}
+.toast{position:fixed;top:20px;right:20px;padding:14px 22px;border-radius:8px;color:#fff;font-size:14px;font-weight:600;z-index:9999;transform:translateX(130%);transition:.3s;}
+.toast.show{transform:translateX(0);}
+.toast.success{background:#27ae60;}.toast.error{background:#e74c3c;}.toast.info{background:#2d6a9f;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;justify-content:center;align-items:center;}
+.modal-overlay.show{display:flex;}
+.modal{background:#fff;border-radius:12px;padding:24px;max-width:520px;width:92%;max-height:85vh;overflow-y:auto;}
+.modal h3{margin-bottom:12px;color:#1e3a5f;font-size:16px;}
+.ai-status{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#2d6a9f;font-weight:600;margin-left:8px;}
+.ai-spinner{display:inline-block;width:14px;height:14px;border:2px solid #2d6a9f;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.saved-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border:1px solid #e8edf2;border-radius:8px;margin-bottom:6px;background:#fafbfc;transition:.2s;}
+.saved-item:hover{border-color:#2d6a9f;background:#f0f4ff;}
+.saved-item .si-name{font-weight:600;font-size:14px;color:#1e3a5f;}
+.saved-item .si-date{font-size:12px;color:#888;}
+.saved-item .si-btns{display:flex;gap:4px;}
+@media(max-width:900px){.editor-layout,.preview-inner .two-col{grid-template-columns:1fr;}}
+@media print{
+  body{background:#fff!important;}
+  .app-header,.steps-bar,.main-content>.panel:not(#panel5),
+  .preview-tabs,.export-actions,.file-controls,#jsonOut,
+  .panel>h2,.panel>hr,.toast,.modal-overlay,#apiTestResult,
+  #savedList,.input-actions,.passage-tabs,.passage-input,.passage-status,
+  .no-print{display:none!important;}
+  #panel5{box-shadow:none!important;padding:0!important;margin:0!important;}
+  .preview-frame{border:none!important;border-radius:0!important;}
+  .preview-inner{padding:0!important;max-width:100%!important;}
+  .preview-inner .two-col{gap:12pt!important;}
+  .preview-inner .pans,.preview-inner .pans-easy,.preview-inner .pans-medium,.preview-inner .pans-hard,
+  .preview-inner .teacher-note{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+}
+</style>
+</head>
+<body>
+<div class="app-header">
+  <div><h1>Blank Generator</h1><div class="subtitle">영어 빈칸 채우기 문제 생성기</div></div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <input type="password" id="apiKeyInput" placeholder="Anthropic API Key" style="padding:7px 12px;border:none;border-radius:6px;font-size:13px;width:260px;background:rgba(255,255,255,.15);color:#fff;outline:none;" onfocus="this.type='text'" onblur="this.type='password'" oninput="saveApiKey()">
+    <button class="btn btn-outline" style="border-color:#fff;color:#fff;" onclick="showLoadModal()">📂 파일 불러오기</button>
+  </div>
+</div>
+<div class="steps-bar">
+  <div class="step-tab active" data-step="1" onclick="goToStep(1)">1. 지문 입력</div>
+  <div class="step-tab disabled" data-step="2" onclick="goToStep(2)">2. 쉬운 레벨</div>
+  <div class="step-tab disabled" data-step="3" onclick="goToStep(3)">3. 중간 레벨</div>
+  <div class="step-tab disabled" data-step="4" onclick="goToStep(4)">4. 심화 레벨</div>
+  <div class="step-tab disabled" data-step="5" onclick="goToStep(5)">5. 미리보기 / 저장</div>
+</div>
+<div class="main-content">
+
+  <!-- STEP 1 -->
+  <div class="panel active" id="panel1">
+    <h2>영어 지문 입력 <span style="font-size:13px;color:#888;font-weight:400;">(최대 5개 지문)</span></h2>
+    <div class="passage-tabs">
+      <div class="passage-tab active" data-pidx="0" onclick="switchPassageTab(0)">지문 1</div>
+      <div class="passage-tab" data-pidx="1" onclick="switchPassageTab(1)">지문 2</div>
+      <div class="passage-tab" data-pidx="2" onclick="switchPassageTab(2)">지문 3</div>
+      <div class="passage-tab" data-pidx="3" onclick="switchPassageTab(3)">지문 4</div>
+      <div class="passage-tab" data-pidx="4" onclick="switchPassageTab(4)">지문 5</div>
+    </div>
+    <textarea class="passage-input active" data-pidx="0" placeholder="지문 1을 입력하세요..."></textarea>
+    <textarea class="passage-input" data-pidx="1" placeholder="지문 2를 입력하세요..."></textarea>
+    <textarea class="passage-input" data-pidx="2" placeholder="지문 3을 입력하세요..."></textarea>
+    <textarea class="passage-input" data-pidx="3" placeholder="지문 4를 입력하세요..."></textarea>
+    <textarea class="passage-input" data-pidx="4" placeholder="지문 5를 입력하세요..."></textarea>
+    <div class="passage-status" id="passageStatus">지문을 최소 1개 이상 입력하세요.</div>
+    <div class="input-actions">
+      <button class="btn btn-primary" onclick="processText()">지문 분석 & 다음 단계 →</button>
+      <button class="btn btn-outline" onclick="loadSampleText()">샘플 텍스트</button>
+      <button class="btn btn-sm btn-warning" onclick="testAPI()">🔌 API 테스트</button>
+    </div>
+    <div id="apiTestResult" style="display:none;margin-top:8px;padding:12px;border-radius:8px;font-size:13px;line-height:1.6;word-break:break-all;"></div>
+    <hr style="margin:18px 0 12px;border-color:#e8edf2;">
+    <h2>💾 저장된 데이터</h2>
+    <div id="savedList"><p style="color:#999;font-size:14px;">로딩 중...</p></div>
+  </div>
+
+  <!-- STEP 2: EASY -->
+  <div class="panel" id="panel2">
+    <div class="level-header">
+      <div><span class="level-badge easy">쉬운 레벨</span> <span class="blank-count" id="easyCount">빈칸: 0개</span></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm btn-outline" onclick="clearLevel('easy')">초기화</button>
+        <button class="btn btn-sm btn-primary" onclick="goToStep(3)">중간 레벨로 →</button>
+      </div>
+    </div>
+    <p style="font-size:14px;color:#888;margin-bottom:12px;">빈칸으로 만들 단어를 클릭하세요. 오른쪽에 해석이 표시됩니다.</p>
+    <div class="editor-layout">
+      <div class="word-select-area" id="easyWords"></div>
+      <div class="right-panel">
+        <h3>문장 해석 <span id="transStatus"></span></h3>
+        <div style="margin-bottom:10px;"><button class="btn btn-sm btn-primary" onclick="runTranslate()" id="aiTransBtn" style="font-size:12px;padding:5px 12px;">🤖 AI 번역 실행</button></div>
+        <div id="easyTranslations"><p class="trans-loading">지문을 분석하면 해석이 표시됩니다.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: MEDIUM -->
+  <div class="panel" id="panel3">
+    <div class="level-header">
+      <div><span class="level-badge medium">중간 레벨</span> <span class="blank-count" id="mediumCount">빈칸: 0개</span></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm btn-outline" onclick="clearLevel('medium')">추가분 초기화</button>
+        <button class="btn btn-sm btn-primary" onclick="goToStep(4)">심화 레벨로 →</button>
+      </div>
+    </div>
+    <p style="font-size:14px;color:#888;margin-bottom:12px;"><span style="background:#d4edda;padding:2px 6px;border-radius:3px;">초록</span>=쉬운레벨(잠김). 추가 빈칸을 클릭하세요. 오른쪽에 빈칸 단어가 포함된 문장의 해석이 표시됩니다.</p>
+    <div class="editor-layout">
+      <div class="word-select-area" id="mediumWords"></div>
+      <div class="right-panel">
+        <h3>빈칸 문장 부분 해석</h3>
+        <div id="mediumHints"><p class="trans-loading">빈칸을 선택하면 해당 문장의 해석이 표시됩니다.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: HARD -->
+  <div class="panel" id="panel4">
+    <div class="level-header">
+      <div><span class="level-badge hard">심화 레벨</span> <span class="blank-count" id="hardCount">빈칸: 0개</span></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm btn-outline" onclick="clearLevel('hard')">추가분 초기화</button>
+        <button class="btn btn-sm btn-primary" onclick="goToStep(5)">미리보기 →</button>
+      </div>
+    </div>
+    <p style="font-size:14px;color:#888;margin-bottom:12px;"><span style="background:#d4edda;padding:2px 6px;border-radius:3px;">초록</span>=쉬운 <span style="background:#fff3cd;padding:2px 6px;border-radius:3px;">노랑</span>=중간(잠김). 추가 빈칸 선택. 첫 글자만 표시, 힌트 없음.</p>
+    <div class="editor-layout">
+      <div class="word-select-area" id="hardWords"></div>
+      <div class="right-panel">
+        <h3>심화 레벨 안내</h3>
+        <p style="color:#666;font-size:14px;line-height:1.8;">첫 글자만 표시되고 나머지는 빈칸입니다.<br>힌트·해석 없이 빈칸을 채워야 합니다.<br>출력 시 양쪽 모두 빈칸 지문으로 구성됩니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5: PREVIEW & SAVE -->
+  <div class="panel" id="panel5">
+    <h2>미리보기 &amp; 저장</h2>
+    <div class="preview-tabs">
+      <div class="preview-tab active" onclick="switchPreview('easy')">쉬운 레벨</div>
+      <div class="preview-tab" onclick="switchPreview('medium')">중간 레벨</div>
+      <div class="preview-tab" onclick="switchPreview('hard')">심화 레벨</div>
+      <div class="preview-tab" onclick="switchPreview('teacher')">교사용 답안</div>
+    </div>
+    <div class="preview-frame"><div class="preview-inner" id="previewInner"></div></div>
+    <div class="export-actions no-print">
+      <button class="btn btn-success btn-sm" onclick="exportHTML('easy')">📥 쉬운 HTML</button>
+      <button class="btn btn-success btn-sm" onclick="exportHTML('medium')">📥 중간 HTML</button>
+      <button class="btn btn-success btn-sm" onclick="exportHTML('hard')">📥 심화 HTML</button>
+      <button class="btn btn-success btn-sm" onclick="exportHTML('all')">📥 전체 HTML</button>
+      <button class="btn btn-warning btn-sm" onclick="exportHTML('teacher')">📥 교사용 HTML</button>
+    </div>
+    <div class="export-actions no-print" style="margin-top:6px;">
+      <button class="btn btn-outline btn-sm" onclick="printLevel('easy')">🖨️ 쉬운 인쇄</button>
+      <button class="btn btn-outline btn-sm" onclick="printLevel('medium')">🖨️ 중간 인쇄</button>
+      <button class="btn btn-outline btn-sm" onclick="printLevel('hard')">🖨️ 심화 인쇄</button>
+      <button class="btn btn-outline btn-sm" onclick="printLevel('all')">🖨️ 전체 인쇄</button>
+      <button class="btn btn-outline btn-sm" onclick="printLevel('teacher')">🖨️ 교사용 인쇄</button>
+    </div>
+    <hr style="margin:16px 0;border-color:#e8edf2;" class="no-print">
+    <h2>💾 데이터 저장</h2>
+    <div class="file-controls">
+      <input type="text" id="fileName" placeholder="저장 이름 (예: Lesson5)">
+      <button class="btn btn-primary btn-sm" onclick="saveToStorage()">💾 저장</button>
+      <button class="btn btn-success btn-sm" onclick="downloadJSON()">📥 JSON 다운로드</button>
+    </div>
+    <div id="jsonOut" style="display:none;margin-top:12px;background:#f8f9fa;border:1px solid #e8edf2;border-radius:8px;padding:16px;">
+      <textarea id="jsonArea" style="width:100%;height:120px;font-family:monospace;font-size:11px;border:1px solid #d0d7de;border-radius:6px;padding:8px;resize:vertical;" readonly></textarea>
+      <button class="btn btn-sm btn-primary" style="margin-top:6px;" onclick="copyField('jsonArea')">📋 복사</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- LOAD MODAL -->
+<div class="modal-overlay" id="loadModal">
+  <div class="modal">
+    <h3>📂 파일 불러오기</h3>
+    <label class="btn btn-primary btn-sm" style="cursor:pointer;margin-bottom:12px;">📂 로컬 JSON 파일 선택 <input type="file" accept=".json" style="display:none;" onchange="loadFromFile(event)"></label>
+    <button class="btn btn-sm btn-danger" style="margin-left:8px;" onclick="closeLoadModal()">닫기</button>
+    <hr style="margin:14px 0;border-color:#e8edf2;">
+    <p style="font-size:14px;color:#666;margin-bottom:6px;">또는 JSON 텍스트 붙여넣기:</p>
+    <textarea id="jsonPaste" style="width:100%;height:80px;font-family:monospace;font-size:12px;border:1px solid #d0d7de;border-radius:6px;padding:8px;resize:vertical;" placeholder="JSON 텍스트를 여기에 붙여넣으세요..."></textarea>
+    <button class="btn btn-sm btn-success" style="margin-top:6px;" onclick="loadFromPaste()">붙여넣기로 불러오기</button>
+  </div>
+</div>
+
+<script>
+/* ============ STATE ============ */
+var STATE = {
+  passages:['','','','',''], activePassage:0, passageCount:0, originalText:'',
+  sentences:[], translations:{},
+  blanks:{easy:new Set(),medium:new Set(),hard:new Set()},
+  hints:{}, currentStep:1, currentPreview:'easy'
+};
+
+/* ============ STORAGE POLYFILL (localStorage fallback for window.storage) ============ */
+if(!window.storage){
+  window.storage = {
+    async set(key, value){ localStorage.setItem(key, value); },
+    async get(key){ var v=localStorage.getItem(key); return v!==null ? {value:v} : null; },
+    async delete(key){ localStorage.removeItem(key); },
+    async list(prefix){
+      var keys=[];
+      for(var i=0;i<localStorage.length;i++){
+        var k=localStorage.key(i);
+        if(k && k.startsWith(prefix)) keys.push(k);
+      }
+      return {keys:keys};
+    }
+  };
+}
+
+/* ============ API KEY ============ */
+var EMBEDDED_API_KEY = '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';
+function getApiKey(){ return EMBEDDED_API_KEY || (document.getElementById('apiKeyInput').value||'').trim(); }
+function saveApiKey(){ try{ localStorage.setItem('blank_gen_api_key', getApiKey()); }catch(e){} }
+function loadApiKey(){
+  if(EMBEDDED_API_KEY){ document.getElementById('apiKeyInput').value=EMBEDDED_API_KEY; return; }
+  try{ var k=localStorage.getItem('blank_gen_api_key'); if(k) document.getElementById('apiKeyInput').value=k; }catch(e){}
+}
+
+/* ============ INIT ============ */
+document.addEventListener('DOMContentLoaded', function(){
+  loadApiKey();
+  document.querySelectorAll('.passage-input').forEach(function(ta){ ta.addEventListener('input', updatePassageStatus); });
+  updatePassageStatus();
+  goToStep(1);
+  loadSavedList();
+});
+
+/* ============ PASSAGE TABS ============ */
+function switchPassageTab(idx){
+  document.querySelectorAll('.passage-input').forEach(function(ta){ if(ta.classList.contains('active')) STATE.passages[+ta.dataset.pidx]=ta.value; ta.classList.remove('active'); });
+  document.querySelectorAll('.passage-tab').forEach(function(t){ t.classList.remove('active'); });
+  STATE.activePassage=idx;
+  document.querySelector('.passage-tab[data-pidx="'+idx+'"]').classList.add('active');
+  document.querySelector('.passage-input[data-pidx="'+idx+'"]').classList.add('active');
+  updatePassageStatus();
+}
+function updatePassageStatus(){
+  document.querySelectorAll('.passage-input').forEach(function(ta){ STATE.passages[+ta.dataset.pidx]=ta.value; });
+  document.querySelectorAll('.passage-tab').forEach(function(t){ t.classList.toggle('has-content', STATE.passages[+t.dataset.pidx].trim().length>0); });
+  var filled=STATE.passages.filter(function(p){return p.trim();}).length;
+  document.getElementById('passageStatus').innerHTML = filled>0 ? '<span class="filled">'+filled+'개 지문</span> 입력됨' : '지문을 최소 1개 이상 입력하세요.';
+}
+
+/* ============ NAV ============ */
+function goToStep(n){
+  if(n>1 && STATE.sentences.length===0){ showToast('먼저 지문을 입력하세요.','error'); return; }
+  STATE.currentStep=n;
+  document.querySelectorAll('.step-tab').forEach(function(t){ var s=+t.dataset.step; t.classList.toggle('active',s===n); t.classList.toggle('completed',s<n); t.classList.toggle('disabled',s>1&&STATE.sentences.length===0); if(STATE.sentences.length>0) t.classList.remove('disabled'); });
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('panel'+n).classList.add('active');
+  if(n===2) renderWordSelector('easy');
+  if(n===3){ renderWordSelector('medium'); renderMediumHints(); }
+  if(n===4) renderWordSelector('hard');
+  if(n===5){ switchPreview(STATE.currentPreview); autoSaveToStorage(); }
+}
+
+/* ============ TEXT PROCESSING ============ */
+function processText(){
+  document.querySelectorAll('.passage-input').forEach(function(ta){ STATE.passages[+ta.dataset.pidx]=ta.value; });
+  var fp=STATE.passages.map(function(p,i){return{text:p.trim(),idx:i};}).filter(function(p){return p.text.length>0;});
+  if(fp.length===0){ showToast('지문을 최소 1개 이상 입력하세요.','error'); return; }
+  STATE.passageCount=fp.length;
+  STATE.originalText=fp.map(function(p){return p.text;}).join('\n\n');
+  STATE.sentences=[]; STATE.blanks={easy:new Set(),medium:new Set(),hard:new Set()}; STATE.hints={}; STATE.translations={};
+  fp.forEach(function(p){ var sents=p.text.match(/[^.!?]*[.!?]+/g)||[p.text]; sents.forEach(function(s){ var tr=s.trim(); if(!tr) return; var words=tr.split(/\s+/).map(function(w,wi){return{word:w,index:wi};}); STATE.sentences.push({text:tr,words:words,passageIdx:p.idx}); }); });
+  STATE.sentences.forEach(function(s,i){ STATE.translations[i]='(🤖 AI 번역 버튼을 눌러주세요)'; });
+  showToast('지문 분석 완료! '+STATE.sentences.length+'개 문장','success');
+  goToStep(2);
+  runTranslate();
+}
+function loadSampleText(){
+  var s=['The concept of sustainability has become increasingly important in modern society. People are beginning to realize that our natural resources are limited and must be managed carefully. Environmental scientists have warned that deforestation, pollution, and climate change pose serious threats to the planet.','In response, many governments have implemented policies aimed at reducing carbon emissions and promoting renewable energy sources. Education plays a vital role in fostering environmental awareness among younger generations. By teaching children about the importance of conservation, we can create a more sustainable future for all.'];
+  s.forEach(function(t,i){ STATE.passages[i]=t; var ta=document.querySelector('.passage-input[data-pidx="'+i+'"]'); if(ta) ta.value=t; });
+  updatePassageStatus(); showToast('샘플 텍스트 2개 지문 로드됨','info');
+}
+
+/* ============ AI TRANSLATION ============ */
+async function runTranslate(){
+  if(STATE.sentences.length===0){ showToast('먼저 지문을 분석하세요.','error'); return; }
+  var btn=document.getElementById('aiTransBtn');
+  var st=document.getElementById('transStatus');
+  var outEl=document.getElementById('easyTranslations');
+
+  if(btn){btn.disabled=true;btn.textContent='⏳ 번역 중...';}
+  if(st) st.innerHTML='<span class="ai-status"><span class="ai-spinner"></span>번역 중...</span>';
+  outEl.innerHTML='<p class="trans-loading">🤖 API 호출 중...</p>';
+
+  var numbered=STATE.sentences.map(function(s,i){return(i+1)+'. '+s.text;}).join('\n');
+
+  try{
+    // Step 1: Make API call
+    outEl.innerHTML='<p class="trans-loading">📡 Step 1: API 요청 전송 중...</p>';
+
+    var apiKey = getApiKey();
+    if(!apiKey){ showToast('API Key를 입력하세요.','error'); throw new Error('API Key가 설정되지 않았습니다.'); }
+
+    var response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        messages: [
+          { role: "user", content: "아래 영어 문장들을 자연스러운 한국어로 번역해주세요. 반드시 JSON 배열로만 응답하세요. 백틱이나 설명 없이 순수 JSON 배열만 반환.\n예: [\"번역1\", \"번역2\"]\n\n" + numbered }
+        ],
+      })
+    });
+
+    // Step 2: Parse response
+    outEl.innerHTML='<p class="trans-loading">📡 Step 2: 응답 수신 완료 (HTTP '+response.status+'), 파싱 중...</p>';
+
+    var data = await response.json();
+
+    // Step 3: Check for errors
+    if(data.error){
+      throw new Error("API 오류: " + (data.error.message || JSON.stringify(data.error)));
+    }
+
+    // Step 4: Extract text
+    outEl.innerHTML='<p class="trans-loading">📡 Step 3: 텍스트 추출 중...</p>';
+
+    var fullResponse = data.content
+      .map(function(item) { return item.type === "text" ? item.text : ""; })
+      .filter(Boolean)
+      .join("\n");
+
+    if(!fullResponse){
+      throw new Error("응답 텍스트 비어있음. content: " + JSON.stringify(data.content).substring(0,200));
+    }
+
+    // Step 5: Parse JSON array
+    var clean = fullResponse.replace(/```json\s?|```/g, "").trim();
+    var parsed = JSON.parse(clean);
+
+    if(!Array.isArray(parsed)){
+      throw new Error("배열이 아님: " + typeof parsed);
+    }
+
+    // Step 6: Apply
+    parsed.forEach(function(t,i){ if(i<STATE.sentences.length) STATE.translations[i]=t; });
+    showToast('AI 번역 완료! ('+parsed.length+'개)','success');
+    if(st) st.innerHTML='<span style="color:#27ae60;font-size:13px;font-weight:600;">✅ 완료</span>';
+    renderTranslations();
+
+  }catch(err){
+    console.error('Translation error:', err);
+    showToast('번역 실패','error');
+    if(st) st.innerHTML='<span style="color:#e74c3c;font-size:12px;">❌</span>';
+
+    // Show detailed error + manual input fields
+    STATE.sentences.forEach(function(s,i){ STATE.translations[i]='(직접 입력하세요)'; });
+    outEl.innerHTML =
+      '<div style="background:#fff1f2;border:1px solid #fda4af;border-radius:8px;padding:14px;font-size:13px;color:#881337;line-height:1.7;margin-bottom:10px;word-break:break-all;">'
+      + '<b>❌ 오류:</b> ' + escH(String(err.message))
+      + '</div>'
+      + STATE.sentences.map(function(s,i){
+          return '<div class="translation-item"><div class="sentence-ref">['+(i+1)+'] '+escH(s.text.substring(0,50))+(s.text.length>50?'…':'')+'</div>'
+            + '<div class="kor-text" contenteditable="true" oninput="STATE.translations['+i+']=this.innerText">(직접 입력하세요)</div></div>';
+        }).join('');
+  }
+  if(btn){btn.disabled=false;btn.textContent='🤖 AI 번역 실행';}
+}
+function renderTranslations(){
+  var el=document.getElementById('easyTranslations'); if(!el) return;
+  el.innerHTML=STATE.sentences.map(function(s,i){
+    return '<div class="translation-item"><div class="sentence-ref">['+(i+1)+'] '+escH(s.text.substring(0,50))+(s.text.length>50?'…':'')+'</div><div class="kor-text" contenteditable="true" oninput="STATE.translations['+i+']=this.innerText">'+escH(STATE.translations[i]||'')+'</div></div>';
+  }).join('');
+}
+
+/* ============ MEDIUM HINTS: Partial translations for sentences with blanks ============ */
+function renderMediumHints(){
+  var el=document.getElementById('mediumHints');
+  var allBlanks=new Set([].concat([...STATE.blanks.easy],[...STATE.blanks.medium]));
+  if(allBlanks.size===0){ el.innerHTML='<p class="trans-loading">빈칸을 선택하면 해당 문장의 해석이 표시됩니다.</p>'; return; }
+  // Find which sentences have medium-level blanks (new ones added at this step)
+  var sentIdxSet=new Set();
+  STATE.blanks.medium.forEach(function(key){ sentIdxSet.add(parseInt(key.split('-')[0])); });
+  // Also include easy blank sentences for context
+  STATE.blanks.easy.forEach(function(key){ sentIdxSet.add(parseInt(key.split('-')[0])); });
+  var sortedIdx=[...sentIdxSet].sort(function(a,b){return a-b;});
+  if(sortedIdx.length===0){ el.innerHTML='<p class="trans-loading">빈칸을 선택하면 해당 문장의 해석이 표시됩니다.</p>'; return; }
+  el.innerHTML=sortedIdx.map(function(si){
+    var trans=STATE.translations[si]||'(해석 없음)';
+    return '<div class="hint-item" style="border-left-color:#f39c12;"><div style="font-size:12px;color:#888;font-weight:600;">['+(si+1)+'] 해석</div><div style="color:#333;font-size:14px;margin-top:2px;">'+escH(trans)+'</div></div>';
+  }).join('');
+}
+
+/* ============ WORD SELECTOR ============ */
+function renderWordSelector(level){
+  var el=document.getElementById(level+'Words'), html='', lastP=-1;
+  STATE.sentences.forEach(function(sent,si){
+    if(sent.passageIdx!==undefined && sent.passageIdx!==lastP){ if(lastP!==-1) html+='<hr style="border:none;border-top:2px dashed #2d6a9f;margin:10px 0;">'; html+='<div style="display:inline-block;font-size:12px;font-weight:700;color:#2d6a9f;background:#e8f0fe;padding:3px 10px;border-radius:4px;margin-bottom:4px;">지문 '+(sent.passageIdx+1)+'</div>'; lastP=sent.passageIdx; }
+    var wh=sent.words.map(function(wObj,wi){
+      var key=si+'-'+wi, cls='word-token', locked=false;
+      if(level==='easy'){ if(STATE.blanks.easy.has(key)) cls+=' blanked-easy'; }
+      else if(level==='medium'){ if(STATE.blanks.easy.has(key)){cls+=' blanked-easy locked';locked=true;} else if(STATE.blanks.medium.has(key)) cls+=' blanked-medium'; }
+      else{ if(STATE.blanks.easy.has(key)){cls+=' blanked-easy locked';locked=true;} else if(STATE.blanks.medium.has(key)){cls+=' blanked-medium locked';locked=true;} else if(STATE.blanks.hard.has(key)) cls+=' blanked-hard'; }
+      var ck=locked?'':' onclick="toggleBlank(\''+key+'\',\''+level+'\')"';
+      return '<span class="'+cls+'"'+ck+'>'+escH(wObj.word)+'</span>';
+    }).join(' ');
+    html+='<div class="sentence-block"><span class="sentence-num">['+(si+1)+']</span>'+wh+'</div>';
+  });
+  el.innerHTML=html; updateCounts();
+}
+function toggleBlank(key,level){
+  var s=STATE.blanks[level]; if(s.has(key)) s.delete(key); else s.add(key);
+  renderWordSelector(level);
+  if(level==='easy') renderTranslations();
+  if(level==='medium') renderMediumHints();
+}
+function clearLevel(level){ STATE.blanks[level]=new Set(); renderWordSelector(level); if(level==='medium') renderMediumHints(); showToast(level+' 초기화 완료','info'); }
+function updateCounts(){
+  var e=STATE.blanks.easy.size,m=STATE.blanks.medium.size,h=STATE.blanks.hard.size;
+  document.getElementById('easyCount').textContent='빈칸: '+e+'개';
+  document.getElementById('mediumCount').textContent='빈칸: '+(e+m)+'개 (쉬운'+e+' + 추가'+m+')';
+  document.getElementById('hardCount').textContent='빈칸: '+(e+m+h)+'개 (쉬운'+e+' + 중간'+m+' + 추가'+h+')';
+}
+
+/* ============ PREVIEW ============ */
+function switchPreview(mode){
+  STATE.currentPreview=mode;
+  document.querySelectorAll('.preview-tab').forEach(function(t,i){ t.classList.toggle('active',['easy','medium','hard','teacher'][i]===mode); });
+  document.getElementById('previewInner').innerHTML = mode==='teacher' ? buildTeacherHTML() : buildLevelHTML(mode,false);
+}
+
+function buildLevelHTML(level,isTeacher){
+  var blanks=new Set([...STATE.blanks.easy]), showFL=true, rc='translation';
+  if(level==='medium'){ STATE.blanks.medium.forEach(function(k){blanks.add(k);}); rc='partial-trans'; }
+  if(level==='hard'){ STATE.blanks.medium.forEach(function(k){blanks.add(k);}); STATE.blanks.hard.forEach(function(k){blanks.add(k);}); showFL=false; rc='full'; }
+  var lc=level==='easy'?'#27ae60':level==='medium'?'#f39c12':'#e74c3c';
+  var ll=level==='easy'?'Easy (쉬운)':level==='medium'?'Medium (중간)':'Hard (심화)';
+  var nl=isTeacher?'':'<div class="name-line">Name: <span></span> Class: <span style="width:60pt;"></span> Date: <span style="width:80pt;"></span></div>';
+  var hdr='<div class="p-header" style="border-bottom:2pt solid '+lc+';"><h1 style="color:'+lc+';">Fill in the Blanks — '+ll+(isTeacher?' [ANSWER KEY]':'')+'</h1><div class="info">빈칸: '+blanks.size+'개 | 문장: '+STATE.sentences.length+'개</div></div>'+nl;
+
+  // HARD: full-width two-column passage, no hints
+  if(rc==='full'){
+    var half=Math.ceil(STATE.sentences.length/2);
+    return hdr+'<div class="two-col"><div class="col-left"><div class="col-title" style="color:'+lc+';">Passage (1~'+half+')</div>'+buildSentCol(STATE.sentences.slice(0,half),0,blanks,showFL,isTeacher,lc)+'</div><div class="col-right"><div class="col-title" style="color:'+lc+';">Passage ('+(half+1)+'~'+STATE.sentences.length+')</div>'+buildSentCol(STATE.sentences.slice(half),half,blanks,showFL,isTeacher,lc)+'</div></div>';
+  }
+  var rightHTML = rc==='partial-trans' ? buildPartialTransCol(blanks,lc) : buildRightCol(rc,blanks,lc);
+  var rightTitle = rc==='translation' ? 'Korean Translation (해석)' : 'Partial Translation (부분 해석)';
+  return hdr+'<div class="two-col"><div class="col-left"><div class="col-title" style="color:'+lc+';">'+(isTeacher?'Passage (Answers)':'Passage')+'</div>'+buildSentCol(STATE.sentences,0,blanks,showFL,isTeacher,lc)+'</div><div class="col-right"><div class="col-title" style="color:'+lc+';">'+rightTitle+'</div>'+rightHTML+'</div></div>';
+}
+
+function buildSentCol(sents,startIdx,blanks,showFL,isTeacher,lc){
+  var html='',lastPI=-1;
+  sents.forEach(function(sent,li){ var si=startIdx+li;
+    if(sent.passageIdx!==undefined && sent.passageIdx!==lastPI){ if(lastPI!==-1) html+='<hr class="passage-hr">'; html+='<div class="passage-divider" style="color:'+lc+';">Passage '+(sent.passageIdx+1)+'</div>'; lastPI=sent.passageIdx; }
+    var sh='<div class="psent"><span class="psn">['+(si+1)+']</span> ';
+    sent.words.forEach(function(wObj,wi){
+      var key=si+'-'+wi, cl=wObj.word.replace(/[^a-zA-Z']/g,''), pu=wObj.word.replace(/[a-zA-Z']/g,'');
+      if(blanks.has(key) && cl.length>0){
+        if(isTeacher){ var ac=STATE.blanks.hard.has(key)?'pans-hard':STATE.blanks.medium.has(key)?'pans-medium':'pans-easy'; sh+='<span class="pans '+ac+'">'+escH(cl)+'</span>'+escH(pu)+' '; }
+        else{
+          var us='_'.repeat(Math.max(cl.length,4));
+          var fl=(showFL && cl.length>0) ? '<span class="pfl" style="color:'+lc+';">'+escH(cl[0])+'</span>' : '';
+          sh+=fl+'<span class="pblank">'+us+'</span>'+escH(pu)+' ';
+        }
+      } else { sh+=escH(wObj.word)+' '; }
+    });
+    sh+='</div>'; html+=sh;
+  }); return html;
+}
+
+function buildRightCol(rc,blanks,lc){
+  if(rc==='translation') return STATE.sentences.map(function(s,i){ return '<div class="rt-item"><span class="rt-num">['+(i+1)+']</span> '+escH(STATE.translations[i]||'(번역 없음)')+'</div>'; }).join('');
+  return '';
+}
+
+function buildPartialTransCol(blanks,lc){
+  // Show translations only for sentences that contain blanked words
+  var sentSet=new Set();
+  blanks.forEach(function(key){ sentSet.add(parseInt(key.split('-')[0])); });
+  var sorted=[...sentSet].sort(function(a,b){return a-b;});
+  return sorted.map(function(si){
+    return '<div class="rt-item"><span class="rt-num">['+(si+1)+']</span> '+escH(STATE.translations[si]||'(해석 없음)')+'</div>';
+  }).join('');
+}
+
+function buildTeacherHTML(){
+  var html='';
+  ['easy','medium','hard'].forEach(function(level){
+    var lc=level==='easy'?'#27ae60':level==='medium'?'#f39c12':'#e74c3c', ll=level==='easy'?'Easy':level==='medium'?'Medium':'Hard';
+    var blanks=new Set([...STATE.blanks.easy]);
+    if(level==='medium') STATE.blanks.medium.forEach(function(k){blanks.add(k);});
+    if(level==='hard'){ STATE.blanks.medium.forEach(function(k){blanks.add(k);}); STATE.blanks.hard.forEach(function(k){blanks.add(k);}); }
+    html+='<div style="border:2px solid '+lc+';border-radius:8px;padding:16px;margin-bottom:20px;"><div class="p-header" style="border-bottom:2pt solid '+lc+';margin-bottom:10pt;"><h1 style="color:'+lc+';">'+ll+' — ANSWER KEY</h1><div class="info">빈칸: '+blanks.size+'개</div></div>';
+    if(level==='hard'){
+      var half=Math.ceil(STATE.sentences.length/2);
+      html+='<div class="two-col"><div class="col-left"><div class="col-title" style="color:'+lc+';">정답 (1~'+half+')</div>'+buildSentCol(STATE.sentences.slice(0,half),0,blanks,false,true,lc)+'</div><div class="col-right"><div class="col-title" style="color:'+lc+';">정답 ('+(half+1)+'~'+STATE.sentences.length+')</div>'+buildSentCol(STATE.sentences.slice(half),half,blanks,false,true,lc)+'</div></div>';
+    } else {
+      var rt=level==='easy'?'translation':'partial-trans';
+      var rightHTML=rt==='partial-trans'?buildPartialTransCol(blanks,lc):buildRightCol(rt,blanks,lc);
+      html+='<div class="two-col"><div class="col-left"><div class="col-title" style="color:'+lc+';">정답</div>'+buildSentCol(STATE.sentences,0,blanks,false,true,lc)+'</div><div class="col-right"><div class="col-title" style="color:'+lc+';">'+(level==='easy'?'해석':'부분 해석')+'</div>'+rightHTML+'</div></div>';
+    }
+    html+='<div class="teacher-note" style="background:#e8f4fd;border:1pt solid #2d6a9f;border-radius:4pt;padding:8pt;margin-top:10pt;font-size:10pt;color:#1e3a5f;"><b>범례:</b> <span style="background:#d4edda;padding:1px 6px;border-radius:3px;">초록=쉬운</span> <span style="background:#fff3cd;padding:1px 6px;border-radius:3px;">노랑=중간</span> <span style="background:#f8d7da;padding:1px 6px;border-radius:3px;">빨강=심화</span></div></div>';
+  }); return html;
+}
+
+/* ============ PRINT (미리보기 전환 → 인쇄/PDF 저장) ============ */
+function printLevel(mode){
+  if(STATE.sentences.length===0){ showToast('데이터가 없습니다.','error'); return; }
+  if(mode==='all'){
+    document.getElementById('previewInner').innerHTML =
+      ['easy','medium','hard'].map(function(lv){ return '<div style="page-break-after:always;">'+buildLevelHTML(lv,false)+'</div>'; }).join('');
+  } else {
+    switchPreview(mode);
+  }
+  setTimeout(function(){ window.print(); }, 300);
+}
+
+/* ============ EXPORT HTML (auto-learn-generator 방식 Blob 다운로드) ============ */
+function exportHTML(mode){
+  if(STATE.sentences.length===0){ showToast('데이터가 없습니다.','error'); return; }
+  var fn=document.getElementById('fileName').value.trim()||'blank-test';
+  var body;
+  if(mode==='all'){
+    body=['easy','medium','hard'].map(function(lv){return '<div style="page-break-after:always;">'+buildLevelHTML(lv,false)+'</div>';}).join('');
+  }else if(mode==='teacher'){
+    body=buildTeacherHTML();
+  }else{
+    body=buildLevelHTML(mode,false);
+  }
+  var html=buildExportPage(body,fn,mode);
+  var dateStr=new Date().toISOString().slice(0,10);
+  var label=mode==='teacher'?'교사용':mode==='all'?'전체':'학생용_'+mode;
+
+  var blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download=fn.replace(/[\\/:*?"<>|]/g,'_')+'_'+label+'_'+dateStr+'.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function buildExportPage(body,title,mode){
+  var css='@page{size:A4;margin:15mm;}*{margin:0;padding:0;box-sizing:border-box;}body{font-family:"Times New Roman","Malgun Gothic",serif;font-size:12pt;color:#1a1a1a;line-height:1.9;padding:15mm;max-width:210mm;margin:0 auto;}.p-header{text-align:center;margin-bottom:12pt;padding-bottom:8pt;}.p-header h1{font-size:16pt;margin-bottom:2pt;}.p-header .info{font-size:10pt;color:#666;}.name-line{text-align:right;margin-bottom:10pt;font-size:11pt;}.name-line span{display:inline-block;border-bottom:1pt solid #333;width:120pt;margin-left:4pt;}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16pt;}.col-left{padding-right:10pt;border-right:1pt solid #ddd;}.col-right{padding-left:10pt;font-size:11pt;color:#444;}.col-title{font-size:11pt;font-weight:bold;margin-bottom:8pt;padding-bottom:4pt;border-bottom:1pt solid #eee;}.psent{margin-bottom:6pt;font-size:12pt;}.psn{font-size:9pt;color:#888;font-weight:bold;margin-right:3pt;}.pblank{border-bottom:1.5pt solid #333;letter-spacing:2pt;font-family:monospace;padding:0 2pt;}.pfl{font-weight:bold;font-size:13pt;}.pans{font-weight:bold;border-radius:3pt;padding:0 4pt;font-size:12pt;}.pans-easy{background:#d4edda;color:#155724;border:1pt solid #a3d9b1;}.pans-medium{background:#fff3cd;color:#856404;border:1pt solid #ffc107;}.pans-hard{background:#f8d7da;color:#721c24;border:1pt solid #f5c6cb;}.rt-item{margin-bottom:5pt;font-size:10.5pt;line-height:1.7;padding:2pt 0;border-bottom:0.5pt dotted #ddd;}.rt-num{font-size:9pt;color:#888;font-weight:bold;}.passage-divider{font-size:9pt;font-weight:bold;margin:6pt 0 2pt;}.passage-hr{border:none;border-top:1pt dashed #aaa;margin:6pt 0;}.teacher-note{padding:8pt;margin-top:10pt;font-size:10pt;border-radius:4pt;}@media print{body{padding:0;}}';
+  return '<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>'+escH(title)+'</title>\n<style>'+css+'</style>\n</head>\n<body>\n'+body+'\n</body>\n</html>';
+}
+
+/* ============ JSON DOWNLOAD (Blob 방식) ============ */
+function downloadJSON(){
+  if(STATE.sentences.length===0){ showToast('데이터 없음','error'); return; }
+  var fn=document.getElementById('fileName').value.trim()||'blank-test';
+  var json=JSON.stringify(buildSaveData(),null,2);
+  var dateStr=new Date().toISOString().slice(0,10);
+
+  var blob=new Blob([json],{type:'application/json;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download=fn.replace(/[\\/:*?"<>|]/g,'_')+'_'+dateStr+'.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function copyField(id){
+  var ta=document.getElementById(id);
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(ta.value).then(function(){showToast('📋 복사됨!','success');}).catch(function(){ ta.select(); try{document.execCommand('copy');showToast('📋 복사됨!','success');}catch(e){} });
+  }else{ ta.select(); try{document.execCommand('copy');showToast('📋 복사됨!','success');}catch(e){} }
+}
+
+/* ============ STORAGE (window.storage) ============ */
+function buildSaveData(){
+  return {
+    version:'3.0', savedAt:new Date().toISOString(),
+    passages:STATE.passages, originalText:STATE.originalText,
+    sentences:STATE.sentences, translations:STATE.translations,
+    blanks:{easy:[...STATE.blanks.easy],medium:[...STATE.blanks.medium],hard:[...STATE.blanks.hard]},
+    hints:STATE.hints
+  };
+}
+
+async function saveToStorage(){
+  var fn=document.getElementById('fileName').value.trim();
+  if(!fn){ showToast('저장 이름을 입력하세요.','error'); return; }
+  if(STATE.sentences.length===0){ showToast('데이터 없음','error'); return; }
+  try{
+    await window.storage.set('blank:'+fn, JSON.stringify(buildSaveData()));
+    showToast('💾 "'+fn+'" 저장 완료!','success');
+    loadSavedList();
+  }catch(e){ console.error(e); showToast('저장 실패: '+e.message,'error'); }
+}
+
+async function autoSaveToStorage(){
+  if(STATE.sentences.length===0) return;
+  try{
+    await window.storage.set('blank:__autosave__', JSON.stringify(buildSaveData()));
+  }catch(e){ console.log('Autosave failed:',e); }
+}
+
+async function loadSavedList(){
+  var el=document.getElementById('savedList');
+  try{
+    var result=await window.storage.list('blank:');
+    var keys=result.keys||[];
+    if(keys.length===0){ el.innerHTML='<p style="color:#999;font-size:14px;">저장된 데이터가 없습니다.</p>'; return; }
+    var html='';
+    for(var i=0;i<keys.length;i++){
+      var key=keys[i];
+      var displayName=key.replace('blank:','');
+      if(displayName==='__autosave__') displayName='⏱ 자동저장';
+      html+='<div class="saved-item"><div><div class="si-name">'+escH(displayName)+'</div></div><div class="si-btns">'
+        +'<button class="btn btn-sm btn-primary" onclick="loadFromStorage(\''+escH(key)+'\')">불러오기</button>'
+        +'<button class="btn btn-sm btn-success" onclick="downloadFromStorage(\''+escH(key)+'\')">📥 다운로드</button>'
+        +'<button class="btn btn-sm btn-danger" onclick="deleteFromStorage(\''+escH(key)+'\')">삭제</button>'
+        +'</div></div>';
+    }
+    el.innerHTML=html;
+  }catch(e){
+    console.error('Storage list error:',e);
+    el.innerHTML='<p style="color:#999;font-size:14px;">저장소를 사용할 수 없습니다.</p>';
+  }
+}
+
+async function loadFromStorage(key){
+  try{
+    var result=await window.storage.get(key);
+    if(!result || !result.value){ showToast('데이터를 찾을 수 없습니다.','error'); return; }
+    applyLoadedData(JSON.parse(result.value));
+    showToast('불러오기 완료!','success');
+  }catch(e){ showToast('불러오기 실패: '+e.message,'error'); }
+}
+
+async function downloadFromStorage(key){
+  try{
+    var result=await window.storage.get(key);
+    if(!result || !result.value){ showToast('데이터 없음','error'); return; }
+    var fn=key.replace('blank:','').replace('__autosave__','autosave');
+    var dateStr=new Date().toISOString().slice(0,10);
+    var blob=new Blob([result.value],{type:'application/json;charset=utf-8'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;
+    a.download=fn.replace(/[\\/:*?"<>|]/g,'_')+'_'+dateStr+'.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }catch(e){ showToast('다운로드 실패: '+e.message,'error'); }
+}
+
+async function deleteFromStorage(key){
+  if(!confirm('삭제하시겠습니까?')) return;
+  try{
+    await window.storage.delete(key);
+    showToast('삭제 완료','info');
+    loadSavedList();
+  }catch(e){ showToast('삭제 실패: '+e.message,'error'); }
+}
+
+/* (downloadJSON already defined above) */
+
+/* ============ FILE LOAD (local) ============ */
+function showLoadModal(){ document.getElementById('loadModal').classList.add('show'); document.getElementById('jsonPaste').value=''; }
+function closeLoadModal(){ document.getElementById('loadModal').classList.remove('show'); }
+function loadFromFile(ev){
+  var f=ev.target.files[0]; if(!f) return;
+  var r=new FileReader();
+  r.onload=function(e){ try{ applyLoadedData(JSON.parse(e.target.result)); closeLoadModal(); showToast('불러오기 완료!','success'); }catch(err){ showToast('파싱 오류: '+err.message,'error'); } };
+  r.readAsText(f); ev.target.value='';
+}
+function loadFromPaste(){
+  var t=document.getElementById('jsonPaste').value.trim();
+  if(!t){ showToast('JSON을 붙여넣으세요.','error'); return; }
+  try{ applyLoadedData(JSON.parse(t)); closeLoadModal(); showToast('불러오기 완료!','success'); }catch(e){ showToast('파싱 오류: '+e.message,'error'); }
+}
+function applyLoadedData(d){
+  STATE.originalText=d.originalText||''; STATE.sentences=d.sentences||[];
+  STATE.translations=d.translations||{};
+  STATE.blanks={ easy:new Set(d.blanks&&d.blanks.easy?d.blanks.easy:[]), medium:new Set(d.blanks&&d.blanks.medium?d.blanks.medium:[]), hard:new Set(d.blanks&&d.blanks.hard?d.blanks.hard:[]) };
+  STATE.hints=d.hints||{};
+  if(d.passages){ STATE.passages=d.passages; document.querySelectorAll('.passage-input').forEach(function(ta){ ta.value=STATE.passages[+ta.dataset.pidx]||''; }); updatePassageStatus(); }
+  document.getElementById('fileName').value='';
+  STATE._loadedWithTranslations = hasValidTranslations(d.translations);
+  goToStep(2);
+  if(STATE._loadedWithTranslations){ renderTranslations(); }
+}
+function hasValidTranslations(trans){
+  if(!trans) return false;
+  var keys=Object.keys(trans);
+  if(keys.length===0) return false;
+  return keys.some(function(k){ var v=trans[k]; return v && v!=='(🤖 AI 번역 버튼을 눌러주세요)' && v!=='(직접 입력하세요)'; });
+}
+
+/* ============ API TEST ============ */
+async function testAPI(){
+  var box=document.getElementById('apiTestResult');
+  box.style.display='block';
+  box.style.background='#eff6ff';
+  box.style.border='1px solid #93c5fd';
+  box.style.color='#1e3a5f';
+  box.innerHTML='⏳ API 연결 테스트 중...';
+  try{
+    var apiKey = getApiKey();
+    if(!apiKey){ box.style.background='#fff1f2'; box.style.border='1px solid #fda4af'; box.style.color='#881337'; box.innerHTML='❌ API Key를 먼저 입력하세요. (상단 헤더 입력란)'; return; }
+
+    var response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: "Say hello in Korean. Reply with just the greeting, nothing else." }]
+      })
+    });
+    var data = await response.json();
+    if(data.error){
+      box.style.background='#fff1f2'; box.style.border='1px solid #fda4af'; box.style.color='#881337';
+      box.innerHTML='❌ API 오류: '+escH(JSON.stringify(data.error));
+    }else if(data.content){
+      var text=data.content.map(function(c){return c.text||'';}).join('');
+      box.style.background='#ecfdf5'; box.style.border='1px solid #6ee7b7'; box.style.color='#064e3b';
+      box.innerHTML='✅ API 연결 성공!<br>응답: '+escH(text)+'<br><br><small>HTTP '+response.status+' | model: '+escH(data.model||'?')+'</small>';
+    }else{
+      box.style.background='#fffbeb'; box.style.border='1px solid #fcd34d'; box.style.color='#78350f';
+      box.innerHTML='⚠️ 예상치 못한 응답:<br>'+escH(JSON.stringify(data).substring(0,300));
+    }
+  }catch(err){
+    box.style.background='#fff1f2'; box.style.border='1px solid #fda4af'; box.style.color='#881337';
+    box.innerHTML='❌ 연결 실패: '+escH(String(err.message))+'<br><br><small>fetch 자체가 실패했습니다. 이 환경에서 API 접근이 차단되었을 수 있습니다.</small>';
+  }
+}
+
+/* ============ UTILS ============ */
+function escH(s){ if(s==null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showToast(msg,type){ var t=document.getElementById('toast'); t.textContent=msg; t.className='toast '+(type||'info')+' show'; setTimeout(function(){t.classList.remove('show');},3500); }
+</script>
+</body>
+</html>
