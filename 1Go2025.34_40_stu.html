@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<title>1Go2025.34_40</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2e1065 0%,#4c1d95 60%,#1e1b4b 100%);min-height:100vh;min-height:-webkit-fill-available;padding:16px;padding-top:max(16px,env(safe-area-inset-top));padding-bottom:max(80px,env(safe-area-inset-bottom));display:flex;align-items:flex-start;justify-content:center;-webkit-font-smoothing:antialiased;overscroll-behavior-y:contain;touch-action:pan-y}
+.wrap{max-width:520px;width:100%;background:#f8fafc;border-radius:28px;box-shadow:0 24px 64px rgba(0,0,0,.35);overflow:hidden}
+.header{background:linear-gradient(150deg,#2e1065 0%,#4c1d95 60%,#1e1b4b 100%);padding:24px 20px 18px;color:#fff;text-align:center;position:-webkit-sticky;position:sticky;top:0;z-index:10;box-shadow:0 2px 12px rgba(0,0,0,.35)}
+.header h1{font-size:1.15rem;font-weight:700;margin-bottom:3px;letter-spacing:-.02em}
+.header p{opacity:.7;font-size:.8rem}
+.content{padding:20px 18px 40px}
+.prog-bar{height:8px;background:#e2e8f0;border-radius:4px;margin-bottom:14px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,#8b5cf6,#a78bfa);border-radius:4px;transition:width .4s}
+.q-counter{text-align:center;font-size:.82rem;color:#64748b;margin-bottom:6px;font-weight:500}
+.title-box{text-align:center;margin:10px 0 14px;padding:18px 16px;background:linear-gradient(135deg,#faf5ff,#f3e8ff);border-radius:18px;border:2px solid #c4b5fd}
+.title-box .ptitle{font-size:1.55rem;font-weight:800;color:#5b21b6;letter-spacing:-.02em;line-height:1.2}
+.title-box .tlabel{display:inline-block;margin-top:6px;font-size:.72rem;background:#ede9fe;color:#6d28d9;padding:3px 10px;border-radius:20px;font-weight:700}
+.statement{margin:14px 0;padding:16px 18px;background:#fff;border:1.5px solid #e8ecf1;border-radius:14px;font-size:1rem;color:#1e293b;line-height:1.65;font-weight:500;box-shadow:0 1px 4px rgba(15,23,42,.06)}
+.source-box{margin:10px 0 4px;padding:12px 14px;background:#f9fafb;border-left:3px solid #a78bfa;border-radius:0 10px 10px 0;font-size:.82rem;color:#4b5563;line-height:1.65;font-style:italic}
+.source-label{display:block;font-size:.68rem;color:#7c3aed;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;font-style:normal}
+.ox-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.ox-btn{padding:18px 10px;border:2px solid #e5e7eb;background:#fff;border-radius:16px;font-size:1rem;font-weight:800;color:#1e293b;cursor:pointer;font-family:inherit;transition:all .18s;touch-action:manipulation;-webkit-user-select:none;user-select:none;min-height:84px}
+.ox-btn:active{transform:scale(.96)}
+.ox-btn.o{color:#059669}
+.ox-btn.x{color:#dc2626}
+.ox-btn.dunno{grid-column:1 / span 2;padding:14px;font-size:.92rem;color:#64748b;font-weight:700;min-height:0}
+.ox-btn.sel.o{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-color:#10b981}
+.ox-btn.sel.x{background:linear-gradient(135deg,#fff1f2,#fecdd3);border-color:#ef4444}
+.ox-btn.sel.dunno{background:#f1f5f9;border-color:#94a3b8}
+.ox-btn.correct{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-color:#10b981;color:#065f46}
+.ox-btn.wrong{background:linear-gradient(135deg,#fff1f2,#fecdd3);border-color:#ef4444;color:#7f1d1d}
+.ox-btn[disabled]{cursor:default;opacity:.85}
+.ox-icon{display:block;font-size:1.6rem;margin-bottom:4px}
+.fb{text-align:center;padding:14px 16px;border-radius:14px;margin-top:14px;font-weight:700;font-size:.92rem;line-height:1.5}
+.fb.ok{background:linear-gradient(135deg,#ecfdf5,#d1fae5);color:#065f46;border:1.5px solid #6ee7b7}
+.fb.ng{background:linear-gradient(135deg,#fff1f2,#fecdd3);color:#881337;border:1.5px solid #fda4af}
+.fb.dunno{background:#f1f5f9;color:#475569;border:1.5px solid #cbd5e1}
+.explain-box{margin-top:10px;padding:14px;background:#fff;border-radius:12px;border:1.5px solid #e8ecf1}
+.ex-title{font-size:.82rem;font-weight:800;color:#6d28d9;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid #f1f5f9}
+.ex-body{font-size:.88rem;color:#374151;line-height:1.75}
+.ex-answer{display:inline-block;font-size:.95rem;font-weight:900;padding:2px 14px;border-radius:20px;margin-right:8px;vertical-align:middle}
+.ex-answer.O{background:#dcfce7;color:#166534}
+.ex-answer.X{background:#fee2e2;color:#991b1b}
+.nav-bar{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1.5px solid #e8ecf1;gap:8px}
+.nav-btn{padding:10px 16px;border:none;border-radius:12px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;touch-action:manipulation}
+.nav-btn.prev,.nav-btn.home{background:#f1f5f9;color:#374151;border:1.5px solid #e2e8f0}
+.nav-btn.next{background:linear-gradient(135deg,#8b5cf6,#a78bfa);color:#fff}
+.nav-btn:disabled{opacity:.3;cursor:default}
+.set-list{display:grid;gap:10px;margin-top:8px}
+.set-card{background:#fff;border:2px solid #e5e7eb;border-radius:16px;padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:all .2s}
+.set-card:hover{border-color:#8b5cf6;background:#faf5ff;transform:translateY(-2px)}
+.set-card.done{border-color:#8b5cf6;background:linear-gradient(135deg,#faf5ff,#f3e8ff)}
+.score-circle{width:110px;height:110px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:16px auto;font-size:1.8rem;font-weight:800;border:6px solid}
+.score-circle.pass{border-color:#10b981;color:#059669;background:linear-gradient(135deg,#ecfdf5,#d1fae5)}
+.score-circle.fail{border-color:#f43f5e;color:#e11d48;background:linear-gradient(135deg,#fff1f2,#fecdd3)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fadeIn .15s ease-out}
+@media(prefers-reduced-motion:reduce){.fade{animation:none}}</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header"><h1 id="hTitle"></h1><p id="hSub"></p></div>
+  <div class="content" id="app"></div>
+</div>
+<script>
+var CONFIG={"title":"1Go2025.34_40","passThreshold":90,"level":"high1","levelLabel":"고1 3월 · CEFR B1","passages":[{"id":1,"title":"Plant Communication","body":"Plants can communicate, although not in the same way we do. Some express their discontent through scents. You know that smell that hangs in the air after you've mowed the lawn? Yeah, that's actually an SOS. Some plants use sound. Yes, sound, though at a frequency that we can't hear. Researchers experimented with plants and microphones to see if they could record any trouble calls. They found that plants produce a high-frequency clicking noise when stressed and can make different sounds for different stressors. The sound a plant makes when it's not getting watered differs from the one it'll make when a leaf is cut. However, it's worth noting that experts don't think plants are crying out in pain. It's more likely that these reactions are kneejerk survival actions. Plants are living organisms, and their main objective is to survive. Scents and sounds are their tools for defending against things that might harm them."},{"id":2,"title":"Animal Thinking","body":"Let's assume that at least some animals are capable of thinking despite lacking a language. This doesn't necessarily mean that they possess concepts, for some forms of thought may be non-conceptual. We can imagine, for instance, a squirrel who is planning how to get from the branch she's currently standing on to a branch from the tree in front. To do this, in principle she doesn't need a concept of branch nor a concept of tree. It might be enough for her to have, for example, the ability to think in images; to make a mental map of the tree where she can imagine and try out different routes. This doesn't imply that squirrels lack concepts, simply that they don't need them for this concrete form of thinking. For us to be able to say that an animal has concepts, we have to show not just that she's capable of thinking, but also that she has certain specific abilities."},{"id":3,"title":"Creative Thinking","body":"In the course of trying to solve a problem with an invention, you may encounter a brick wall of resistance when you try to think your way logically through the problem. Such logical thinking is a linear type of process, which uses our reasoning skills. This works fine when we're operating in the area of what we know or have experienced. However, when we need to deal with new information, ideas, and viewpoints, linear thinking will often come up short. On the other hand, creativity by definition involves the application of new information to old problems and the conception of new viewpoints and ideas. For this you will be most effective if you learn to operate in a nonlinear manner; that is, use your creative brain. Stated differently, if you think in a linear manner, you'll tend to be conservative and keep coming up with techniques which are already known. This, of course, is just what you don't want. Thus, logical thinking works well with familiar problems but falls short in dealing with new ideas, for which creative thinking is needed to come up with innovative solutions."}],"questions":[{"questionNumber":1,"passageId":1,"passageTitle":"Plant Communication","type":"ko_detail","typeLabel":"부분 내용 (한글)","statement":"본문에 따르면 식물이 스트레스를 받을 때 내는 소리는 스트레스 원인에 관계없이 항상 동일한 종류의 고주파 딸깍 소리이다.","sourceSentence":"They found that plants produce a high-frequency clicking noise when stressed and can make different sounds for different stressors.","answer":"X","explanation":"본문은 식물이 스트레스를 받을 때 고주파 딸깍 소리를 낸다는 것은 맞지만, '서로 다른 스트레스 원인에 따라 서로 다른 소리를 낼 수 있다(can make different sounds for different stressors)'고 명시한다. 소리가 항상 동일하다는 진술은 본문과 어긋난다."},{"questionNumber":2,"passageId":1,"passageTitle":"Plant Communication","type":"ko_detail","typeLabel":"부분 내용 (한글)","statement":"전문가들은 식물이 향기나 소리를 내는 것을 고통의 울부짖음으로 보지 않으며, 생존을 위한 본능적 반응으로 해석한다.","sourceSentence":"However, it's worth noting that experts don't think plants are crying out in pain. It's more likely that these reactions are kneejerk survival actions.","answer":"O","explanation":"본문은 전문가들이 식물의 반응을 '고통의 울부짖음'이 아닌 '본능적 생존 행동(kneejerk survival actions)'으로 본다고 명시한다. 진술은 이 내용을 정확하게 반영하고 있다."},{"questionNumber":3,"passageId":1,"passageTitle":"Plant Communication","type":"en_main","typeLabel":"전반 내용 (영어)","statement":"Plants rely on scents and sounds not as expressions of pain, but as automatic survival responses that help protect them from potential threats.","sourceSentence":null,"answer":"O","explanation":"본문의 핵심은 식물의 향기·소리가 고통의 표현이 아닌 생존을 위한 본능적 방어 반응이라는 것이다. 제시된 문장은 이 요지를 paraphrase 한 것으로, 내용이 일치한다."},{"questionNumber":4,"passageId":1,"passageTitle":"Plant Communication","type":"en_main","typeLabel":"전반 내용 (영어)","statement":"Researchers found that plants intentionally send distress signals directly to humans through scents that people can easily detect and understand.","sourceSentence":null,"answer":"X","explanation":"본문은 식물이 인간에게 '의도적으로' 신호를 보낸다거나 인간이 쉽게 감지할 수 있다고 말하지 않는다. 오히려 소리는 인간이 들을 수 없는 주파수이며, 식물의 반응은 인간을 향한 소통이 아닌 생존을 위한 본능적 행동으로 해석된다."},{"questionNumber":5,"passageId":1,"passageTitle":"Plant Communication","type":"en_twist","typeLabel":"원문 교묘한 Paraphrasing","statement":"Aromas and vibrations serve as the main tools plants use to shield themselves from anything that could pose a threat to their survival.","sourceSentence":"Scents and sounds are their tools for defending against things that might harm them.","answer":"O","explanation":"'Scents and sounds'를 'Aromas and vibrations'로, 'defending against'를 'shield themselves from'으로 paraphrase 했을 뿐 의미는 동일하다. '해를 끼칠 수 있는 것들로부터 자신을 방어하는 도구'라는 핵심이 그대로 유지된다."},{"questionNumber":6,"passageId":1,"passageTitle":"Plant Communication","type":"en_twist","typeLabel":"원문 교묘한 Paraphrasing","statement":"Scents and sounds are the tools plants use for defending things that might harm them.","sourceSentence":"Scents and sounds are their tools for defending against things that might harm them.","answer":"X","explanation":"원문은 'defending against things that might harm them(해를 끼칠 수 있는 것들을 막는)'이라고 했다. 제시된 문장에서 'against'가 빠지면서 'defending things that might harm them(해를 끼칠 수 있는 것들을 방어하는/지키는)'이 되어 의미가 정반대로 역전된다."},{"questionNumber":7,"passageId":1,"passageTitle":"Plant Communication","type":"thats_why","typeLabel":"That's why 인과","statement":"Researchers already knew that stressed plants produce different high-frequency sounds for each type of stressor. That's why they decided to run experiments with microphones to find out if plants make any sounds.","sourceSentence":null,"answer":"X","explanation":"본문의 실제 순서는 '연구자들이 먼저 마이크로 실험을 진행(원인) → 그 결과 식물이 스트레스 원인에 따라 다른 소리를 냄을 발견(결과)'이다. 제시된 진술은 이 두 요소의 순서를 뒤집어, 발견된 결과가 실험 결정의 이유가 된 것처럼 서술했다."},{"questionNumber":8,"passageId":1,"passageTitle":"Plant Communication","type":"this_leads","typeLabel":"This leads 인과","statement":"Plants are living organisms whose primary goal is to survive. This leads them to use scents and sounds as tools to defend themselves from things that could cause them harm.","sourceSentence":null,"answer":"O","explanation":"본문은 '식물의 주된 목표가 생존이다(원인) → 향기와 소리를 방어 도구로 사용한다(결과)'는 논리를 명확히 제시한다. 제시된 진술의 원인·결과 방향이 본문과 정확히 일치한다."},{"questionNumber":9,"passageId":1,"passageTitle":"Plant Communication","type":"ko_cause","typeLabel":"한국어 인과","statement":"식물이 스트레스를 받을 때 고주파 딸깍 소리를 낸다는 사실이 이미 알려져 있었기 때문에, 연구자들은 마이크를 사용하여 그 소리를 기록해보기로 실험을 설계했다.","sourceSentence":null,"answer":"X","explanation":"본문의 순서는 역방향이다. 연구자들이 먼저 '식물이 어떤 신호를 보내는지 기록할 수 있을까'를 보기 위해 실험을 설계했고(원인), 그 실험의 결과로 고주파 딸깍 소리를 발견했다(결과). 진술은 이미 알려진 결과가 실험 설계의 이유가 된 것처럼 원인과 결과를 역전시켰다."},{"questionNumber":10,"passageId":1,"passageTitle":"Plant Communication","type":"ko_cause","typeLabel":"한국어 인과","statement":"식물의 주된 목표가 생존이기 때문에, 자신을 해칠 수 있는 것들에 대항하는 수단으로 향기와 소리를 이용한다.","sourceSentence":null,"answer":"O","explanation":"본문은 '생존이 주된 목표인 살아있는 유기체(원인) → 향기·소리로 위협에 맞서 방어한다(결과)'는 인과를 제시한다. 제시된 진술의 원인·결과 방향이 본문과 일치한다."},{"questionNumber":11,"passageId":2,"passageTitle":"Animal Thinking","type":"ko_detail","typeLabel":"부분 내용 (한글)","statement":"본문은 어떤 동물이 언어 없이도 사고할 수 있다면, 그것 자체가 그 동물이 개념을 보유하고 있다는 직접적인 증거가 된다고 주장한다.","sourceSentence":"This doesn't necessarily mean that they possess concepts, for some forms of thought may be non-conceptual.","answer":"X","explanation":"본문은 정반대로 말한다. 동물이 언어 없이 사고할 수 있다는 것이 '반드시 개념을 보유함을 의미하지는 않는다(doesn't necessarily mean that they possess concepts)'고 명시하며, 일부 사고 형태는 비개념적일 수 있다고 설명한다."},{"questionNumber":12,"passageId":2,"passageTitle":"Animal Thinking","type":"ko_detail","typeLabel":"부분 내용 (한글)","statement":"다람쥐가 이미지로 생각하고 머릿속 지도를 만드는 능력은 경로를 탐색하기에 충분할 수 있으며, 이것이 곧 다람쥐에게 개념이 없다는 의미는 아니다.","sourceSentence":"This doesn't imply that squirrels lack concepts, simply that they don't need them for this concrete form of thinking.","answer":"O","explanation":"본문은 다람쥐의 이미지 사고·머릿속 지도 능력이 경로 탐색에 충분할 수 있다고 말하면서, 이것이 '다람쥐에게 개념이 없음을 의미하지 않고, 단지 이 구체적 사고에서 개념이 필요하지 않음을 의미한다'고 명시한다."},{"questionNumber":13,"passageId":2,"passageTitle":"Animal Thinking","type":"en_main","typeLabel":"전반 내용 (영어)","statement":"Being able to think without language does not automatically prove that an animal has concepts, since some forms of thought can occur without any conceptual framework.","sourceSentence":null,"answer":"O","explanation":"본문의 핵심 주장은 '언어 없는 사고 능력'과 '개념 보유'는 별개라는 것이다. 일부 사고는 비개념적이므로, 사고 능력 자체가 곧 개념 보유의 증거는 아니다. 제시된 문장은 이 요지를 paraphrase 했다."},{"questionNumber":14,"passageId":2,"passageTitle":"Animal Thinking","type":"en_main","typeLabel":"전반 내용 (영어)","statement":"According to the passage, showing that an animal is capable of thinking is sufficient evidence to conclude that it also possesses concepts.","sourceSentence":null,"answer":"X","explanation":"본문은 동물이 개념을 보유한다고 말하려면 '사고 능력뿐 아니라(not just) 특정한 추가 능력도(certain specific abilities)' 입증해야 한다고 명시한다. 사고 능력만으로 충분하다는 진술은 이 조건을 무시한 왜곡이다."},{"questionNumber":15,"passageId":2,"passageTitle":"Animal Thinking","type":"en_twist","typeLabel":"원문 교묘한 Paraphrasing","statement":"In order to move from one branch to another, a squirrel does not fundamentally require the concept of a branch or the concept of a tree.","sourceSentence":"To do this, in principle she doesn't need a concept of branch nor a concept of tree.","answer":"O","explanation":"'in principle'을 'fundamentally'로, 'she doesn't need'를 'does not require'로 바꿨을 뿐 의미는 원문과 동일하다. 경로 탐색에 나뭇가지·나무의 개념이 원칙적으로 불필요하다는 핵심이 그대로 유지된다."},{"questionNumber":16,"passageId":2,"passageTitle":"Animal Thinking","type":"en_twist","typeLabel":"원문 교묘한 Paraphrasing","statement":"To say that an animal has concepts, it is enough to demonstrate that she is capable of a certain form of thinking, without needing to show any additional specific abilities.","sourceSentence":"For us to be able to say that an animal has concepts, we have to show not just that she's capable of thinking, but also that she has certain specific abilities.","answer":"X","explanation":"원문은 개념 보유를 입증하려면 사고 능력 '뿐만 아니라(not just)' 특정 추가 능력도 보여야 한다고 말한다. 제시된 문장은 '추가 능력이 필요 없다(without needing any additional specific abilities)'고 하여 핵심 조건을 제거함으로써 의미를 왜곡했다."},{"questionNumber":17,"passageId":2,"passageTitle":"Animal Thinking","type":"thats_why","typeLabel":"That's why 인과","statement":"A squirrel can think in images and build a mental map to find different routes between branches. That's why we can conclude that animals are capable of thinking even without language.","sourceSentence":null,"answer":"X","explanation":"본문의 논리 방향은 '동물이 언어 없이도 사고할 수 있다는 가정(전제·원인) → 그 예시로 다람쥐가 이미지로 경로를 탐색한다(예시·결과)'이다. 제시된 진술은 이 방향을 뒤집어 '예시(다람쥐의 이미지 사고)'가 '언어 없는 사고 가능'이라는 전제의 이유인 것처럼 서술했다."},{"questionNumber":18,"passageId":2,"passageTitle":"Animal Thinking","type":"this_leads","typeLabel":"This leads 인과","statement":"Some animals may be capable of certain forms of thought that do not involve any concepts at all. This leads to the conclusion that the ability to think and the possession of concepts are not always the same thing.","sourceSentence":null,"answer":"O","explanation":"본문은 '비개념적 사고가 가능하다(원인) → 사고 능력과 개념 보유는 구별되어야 한다(결론·결과)'는 논리를 전개한다. 제시된 진술의 원인·결과 방향이 본문과 정확히 일치한다."},{"questionNumber":19,"passageId":2,"passageTitle":"Animal Thinking","type":"ko_cause","typeLabel":"한국어 인과","statement":"다람쥐가 이미지로 사고하고 머릿속 지도를 그릴 수 있기 때문에, 우리는 그 다람쥐가 나뭇가지나 나무에 대한 개념을 보유하고 있다고 결론 내릴 수 있다.","sourceSentence":null,"answer":"X","explanation":"본문은 이미지 사고 능력만으로는 개념 보유의 증거가 되지 않는다고 명시한다. 이미지로 경로를 찾는 것은 개념 없이도 가능한 비개념적 사고의 예시이며, 개념 보유를 증명하려면 추가적인 특정 능력까지 보여야 한다."},{"questionNumber":20,"passageId":2,"passageTitle":"Animal Thinking","type":"ko_cause","typeLabel":"한국어 인과","statement":"동물이 개념을 보유하고 있다고 말하려면 사고 능력 외에 특정한 추가 능력까지 입증해야 하기 때문에, 단지 사고할 수 있다는 사실만으로는 그 동물이 개념을 가졌다고 볼 수 없다.","sourceSentence":null,"answer":"O","explanation":"본문은 '개념 보유 입증 = 사고 능력 + 특정 추가 능력(원인·조건) → 사고 능력 단독으로는 개념 증명 불가(결론)'라는 논리를 제시한다. 제시된 진술의 원인·결과 방향이 본문과 정확히 일치한다."},{"questionNumber":21,"passageId":3,"passageTitle":"Creative Thinking","type":"ko_detail","typeLabel":"부분 내용 (한글)","statement":"본문은 선형적 논리 사고가 새로운 정보와 아이디어를 다룰 때에도 창의적 사고만큼 효과적이라고 주장한다.","sourceSentence":"However, when we need to deal with new information, ideas, and viewpoints, linear thinking will often come up short.","answer":"X","explanation":"본문은 '새로운 정보·아이디어·관점을 다뤄야 할 때 선형적 사고는 종종 부족하다(come up short)'고 명시한다. 이 상황에서 창의적 사고만큼 효과적이라는 진술은 본문과 정반대이다."},{"questionNumber":22,"passageId":3,"passageTitle":"Creative Thinking","type":"ko_detail","typeLabel":"부분 내용 (한글)","statement":"선형적으로 사고하는 사람은 보수적 경향을 띠게 되고, 이미 알려진 기법들을 계속 반복해서 내놓게 된다.","sourceSentence":"Stated differently, if you think in a linear manner, you'll tend to be conservative and keep coming up with techniques which are already known.","answer":"O","explanation":"본문은 선형적 사고 방식이 '보수적 경향(conservative)'을 낳고 '이미 알려진 기법들만 계속 내놓게 된다'고 직접적으로 말한다. 진술은 이 내용을 정확히 반영하고 있다."},{"questionNumber":23,"passageId":3,"passageTitle":"Creative Thinking","type":"en_main","typeLabel":"전반 내용 (영어)","statement":"When tackling unfamiliar challenges, shifting from step-by-step logical reasoning to nonlinear creative thinking is what makes it possible to arrive at truly innovative solutions.","sourceSentence":null,"answer":"O","explanation":"본문의 핵심 주장은 '새로운 문제 앞에서 선형 논리 사고는 한계에 부딪히며, 비선형적 창의 사고 방식을 익혀야 혁신적 해법을 낼 수 있다'는 것이다. 제시된 문장은 이 요지를 paraphrase 했다."},{"questionNumber":24,"passageId":3,"passageTitle":"Creative Thinking","type":"en_main","typeLabel":"전반 내용 (영어)","statement":"The passage argues that linear thinking is most valuable when you are faced with new information and unfamiliar ideas, because it provides the clear, structured approach required.","sourceSentence":null,"answer":"X","explanation":"본문은 정반대를 말한다. 선형 사고는 '이미 알고 있거나 경험한 영역에서 잘 작동'하지만, '새로운 정보·아이디어 앞에서는 종종 부족하다'고 명시한다. 새 정보 앞에서 선형 사고가 가장 가치 있다는 진술은 본문의 핵심 주장과 정반대이다."},{"questionNumber":25,"passageId":3,"passageTitle":"Creative Thinking","type":"en_twist","typeLabel":"원문 교묘한 Paraphrasing","statement":"By its very nature, creativity means taking fresh information and applying it to existing challenges, while also forming entirely new angles and ideas.","sourceSentence":"On the other hand, creativity by definition involves the application of new information to old problems and the conception of new viewpoints and ideas.","answer":"O","explanation":"'by definition'을 'By its very nature'로, 'old problems'를 'existing challenges'로, 'conception of new viewpoints'를 'forming entirely new angles'로 paraphrase 했을 뿐 의미는 원문과 동일하다."},{"questionNumber":26,"passageId":3,"passageTitle":"Creative Thinking","type":"en_twist","typeLabel":"원문 교묘한 Paraphrasing","statement":"Linear thinking tends to be most effective precisely when you need to deal with new information and unfamiliar viewpoints, since it encourages you to think beyond what you already know.","sourceSentence":"However, when we need to deal with new information, ideas, and viewpoints, linear thinking will often come up short.","answer":"X","explanation":"원문은 '새로운 정보·관점을 다룰 때 선형 사고는 종종 부족하다(come up short)'고 말한다. 제시된 문장은 이를 '가장 효과적이다(most effective)'로 뒤집어, 선형 사고의 한계를 강점으로 왜곡했다."},{"questionNumber":27,"passageId":3,"passageTitle":"Creative Thinking","type":"thats_why","typeLabel":"That's why 인과","statement":"Innovative solutions emerge from creative, nonlinear thinking. That's why people who think linearly tend to keep producing techniques that are already known instead of new ideas.","sourceSentence":null,"answer":"X","explanation":"본문의 실제 인과는 '선형 사고 → 이미 알려진 기법만 반복(원인) → 혁신적 해법 부재(결과)'이다. 제시된 진술은 '혁신적 해법(결과)'을 원인 자리에 놓고, '알려진 기법 반복(원인)'을 그 결과인 것처럼 뒤집었다. 혁신이 있기 때문에 알려진 기법이 반복된다는 논리는 성립하지 않는다."},{"questionNumber":28,"passageId":3,"passageTitle":"Creative Thinking","type":"this_leads","typeLabel":"This leads 인과","statement":"You learn to operate in a nonlinear, creative way when facing a new problem that requires fresh information and new viewpoints. This leads to coming up with innovative solutions that logical thinking alone could not produce.","sourceSentence":null,"answer":"O","explanation":"본문은 '비선형적 창의 방식으로 사고하는 것을 익히면(원인) → 혁신적 해법을 낼 수 있다(결과)'는 인과를 직접 제시한다. 제시된 진술의 원인·결과 방향이 본문과 정확히 일치한다."},{"questionNumber":29,"passageId":3,"passageTitle":"Creative Thinking","type":"ko_cause","typeLabel":"한국어 인과","statement":"혁신적인 해결책이 계속 나오기 때문에, 선형적으로 사고하는 사람은 보수적이 되어 이미 알려진 기법들만을 반복하게 된다.","sourceSentence":null,"answer":"X","explanation":"본문의 논리는 '선형적 사고(원인) → 보수적 경향 → 이미 알려진 기법 반복(결과) → 혁신 부재'이다. 제시된 진술은 결과(혁신)를 원인 자리에, 원인(선형 사고의 보수성)을 결과 자리에 놓아 인과 방향을 역전시켰다. 또한 '혁신적 해결책이 계속 나온다'는 전제 자체도 본문의 선형 사고 결과와 모순된다."},{"questionNumber":30,"passageId":3,"passageTitle":"Creative Thinking","type":"ko_cause","typeLabel":"한국어 인과","statement":"창의성은 새로운 정보를 기존 문제에 적용하고 새로운 관점을 만들어내는 것이기 때문에, 새로운 문제에 직면했을 때는 비선형적 창의 사고를 익히는 것이 가장 효과적이다.","sourceSentence":null,"answer":"O","explanation":"본문은 '창의성의 본질이 새 정보 적용 + 새 관점 창출(원인) → 비선형적 창의 사고가 새 문제에 가장 효과적(결과)'이라는 인과 구조를 제시한다. 제시된 진술의 원인·결과 방향이 본문과 정확히 일치한다."}]};
+var QS=CONFIG.questions||[];
+var TOTAL=QS.length;
+var SET_SIZE=10;
+var SETS=(function(){var s=[];for(var i=0;i<TOTAL;i+=SET_SIZE)s.push(QS.slice(i,i+SET_SIZE));return s;})();
+var answers={};var currentSet=0;
+function esc(s){if(s==null)return"";var d=document.createElement("div");d.textContent=String(s);return d.innerHTML}
+function setH(t,sub){var h=document.getElementById("hTitle");var p=document.getElementById("hSub");if(h)h.textContent=t;if(p)p.textContent=sub}
+function gi(si,pi){return si*SET_SIZE+pi}
+function showIndex(){
+  setH(CONFIG.title,"OX 문제 테스트");
+  var chips=SETS.map(function(sq,si){
+    var base=si*SET_SIZE;var done=0,correct=0;
+    for(var i=0;i<sq.length;i++){var a=answers[base+i];if(a){done++;if(a.isCorrect)correct++;}}
+    var allDone=(done===sq.length);
+    var pct=done>0?Math.round(correct/sq.length*100):null;
+    var passed=pct!==null&&pct>=CONFIG.passThreshold;
+    var scoreHTML=pct===null
+      ?"<span style='font-size:.78rem;color:#9ca3af'>미응시</span>"
+      :(allDone?"<span style='font-weight:700;color:"+(passed?"#10b981":"#ef4444")+"'>"+(passed?"✅ ":"❌ ")+pct+"%</span>"
+             :"<span style='font-weight:700;color:#8b5cf6'>📝 "+done+"/"+sq.length+"</span>");
+    return "<div class='set-card"+(allDone?" done":"")+"' onclick='enterSet("+si+")'>"
+           +"<div><div style='font-weight:700'>세트 "+(si+1)+" <span style='font-size:.8rem;color:#6b7280;font-weight:400'>("+sq.length+"문제)</span></div></div>"
+           +"<div>"+scoreHTML+"</div></div>";
+  }).join("");
+  var app=document.getElementById("app");if(!app)return;
+  app.innerHTML="<div class='fade' style='text-align:center;padding:16px 0'>"
+    +"<div style='font-size:2.5rem;margin-bottom:8px'>📱</div>"
+    +"<h2 style='font-size:1.2rem;font-weight:700;color:#1f2937;margin-bottom:4px'>OX 문제 테스트</h2>"
+    +"<p style='color:#6b7280;font-size:.85rem;margin-bottom:16px'>전체 "+TOTAL+"문제 · "+CONFIG.passThreshold+"% 이상 통과 · 몰라요는 오답 처리</p>"
+    +"</div><div class='set-list'>"+chips+"</div>";
+}
+function enterSet(si){currentSet=si;showQ(0)}
+function showQ(pos){
+  try{window.scrollTo(0,0)}catch(e){}
+  var si=currentSet;var qs=SETS[si];
+  if(!qs||pos<0||pos>=qs.length){showIndex();return;}
+  var gidx=gi(si,pos);var q=qs[pos];var answered=answers[gidx];
+  setH("세트 "+(si+1),"문제 "+(pos+1)+"/"+qs.length);
+  var pct=Math.round((pos+1)/qs.length*100);
+  function btnClass(which){
+    if(!answered)return "ox-btn "+which;
+    if(answered.picked===which){
+      if(which==="dunno")return "ox-btn dunno sel dunno wrong";
+      return "ox-btn "+which+" "+(answered.isCorrect?"correct":"wrong");
+    }
+    return "ox-btn "+which;
+  }
+  var sourceHTML="";
+  if(q.sourceSentence){sourceHTML="<div class='source-box'><span class='source-label'>원문</span>"+esc(q.sourceSentence)+"</div>";}
+  var fbHTML="";
+  if(answered){
+    var cls=answered.picked==="dunno"?"dunno":(answered.isCorrect?"ok":"ng");
+    var msg=answered.picked==="dunno"?"🤔 몰라요 — 해설을 학습하세요":(answered.isCorrect?"✅ 정답!":"❌ 오답");
+    fbHTML="<div class='fb "+cls+"'>"+msg+"</div>"
+      +"<div class='explain-box'><div class='ex-title'>📖 정답 & 해설</div>"
+      +"<div class='ex-body'><span class='ex-answer "+q.answer+"'>"+q.answer+"</span>"+esc(q.explanation)+"</div></div>";
+  }
+  var app=document.getElementById("app");if(!app)return;
+  app.innerHTML="<div class='fade'>"
+    +"<div class='q-counter'>"+(pos+1)+" / "+qs.length+"</div>"
+    +"<div class='prog-bar'><div class='prog-fill' style='width:"+pct+"%'></div></div>"
+    +"<div class='title-box'><div class='ptitle'>"+esc(q.passageTitle)+"</div>"
+    +"<span class='tlabel'>"+esc(q.typeLabel||"")+"</span></div>"
+    +"<div class='statement'>"+esc(q.statement)+"</div>"
+    +sourceHTML
+    +"<div class='ox-grid'>"
+    +"<button class='"+btnClass("o")+"' onclick='pick("+pos+",&quot;o&quot;)' "+(answered?"disabled":"")+"><span class='ox-icon'>⭕</span>O (맞음)</button>"
+    +"<button class='"+btnClass("x")+"' onclick='pick("+pos+",&quot;x&quot;)' "+(answered?"disabled":"")+"><span class='ox-icon'>❌</span>X (틀림)</button>"
+    +"<button class='"+btnClass("dunno")+"' onclick='pick("+pos+",&quot;dunno&quot;)' "+(answered?"disabled":"")+">🤔 몰라요 (정답·해설 보기)</button>"
+    +"</div>"
+    +fbHTML
+    +"<div class='nav-bar'>"
+    +"<button class='nav-btn prev' onclick='showQ("+(pos-1)+")' "+(pos<=0?"disabled":"")+">← 이전</button>"
+    +"<button class='nav-btn home' onclick='showIndex()'>목록</button>"
+    +"<button class='nav-btn next' onclick='"+(pos<qs.length-1?"showQ("+(pos+1)+")":"showSetResult()")+"'>"+(pos<qs.length-1?"다음 →":"결과")+"</button>"
+    +"</div></div>";
+}
+function pick(pos,which){
+  var gidx=gi(currentSet,pos);
+  if(answers[gidx])return;
+  var q=SETS[currentSet][pos];
+  var isCorrect=false;
+  if(which==="dunno"){isCorrect=false;}
+  else{isCorrect=(which==="o"&&q.answer==="O")||(which==="x"&&q.answer==="X");}
+  answers[gidx]={picked:which,isCorrect:isCorrect};
+  showQ(pos);
+}
+function showSetResult(){
+  var si=currentSet;var qs=SETS[si];var base=si*SET_SIZE;
+  var total=qs.length;var correct=0,dunno=0;
+  for(var i=0;i<total;i++){var a=answers[base+i];if(a&&a.isCorrect)correct++;if(a&&a.picked==="dunno")dunno++;}
+  var pct=Math.round(correct/total*100);var passed=pct>=CONFIG.passThreshold;
+  setH("세트 "+(si+1)+" 결과",passed?"통과":"미달");
+  var app=document.getElementById("app");if(!app)return;
+  app.innerHTML="<div class='fade' style='text-align:center;padding:16px 0'>"
+    +"<div class='score-circle "+(passed?"pass":"fail")+"'>"+pct+"%</div>"
+    +"<p style='font-size:1.1rem;font-weight:700;color:"+(passed?"#10b981":"#ef4444")+"'>"+(passed?"통과!":"미달")+"</p>"
+    +"<p style='color:#6b7280;font-size:.88rem;margin-top:8px'>"+correct+"/"+total+"문제 정답 · 몰라요 "+dunno+"개 · 기준 "+CONFIG.passThreshold+"%</p>"
+    +"</div>"
+    +"<div style='margin-top:16px'><button class='nav-btn next' style='width:100%;padding:14px' onclick='showIndex()'>목록으로</button></div>";
+}
+try{history.pushState(null,"",location.href);
+window.addEventListener("popstate",function(){history.pushState(null,"",location.href);showIndex();});}catch(e){}
+showIndex();
+</script>
+</body>
+</html>
